@@ -14,7 +14,7 @@ int dm_opt_set(dm_opt_t opt, void *data)
     int res = SUCCESS_RETURN;
 
     if (data == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     switch (opt) {
@@ -58,7 +58,7 @@ int dm_opt_set(dm_opt_t opt, void *data)
         }
         break;
         default: {
-            res = FAIL_RETURN;
+            res = STATE_USER_INPUT_INVALID;
         }
         break;
     }
@@ -71,7 +71,7 @@ int dm_opt_get(dm_opt_t opt, void *data)
     int res = SUCCESS_RETURN;
 
     if (data == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     switch (opt) {
@@ -108,7 +108,7 @@ int dm_opt_get(dm_opt_t opt, void *data)
         }
         break;
         default: {
-            res = FAIL_RETURN;
+            res = STATE_DEV_MODEL_INVALID_DM_OPTION;
         }
         break;
     }

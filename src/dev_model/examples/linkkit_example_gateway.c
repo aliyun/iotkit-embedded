@@ -328,21 +328,21 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0, devid = -1;
     devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, meta_info);
-    if (devid == FAIL_RETURN) {
+    if (devid <= 0) {
         EXAMPLE_TRACE("subdev open Failed\n");
-        return FAIL_RETURN;
+        return -1;
     }
     EXAMPLE_TRACE("subdev open susseed, devid = %d\n", devid);
 
     res = IOT_Linkkit_Connect(devid);
-    if (res == FAIL_RETURN) {
+    if (res < 0) {
         EXAMPLE_TRACE("subdev connect Failed\n");
         return res;
     }
     EXAMPLE_TRACE("subdev connect success: devid = %d\n", devid);
 
     res = IOT_Linkkit_Report(devid, ITM_MSG_LOGIN, NULL, 0);
-    if (res == FAIL_RETURN) {
+    if (res < 0) {
         EXAMPLE_TRACE("subdev login Failed\n");
         return res;
     }

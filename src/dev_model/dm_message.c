@@ -67,10 +67,9 @@ int dm_msg_send_msg_timeout_to_user(int msg_id, int devid, iotx_dm_event_types_t
     res = _dm_msg_send_to_user(type, message);
     if (res != SUCCESS_RETURN) {
         DM_free(message);
-        return FAIL_RETURN;
     }
 
-    return SUCCESS_RETURN;
+    return res;
 }
 extern void * g_user_topic_callback;
 int dm_msg_thing_model_user_sub(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN],
@@ -91,13 +90,13 @@ int dm_msg_thing_model_user_sub(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN],
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     request = DM_malloc(payload_len + 1);
     if (request == NULL) {
-         dm_log_err("Not Enough Memory");
-         return FAIL_RETURN;
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     memset(request, 0, payload_len + 1);
@@ -122,17 +121,17 @@ int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli,
 
     res = dm_utils_memtok(uri, uri_len, DM_URI_SERVICE_DELIMITER, start_deli, &start);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     res = dm_utils_memtok(uri, uri_len, DM_URI_SERVICE_DELIMITER, start_deli + 1, &slice);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     res = dm_utils_memtok(uri, uri_len, DM_URI_SERVICE_DELIMITER, end_deli, &end);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* dm_log_debug("URI Product Key: %.*s, Device Name: %.*s", slice - start - 1, uri + start + 1, end - slice - 1,
@@ -160,7 +159,7 @@ int dm_msg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_r
                                   &request->method) != SUCCESS_RETURN ||
         dm_utils_json_object_item(&lite, DM_MSG_KEY_PARAMS, strlen(DM_MSG_KEY_PARAMS), cJSON_Invalid,
                                   &request->params) != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED;
     }
 
     dm_log_debug("Current Request Message ID: %.*s", request->id.value_length, request->id.value);
@@ -185,7 +184,7 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
                                   &response->code) != SUCCESS_RETURN ||
         dm_utils_json_object_item(&lite, DM_MSG_KEY_DATA, strlen(DM_MSG_KEY_DATA), cJSON_Invalid,
                                   &response->data) != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED;
     }
 
     dm_log_debug("Current Request Message ID: %.*s", response->id.value_length, response->id.value);
@@ -2799,8 +2798,6 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
     /* Message ID */
     memcpy(int_id, request->id.value, request->id.value_length);
     id = atoi(int_id);
-
-    /* dm_log_debug("Current ID: %d", id); */
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
     if (res != SUCCESS_RETURN) {

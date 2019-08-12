@@ -55,7 +55,7 @@ static int _dm_client_subscribe_filter(char *uri, iotx_cm_data_handle_cb cb)
 
     res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &event_post_reply_opt);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     if (event_post_reply_opt == 0) {
@@ -63,7 +63,7 @@ static int _dm_client_subscribe_filter(char *uri, iotx_cm_data_handle_cb cb)
         return res;
     }
     else {
-        res = FAIL_RETURN;
+        res = -1;
         while (res < SUCCESS_RETURN && retry_cnt--) {
             res = dm_client_subscribe(uri, cb, 0);
         }

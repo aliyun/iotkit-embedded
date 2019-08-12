@@ -86,9 +86,9 @@ int dm_ipc_msg_insert(void *data)
     _dm_ipc_lock();
     dm_log_debug("dm msg list size: %d, max size: %d", ctx->msg_list.size, ctx->msg_list.max_size);
     if (ctx->msg_list.size >= ctx->msg_list.max_size) {
-        dm_log_warning("dm ipc list full");
         _dm_ipc_unlock();
-        return FAIL_RETURN;
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST_FULL, NULL);
+        return STATE_DEV_MODEL_IPC_LIST_FULL;
     }
 
     node = DM_malloc(sizeof(dm_ipc_msg_node_t));
@@ -120,7 +120,7 @@ int dm_ipc_msg_next(void **data)
 
     if (list_empty(&ctx->msg_list.message_list)) {
         _dm_ipc_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_IPC_LIST_EMPTY;
     }
 
     node = list_first_entry(&ctx->msg_list.message_list, dm_ipc_msg_node_t, linked_list);

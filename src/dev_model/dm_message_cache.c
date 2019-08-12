@@ -77,7 +77,7 @@ int dm_msg_cache_insert(int msgid, int devid, iotx_dm_event_types_t type, char *
 
     dm_log_debug("dmc list size: %d", ctx->dmc_list_size);
     if (ctx->dmc_list_size >= CONFIG_MSGCACHE_QUEUE_MAXLEN) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_CACHE_LIST_FULL;
     }
 
     node = DM_malloc(sizeof(dm_msg_cache_node_t));
@@ -120,7 +120,7 @@ int dm_msg_cache_search(_IN_ int msgid, _OU_ dm_msg_cache_node_t **node)
     }
 
     _dm_msg_cache_mutex_unlock();
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_CACHE_LIST_EMPTY;
 }
 
 int dm_msg_cache_remove(int msgid)
@@ -145,7 +145,7 @@ int dm_msg_cache_remove(int msgid)
     }
 
     _dm_msg_cache_mutex_unlock();
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_CACHE_LIST_EMPTY;
 }
 
 void dm_msg_cache_tick(void)

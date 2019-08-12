@@ -109,7 +109,7 @@ int dm_utils_itoa_direct(_IN_ int input, _OU_ char **output)
 
     res = HAL_Snprintf(temp_output, 10, "%d", input);
     if (res < 0) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SNPRINTF;
     }
 
     *output = HAL_Malloc(strlen(temp_output) + 1);
@@ -133,7 +133,7 @@ int dm_utils_itoa(_IN_ int input, _OU_ char **output)
 
     res = HAL_Snprintf(temp_output, 10, "%d", input);
     if (res < 0) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SNPRINTF;
     }
 
     *output = DM_malloc(strlen(temp_output) + 1);
@@ -157,7 +157,7 @@ int dm_utils_ftoa_direct(_IN_ double input, _OU_ char **output)
 
     res = HAL_Snprintf(temp_output, 30, "%f", input);
     if (res < 0) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SNPRINTF;
     }
 
     *output = HAL_Malloc(strlen(temp_output) + 1);
@@ -181,7 +181,7 @@ int dm_utils_ftoa(_IN_ double input, _OU_ char **output)
 
     res = HAL_Snprintf(temp_output, 30, "%f", input);
     if (res < 0) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SNPRINTF;
     }
 
     *output = DM_malloc(strlen(temp_output) + 1);
@@ -286,7 +286,7 @@ int dm_utils_memtok(_IN_ char *input, _IN_ int input_len, _IN_ char delimiter, _
         }
     }
 
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_URL_SPLIT_FAILED;
 }
 
 int dm_utils_replace_char(_IN_ char *input, _IN_ int input_len, _IN_ char src, _IN_ char dest)
@@ -368,12 +368,12 @@ int dm_utils_json_parse(_IN_ const char *payload, _IN_ int payload_len, _IN_ int
     res = lite_cjson_parse(payload, payload_len, lite);
     if (res != SUCCESS_RETURN) {
         memset(lite, 0, sizeof(lite_cjson_t));
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_JSON_PARSE_FAILED;
     }
 
     if (type != cJSON_Invalid && lite->type != type) {
         memset(lite, 0, sizeof(lite_cjson_t));
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_JSON_PARSE_FAILED;
     }
 
     return SUCCESS_RETURN;
@@ -396,14 +396,13 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
 
     res = lite_cjson_object_item(lite, key, key_len, lite_item);
     if (res != SUCCESS_RETURN) {
-        /* dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED, lite->value_length, lite->value); */
         memset(lite_item, 0, sizeof(lite_cjson_t));
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_GET_JSON_ITEM_FAILED;
     }
 
     if (type != cJSON_Invalid && lite_item->type != type) {
         memset(lite_item, 0, sizeof(lite_cjson_t));
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_GET_JSON_ITEM_FAILED;
     }
 
     return SUCCESS_RETURN;

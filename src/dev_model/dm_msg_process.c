@@ -106,7 +106,7 @@ int dm_msg_proc_thing_model_down_raw(_IN_ dm_msg_source_t *source)
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
                                 device_name);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     return dm_msg_thing_model_down_raw(product_key, device_name, (char *)source->payload, source->payload_len);
@@ -123,13 +123,13 @@ int dm_msg_proc_thing_model_up_raw_reply(_IN_ dm_msg_source_t *source)
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
                                 device_name);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
     res = dm_msg_thing_model_up_raw_reply(product_key, device_name, (char *)source->payload, source->payload_len);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     return SUCCESS_RETURN;
@@ -220,7 +220,7 @@ int dm_msg_proc_thing_service_property_get(_IN_ dm_msg_source_t *source, _IN_ dm
     if (res != SUCCESS_RETURN) {
         *data = DM_malloc(strlen("{}") + 1);
         if (*data == NULL) {
-            return FAIL_RETURN;
+            return STATE_SYS_DEPEND_MALLOC;
         }
         memset(*data, 0, strlen("{}") + 1);
         memcpy(*data, "{}", strlen("{}"));
@@ -249,7 +249,7 @@ int dm_msg_proc_thing_service_property_post(_IN_ dm_msg_source_t *source, _IN_ d
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
                                 device_name);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     res = dm_msg_request_parse((char *)source->payload, source->payload_len, request);
@@ -275,7 +275,7 @@ int dm_msg_proc_thing_service_request(_IN_ dm_msg_source_t *source)
 
     res = dm_utils_memtok((char *)source->uri, strlen(source->uri), DM_URI_SERVICE_DELIMITER, 6, &serviceid_pos);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
     dm_log_info("Service Identifier: %.*s", (int)(strlen(source->uri) - serviceid_pos - 1),
                 source->uri + serviceid_pos + 1);
@@ -284,13 +284,13 @@ int dm_msg_proc_thing_service_request(_IN_ dm_msg_source_t *source)
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
                                 device_name);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Request */
     res = dm_msg_request_parse((char *)source->payload, source->payload_len, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -309,20 +309,20 @@ int dm_msg_proc_thing_event_post_reply(_IN_ dm_msg_source_t *source)
     res = dm_utils_memtok((char *)source->uri, strlen(source->uri), DM_URI_SERVICE_DELIMITER, 6 + DM_URI_OFFSET,
                           &eventid_start_pos);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_URL_SPLIT_FAILED;
     }
 
     res = dm_utils_memtok((char *)source->uri, strlen(source->uri), DM_URI_SERVICE_DELIMITER, 7 + DM_URI_OFFSET,
                           &eventid_end_pos);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_URL_SPLIT_FAILED;
     }
     dm_log_info("Event Id: %.*s", eventid_end_pos - eventid_start_pos - 1, source->uri + eventid_start_pos + 1);
 
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -356,7 +356,7 @@ int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -383,7 +383,7 @@ int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -411,7 +411,7 @@ int dm_msg_proc_thing_deviceinfo_update_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -438,7 +438,7 @@ int dm_msg_proc_thing_deviceinfo_delete_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -465,7 +465,7 @@ int dm_msg_proc_thing_dynamictsl_get_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -490,7 +490,7 @@ int dm_msg_proc_rrpc_request(_IN_ dm_msg_source_t *source)
 
     res = dm_utils_memtok((char *)source->uri, strlen(source->uri), DM_URI_SERVICE_DELIMITER, 6, &rrpcid_pos);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
     dm_log_info("Rrpc Id: %.*s", (int)(strlen(source->uri) - rrpcid_pos - 1), source->uri + rrpcid_pos + 1);
 
@@ -498,13 +498,13 @@ int dm_msg_proc_rrpc_request(_IN_ dm_msg_source_t *source)
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
                                 device_name);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Request */
     res = dm_msg_request_parse((char *)source->payload, source->payload_len, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -715,7 +715,7 @@ int dm_msg_proc_thing_sub_register_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -745,7 +745,7 @@ int dm_msg_proc_thing_proxy_product_register_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -776,7 +776,7 @@ int dm_msg_proc_thing_sub_unregister_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -805,7 +805,7 @@ int dm_msg_proc_thing_topo_add_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -834,7 +834,7 @@ int dm_msg_proc_thing_topo_delete_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -863,7 +863,7 @@ int dm_msg_proc_thing_topo_get_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -892,7 +892,7 @@ int dm_msg_proc_thing_list_found_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -921,7 +921,7 @@ int dm_msg_proc_combine_login_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -950,7 +950,7 @@ int dm_msg_proc_combine_logout_reply(_IN_ dm_msg_source_t *source)
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Operation */
@@ -1005,7 +1005,7 @@ int dm_msg_proc_thing_model_user_sub(_IN_ dm_msg_source_t *source)
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
                                 device_name);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
     return dm_msg_thing_model_user_sub(product_key, device_name, (char *)source->payload, source->payload_len);
 }

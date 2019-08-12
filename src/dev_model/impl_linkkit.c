@@ -163,14 +163,14 @@ static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgi
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (ctx->service_list_num >= CONFIG_SERVICE_LIST_MAXLEN) {
-        dm_log_err("service list full");
-        return FAIL_RETURN;
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_INTERNAL_ERROR, "service list full");
+        return STATE_DEV_MODEL_INTERNAL_ERROR;
     }
 
     insert_node = (iotx_service_ctx_node_t *)IMPL_LINKKIT_MALLOC(sizeof(iotx_service_ctx_node_t));
     if (insert_node == NULL) {
-        dm_log_err("malloc error");
-        return FAIL_RETURN;
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(insert_node, 0, sizeof(iotx_service_ctx_node_t));
 
@@ -180,9 +180,9 @@ static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgi
 
     if (type == IOTX_SERVICE_REQ_TYPE_RRPC) {
         if (rrpcid_len > IOTX_LINKKIT_RRPC_ID_LEN) {
-            dm_log_err("rrpcid len error");
             IMPL_LINKKIT_FREE(insert_node);
-            return FAIL_RETURN;
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RRPCID_LEN_ERROR, NULL);
+            return STATE_DEV_MODEL_RRPCID_LEN_ERROR;
         }
         memcpy(insert_node->service_meta.rrpc.rrpc_id, rrpcid, rrpcid_len);
     } else if (type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
@@ -195,7 +195,6 @@ static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgi
     _linkkit_service_list_mutex_unlock();
 
     *p_node = insert_node;
-    dm_log_debug("servcie node inserted");
     return SUCCESS_RETURN;
 }
 
@@ -208,13 +207,12 @@ static int _linkkit_service_list_search(iotx_service_ctx_node_t *node)
     list_for_each_entry(search_node, &ctx->downstream_service_list, linked_list, iotx_service_ctx_node_t) {
         if (search_node == node) {
             _linkkit_service_list_mutex_unlock();
-            dm_log_debug("servcie node searched");
             return SUCCESS_RETURN;
         }
     }
     _linkkit_service_list_mutex_unlock();
 
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_SERVICE_CTX_NOT_EXIST;
 }
 
 static int _linkkit_service_list_delete(iotx_service_ctx_node_t *node)
@@ -288,7 +286,6 @@ void iotx_linkkit_service_list_overtime_handle(void)
         }
         if (current_time - search_node->ctime >= CONFIG_SERVICE_REQUEST_TIMEOUT) {
             dm_log_warning("service request timeout, msgid = %d", search_node->msgid);
-            /* TODO: notify user? */
             _linkkit_service_list_delete(search_node);
         }
     }
@@ -322,15 +319,13 @@ static int _iotx_linkkit_upstream_sync_callback_list_insert(int msgid, void *sem
     list_for_each_entry(search_node, &ctx->upstream_sync_callback_list, linked_list,
                         iotx_linkkit_upstream_sync_callback_node_t) {
         if (search_node->msgid == msgid) {
-            dm_log_debug("Message Already Exist: %d", msgid);
-            return FAIL_RETURN;
+            return STATE_DEV_MODEL_DUP_UPSTREAM_MSG;
         }
     }
 
     search_node = IMPL_LINKKIT_MALLOC(sizeof(iotx_linkkit_upstream_sync_callback_node_t));
     if (search_node == NULL) {
-        dm_log_debug("malloc error");
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(search_node, 0, sizeof(iotx_linkkit_upstream_sync_callback_node_t));
     search_node->msgid = msgid;
@@ -352,7 +347,6 @@ static int _iotx_linkkit_upstream_sync_callback_list_remove(int msgid)
     list_for_each_entry(search_node, &ctx->upstream_sync_callback_list, linked_list,
                         iotx_linkkit_upstream_sync_callback_node_t) {
         if (search_node->msgid == msgid) {
-            dm_log_debug("Message Found: %d, Delete It", msgid);
             HAL_SemaphoreDestroy(search_node->semaphore);
             list_del(&search_node->linked_list);
             IMPL_LINKKIT_FREE(search_node);
@@ -360,7 +354,8 @@ static int _iotx_linkkit_upstream_sync_callback_list_remove(int msgid)
         }
     }
 
-    return FAIL_RETURN;
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND, NULL);
+    return STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND;
 }
 
 static int _iotx_linkkit_upstream_sync_callback_list_search(int msgid,
@@ -369,21 +364,16 @@ static int _iotx_linkkit_upstream_sync_callback_list_search(int msgid,
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     iotx_linkkit_upstream_sync_callback_node_t *search_node = NULL;
 
-    if (node == NULL || *node != NULL) {
-        dm_log_debug("invalid param");
-        return FAIL_RETURN;
-    }
-
     list_for_each_entry(search_node, &ctx->upstream_sync_callback_list, linked_list,
                         iotx_linkkit_upstream_sync_callback_node_t) {
         if (search_node->msgid == msgid) {
-            dm_log_debug("Sync Message Found: %d", msgid);
             *node = search_node;
             return SUCCESS_RETURN;
         }
     }
 
-    return FAIL_RETURN;
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND, NULL);
+    return STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND;
 }
 
 static void _iotx_linkkit_upstream_sync_callback_list_destroy(void)
@@ -406,7 +396,7 @@ static void _iotx_linkkit_upstream_callback_remove(int msgid, int code)
     iotx_linkkit_upstream_sync_callback_node_t *sync_node = NULL;
     res = _iotx_linkkit_upstream_sync_callback_list_search(msgid, &sync_node);
     if (res == SUCCESS_RETURN) {
-        sync_node->code = (code == IOTX_DM_ERR_CODE_SUCCESS) ? (SUCCESS_RETURN) : (FAIL_RETURN);
+        sync_node->code = (code == IOTX_DM_ERR_CODE_SUCCESS) ? (SUCCESS_RETURN) : (STATE_DEV_MODEL_CLOUD_RETURN_ERROR);
         dm_log_debug("Sync Message %d Result: %d", msgid, sync_node->code);
         HAL_SemaphorePost(sync_node->semaphore);
     }
@@ -1272,27 +1262,26 @@ static int _iotx_linkkit_slave_connect(int devid)
 
     res = iotx_dm_get_opt(DM_OPT_PROXY_PRODUCT_REGISTER, (void *)&proxy_product_register);
     if (res < SUCCESS_RETURN) {
-        dm_log_err("get proxy_product_register opt failed");
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Subdev Register */
     if (proxy_product_register) {
         res = iotx_dm_subdev_proxy_register(devid);
         if (res < SUCCESS_RETURN) {
-            return FAIL_RETURN;
+            return res;
         }
     } else {
         res = iotx_dm_subdev_register(devid);
         if (res < SUCCESS_RETURN) {
-            return FAIL_RETURN;
+            return res;
         }
     }
 
     if (res > SUCCESS_RETURN) {
         semaphore = HAL_SemaphoreCreate();
         if (semaphore == NULL) {
-            return FAIL_RETURN;
+            return STATE_SYS_DEPEND_SEMAPHORE_CREATE;
         }
 
         msgid = res;
@@ -1302,7 +1291,7 @@ static int _iotx_linkkit_slave_connect(int devid)
         if (res != SUCCESS_RETURN) {
             HAL_SemaphoreDestroy(semaphore);
             _iotx_linkkit_upstream_mutex_unlock();
-            return FAIL_RETURN;
+            return res;
         }
         _iotx_linkkit_upstream_mutex_unlock();
 
@@ -1311,7 +1300,7 @@ static int _iotx_linkkit_slave_connect(int devid)
             _iotx_linkkit_upstream_mutex_lock();
             _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
             _iotx_linkkit_upstream_mutex_unlock();
-            return FAIL_RETURN;
+            return STATE_SYS_DEPEND_SEMAPHORE_WAIT;
         }
 
         _iotx_linkkit_upstream_mutex_lock();
@@ -1319,7 +1308,7 @@ static int _iotx_linkkit_slave_connect(int devid)
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         if (code != SUCCESS_RETURN) {
             _iotx_linkkit_upstream_mutex_unlock();
-            return FAIL_RETURN;
+            return STATE_DEV_MODEL_CLOUD_RETURN_ERROR;
         }
         _iotx_linkkit_upstream_mutex_unlock();
     }
@@ -1328,12 +1317,12 @@ static int _iotx_linkkit_slave_connect(int devid)
     res = iotx_dm_subdev_topo_add(devid);
     if (res < SUCCESS_RETURN) {
         _iotx_linkkit_mutex_unlock();
-        return FAIL_RETURN;
+        return res;
     }
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
         _iotx_linkkit_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SEMAPHORE_CREATE;
     }
 
     msgid = res;
@@ -1342,7 +1331,7 @@ static int _iotx_linkkit_slave_connect(int devid)
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return res;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
@@ -1351,7 +1340,7 @@ static int _iotx_linkkit_slave_connect(int devid)
         _iotx_linkkit_upstream_mutex_lock();
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SEMAPHORE_WAIT;
     }
 
     _iotx_linkkit_upstream_mutex_lock();
@@ -1359,7 +1348,7 @@ static int _iotx_linkkit_slave_connect(int devid)
     _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_CLOUD_RETURN_ERROR;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
@@ -1374,25 +1363,23 @@ static int _iotx_linkkit_subdev_delete_topo(int devid)
     void *semaphore = NULL;
 
     if (ctx->is_connected == 0) {
-        dm_log_err("master isn't start");
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
     if (devid <= 0) {
-        dm_log_err("devid invalid");
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_DEVID;
     }
 
     /* Subdev Delete Topo */
     res = iotx_dm_subdev_topo_del(devid);
     if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SEMAPHORE_CREATE;
     }
 
     _iotx_linkkit_upstream_mutex_lock();
@@ -1400,7 +1387,7 @@ static int _iotx_linkkit_subdev_delete_topo(int devid)
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return res;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
@@ -1409,7 +1396,7 @@ static int _iotx_linkkit_subdev_delete_topo(int devid)
         _iotx_linkkit_upstream_mutex_lock();
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SEMAPHORE_WAIT;
     }
 
     _iotx_linkkit_upstream_mutex_lock();
@@ -1417,7 +1404,7 @@ static int _iotx_linkkit_subdev_delete_topo(int devid)
     _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_CLOUD_RETURN_ERROR;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
@@ -1432,7 +1419,7 @@ static int _iotx_linkkit_master_close(void)
     _iotx_linkkit_mutex_lock();
     if (ctx->is_opened == 0) {
         _iotx_linkkit_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_OPEN_YET;
     }
     ctx->is_opened = 0;
 
@@ -1463,7 +1450,7 @@ static int _iotx_linkkit_slave_close(int devid)
     _iotx_linkkit_mutex_lock();
     if (ctx->is_opened == 0) {
         _iotx_linkkit_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_OPEN_YET;
     }
 
     /* Release Subdev Resources */
@@ -1565,8 +1552,7 @@ int IOT_Linkkit_Close(int devid)
     int res = 0;
 
     if (devid < 0) {
-        dm_log_err("Invalid Parameter");
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_DEVID;
     }
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
@@ -1578,7 +1564,7 @@ int IOT_Linkkit_Close(int devid)
 #ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_close(devid);
 #else
-        res = FAIL_RETURN;
+        res = STATE_DEV_MODEL_GATEWAY_NOT_ENABLED;
 #endif
     }
 
@@ -1595,13 +1581,13 @@ static int _iotx_linkkit_subdev_login(int devid)
 
     res = iotx_dm_subdev_login(devid);
     if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     msgid = res;
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SEMAPHORE_CREATE;
     }
 
     _iotx_linkkit_upstream_mutex_lock();
@@ -1609,7 +1595,7 @@ static int _iotx_linkkit_subdev_login(int devid)
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return res;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
@@ -1618,7 +1604,7 @@ static int _iotx_linkkit_subdev_login(int devid)
         _iotx_linkkit_upstream_mutex_lock();
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return res;
     }
 
     _iotx_linkkit_upstream_mutex_lock();
@@ -1626,13 +1612,13 @@ static int _iotx_linkkit_subdev_login(int devid)
     _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_CLOUD_RETURN_ERROR;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
     res = iotx_dm_subscribe(devid);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
@@ -1640,7 +1626,7 @@ static int _iotx_linkkit_subdev_login(int devid)
         ((int (*)(const int))callback)(devid);
     }
 
-    return res;
+    return SUCCESS_RETURN;
 }
 
 static int _iotx_linkkit_subdev_logout(int devid)
@@ -1651,13 +1637,13 @@ static int _iotx_linkkit_subdev_logout(int devid)
 
     res = iotx_dm_subdev_logout(devid);
     if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     msgid = res;
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SEMAPHORE_CREATE;
     }
 
     _iotx_linkkit_upstream_mutex_lock();
@@ -1665,7 +1651,7 @@ static int _iotx_linkkit_subdev_logout(int devid)
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return res;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
@@ -1674,7 +1660,7 @@ static int _iotx_linkkit_subdev_logout(int devid)
         _iotx_linkkit_upstream_mutex_lock();
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SEMAPHORE_WAIT;
     }
 
     _iotx_linkkit_upstream_mutex_lock();
@@ -1682,11 +1668,11 @@ static int _iotx_linkkit_subdev_logout(int devid)
     _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
         _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_CLOUD_RETURN_ERROR;
     }
     _iotx_linkkit_upstream_mutex_unlock();
 
-    return res;
+    return SUCCESS_RETURN;
 }
 #endif
 
@@ -1695,13 +1681,16 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
-    if (devid < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
-        dm_log_err("Invalid Parameter");
-        return FAIL_RETURN;
+    if (devid < 0) {
+        return STATE_USER_INPUT_DEVID;
+    }
+
+    if (msg_type >= IOTX_LINKKIT_MSG_MAX) {
+        return STATE_USER_INPUT_MSG_TYPE;
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
     _iotx_linkkit_mutex_lock();
@@ -1709,9 +1698,8 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case ITM_MSG_POST_PROPERTY: {
             if (payload == NULL || payload_len <= 0) {
-                dm_log_err("Invalid Parameter");
                 _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_post_property(devid, (char *)payload, payload_len);
 #ifdef LOG_REPORT_TO_CLOUD
@@ -1724,18 +1712,16 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #ifdef DEVICE_MODEL_SHADOW
         case ITM_MSG_PROPERTY_DESIRED_GET: {
             if (payload == NULL || payload_len <= 0) {
-                dm_log_err("Invalid Parameter");
                 _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_property_desired_get(devid, (char *)payload, payload_len);
         }
         break;
         case ITM_MSG_PROPERTY_DESIRED_DELETE: {
             if (payload == NULL || payload_len <= 0) {
-                dm_log_err("Invalid Parameter");
                 _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_property_desired_delete(devid, (char *)payload, payload_len);
         }
@@ -1743,18 +1729,16 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #endif
         case ITM_MSG_DEVICEINFO_UPDATE: {
             if (payload == NULL || payload_len <= 0) {
-                dm_log_err("Invalid Parameter");
                 _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_deviceinfo_update(devid, (char *)payload, payload_len);
         }
         break;
         case ITM_MSG_DEVICEINFO_DELETE: {
             if (payload == NULL || payload_len <= 0) {
-                dm_log_err("Invalid Parameter");
                 _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_deviceinfo_delete(devid, (char *)payload, payload_len);
         }
@@ -1762,9 +1746,8 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #endif
         case ITM_MSG_POST_RAW_DATA: {
             if (payload == NULL || payload_len <= 0) {
-                dm_log_err("Invalid Parameter");
                 _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_post_rawdata(devid, (char *)payload, payload_len);
         }
@@ -1772,36 +1755,24 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         case ITM_MSG_LOGIN: {
 #ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_subdev_login(devid);
-            if (res != SUCCESS_RETURN) {
-                _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
-            }
 #else
-            res = FAIL_RETURN;
+            res = STATE_DEV_MODEL_GATEWAY_NOT_ENABLED;
 #endif
         }
         break;
         case ITM_MSG_LOGOUT: {
 #ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_subdev_logout(devid);
-            if (res != SUCCESS_RETURN) {
-                _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
-            }
 #else
-            res = FAIL_RETURN;
+            res = STATE_DEV_MODEL_GATEWAY_NOT_ENABLED;
 #endif
         }
         break;
         case ITM_MSG_DELETE_TOPO: {
 #ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_subdev_delete_topo(devid);
-            if (res != SUCCESS_RETURN) {
-                _iotx_linkkit_mutex_unlock();
-                return FAIL_RETURN;
-            }
 #else
-            res = FAIL_RETURN;
+            res = STATE_DEV_MODEL_GATEWAY_NOT_ENABLED;
 #endif
         }
         break;
@@ -1814,8 +1785,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #endif
 #endif
         default: {
-            dm_log_err("Unknown Message Type");
-            res = FAIL_RETURN;
+            res = STATE_USER_INPUT_MSG_TYPE;
         }
         break;
     }
@@ -1848,7 +1818,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
 #ifdef DEVICE_MODEL_GATEWAY
             res = iotx_dm_query_topo_list();
 #else
-            res = FAIL_RETURN;
+            res = STATE_DEV_MODEL_GATEWAY_NOT_ENABLED;
 #endif
         }
         break;
@@ -1869,8 +1839,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
         }
         break;
         default: {
-            dm_log_err("Unknown Message Type");
-            res = FAIL_RETURN;
+            res = STATE_USER_INPUT_MSG_TYPE;
         }
         break;
     }
@@ -1898,7 +1867,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
 
     return res;
 #else
-    return -1;
+    return STATE_DEV_MODEL_RAWDATA_SOLO_ENABLED;
 #endif
 }
 
@@ -1906,7 +1875,7 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
                               void *p_service_ctx)
 {
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-    int res = FAIL_RETURN;
+    int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     char msgid[11] = {0};
@@ -1938,6 +1907,8 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
         void *alcs_ctx = service_ctx->service_meta.general.alcs_ctx;
         res = iotx_dm_send_service_response(devid, msgid, strlen(msgid), IOTX_DM_ERR_CODE_SUCCESS, serviceid, serviceid_len,
                                             payload, payload_len, alcs_ctx);
+    } else {
+        res = STATE_DEV_MODEL_INTERNAL_ERROR;
     }
 
     _linkkit_service_list_mutex_lock();
@@ -1946,7 +1917,7 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
 
     return res;
 #else
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_RAWDATA_SOLO_ENABLED;
 #endif
 }
 

@@ -226,7 +226,7 @@ int dm_mgr_device_query(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         return SUCCESS_RETURN;
     }
 
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_DEVICE_NOT_FOUND;
 }
 
 int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
@@ -297,11 +297,11 @@ int dm_mgr_device_destroy(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     if (node->devid == IOTX_DM_LOCAL_NODE_DEVID) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_DEVICE_TYPE_ERROR;
     }
 
     list_del(&node->linked_list);
@@ -352,7 +352,7 @@ int dm_mgr_get_devid_by_index(_IN_ int index, _OU_ int *devid)
         search_index++;
     }
 
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_DEVICE_NOT_FOUND;
 }
 
 int dm_mgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
@@ -376,7 +376,7 @@ int dm_mgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
         }
     }
 
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_DEVICE_NOT_FOUND;
 }
 
 int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
@@ -414,7 +414,7 @@ int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
 
     res = _dm_mgr_search_dev_by_pkdn(product_key, device_name, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     if (devid) {
@@ -452,7 +452,7 @@ int dm_mgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     *dev_type = node->dev_type;
@@ -471,7 +471,7 @@ int dm_mgr_set_dev_enable(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     node->status = IOTX_DM_DEV_AVAIL_ENABLE;
@@ -490,7 +490,7 @@ int dm_mgr_set_dev_disable(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     node->status = IOTX_DM_DEV_AVAIL_DISABLE;
@@ -513,7 +513,7 @@ int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
 
     res = _dm_mgr_search_dev_by_pkdn(product_key, device_name, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     *status = node->status;
@@ -532,7 +532,7 @@ int dm_mgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     node->dev_status = status;
@@ -551,7 +551,7 @@ int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     *status = node->dev_status;
@@ -571,7 +571,7 @@ int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[IOTX_DEVICE
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(node->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
@@ -597,7 +597,7 @@ int dm_mgr_dev_initialized(int devid)
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_INITIALIZED, message);
     if (res != SUCCESS_RETURN) {
         DM_free(message);
-        return FAIL_RETURN;
+        return res;
     }
 
     return SUCCESS_RETURN;
@@ -616,7 +616,7 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -628,7 +628,7 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_thing_sub_register(node->product_key, node->device_name, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -665,7 +665,7 @@ int dm_mgr_upstream_thing_proxy_product_register(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -677,7 +677,7 @@ int dm_mgr_upstream_thing_proxy_product_register(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_thing_proxy_product_register(node->product_key, node->product_secret, node->device_name, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -714,7 +714,7 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -726,7 +726,7 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_thing_sub_unregister(node->product_key, node->device_name, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -763,7 +763,7 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -775,7 +775,7 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_thing_topo_add(node->product_key, node->device_name, node->device_secret, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -812,7 +812,7 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -824,7 +824,7 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_thing_topo_delete(node->product_key, node->device_name, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -906,7 +906,7 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -918,7 +918,7 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_thing_list_found(node->product_key, node->device_name, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -955,7 +955,7 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -967,7 +967,7 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_combine_login(node->product_key, node->device_name, node->device_secret, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -1004,11 +1004,11 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     if (node->dev_status < IOTX_DM_DEV_STATUS_LOGINED) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_DEVICE_STATUS_ERROR;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1020,7 +1020,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     /* Get Params And Method */
     res = dm_msg_combine_logout(node->product_key, node->device_name, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -1048,7 +1048,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 #ifdef DEVICE_MODEL_SUBDEV_OTA
 int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
-    int res = 0, res1 = 0;
+    int res = 0;
     dm_mgr_dev_node_t *node = NULL;
     char *uri = NULL;
     dm_msg_request_t request;
@@ -1059,7 +1059,7 @@ int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *pay
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1072,7 +1072,7 @@ int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *pay
     res = dm_utils_service_name(request.service_prefix, request.service_name,
                                 request.product_key, request.device_name, &uri);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     dm_log_info("DM Send Raw Data:");
@@ -1080,10 +1080,10 @@ int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *pay
 
     res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload), dm_client_thing_model_up_raw_reply);
 
-    if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
+    if (res < SUCCESS_RETURN) {
         dm_log_info("res of pub is %d:", res);
         DM_free(uri);
-        return FAIL_RETURN;
+        return res;
     }
 
     DM_free(uri);
@@ -1105,7 +1105,7 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1118,7 +1118,7 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
     res = dm_utils_service_name(request.service_prefix, request.service_name,
                                 request.product_key, request.device_name, &uri);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     dm_log_info("DM Send Raw Data:");
@@ -1131,7 +1131,7 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
 
     if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
         DM_free(uri);
-        return FAIL_RETURN;
+        return (res < 0)? res : res1;
     }
 
     DM_free(uri);
@@ -1148,7 +1148,7 @@ static int _dm_mgr_upstream_request_assemble(_IN_ int msgid, _IN_ int devid, _IN
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     request->msgid = msgid;
@@ -1177,7 +1177,7 @@ int dm_mgr_upstream_thing_property_desired_get(_IN_ int devid, _IN_ char *payloa
     res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_PROPERTY_DESIRED_GET,
                                             payload, payload_len, "thing.property.desired.get", &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Callback */
@@ -1213,7 +1213,7 @@ int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *pay
                                             DM_URI_THING_PROPERTY_DESIRED_DELETE,
                                             payload, payload_len, "thing.property.desired.delete", &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Callback */
@@ -1247,7 +1247,7 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
     res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_EVENT_PROPERTY_POST,
                                             payload, payload_len, "thing.event.property.post", &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Callback */
@@ -1287,8 +1287,8 @@ int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int 
         } else {
             /* it should NOT happen; it means that it is too late to upload log files */
             reset_log_poll();
-            dm_log_err("it it too late to upload log, reset pool");
-            return FAIL_RETURN;
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LOG_REPORT_ERROR, "it is too late to upload log");
+            return STATE_DEV_MODEL_LOG_REPORT_ERROR;
         }
 
         dm_log_info("push log, len is %d, log_size is %d\n", payload_len, log_size);
@@ -1304,7 +1304,7 @@ int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int 
 
     if (res != SUCCESS_RETURN) {
         reset_log_poll();
-        return FAIL_RETURN;
+        return res;
     }
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
@@ -1339,7 +1339,7 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
     res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, service_name,
                                             payload, payload_len, method, &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Callback */
@@ -1376,7 +1376,7 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
     res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DEVICEINFO_UPDATE,
                                             payload, payload_len, "thing.deviceinfo.update", &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Callback */
@@ -1406,7 +1406,7 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
     res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DEVICEINFO_DELETE,
                                             payload, payload_len, "thing.deviceinfo.delete", &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Callback */
@@ -1438,7 +1438,7 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
     res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DSLTEMPLATE_GET,
                                             params, params_len, "thing.dsltemplate.get", &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Send Message To Cloud */
@@ -1467,7 +1467,7 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
     res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DYNAMICTSL_GET,
                                             params, params_len, "thing.dynamicTsl.get", &request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Callback */
@@ -1518,7 +1518,7 @@ static int _dm_mgr_upstream_response_assemble(_IN_ int devid, _IN_ char *msgid, 
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     request->id.value = msgid;
@@ -1562,7 +1562,7 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
     res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_URI_SYS_PREFIX, service_name, code, &request,
             &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     dm_log_debug("Current Service Name: %s", service_name);
@@ -1610,7 +1610,7 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_URI_SYS_PREFIX,
             reply_service_name, code, &request, &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
     dm_log_debug("Current Service Name: %s", reply_service_name);
     dm_msg_response(reply_msg_type, &request, &response, payload, payload_len, ctx);
@@ -1657,7 +1657,7 @@ int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
     res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_URI_SYS_PREFIX, service_name, code, &request,
             &response);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     dm_log_debug("Current Service Name: %s", service_name);
@@ -1681,7 +1681,7 @@ int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t t
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     node->tsl_source = tsl_source;
@@ -1700,7 +1700,7 @@ int dm_mgr_deprecated_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     *tsl_source = node->tsl_source;

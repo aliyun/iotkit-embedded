@@ -72,10 +72,13 @@ extern "C" {
 /* User input parameters contain unacceptable device type */
 /* 用户传递给API的参数中含有不合理的设备类型, 既不是master又不是slave */
 #define STATE_USER_INPUT_DEVICE_TYPE                (STATE_USER_INPUT_BASE - 0x0011)
+/*  */
+/*  */
+#define STATE_USER_INPUT_MSG_TYPE                   (STATE_USER_INPUT_BASE - 0x0012)
 
 /* User input parameters contain unacceptable value */
 /* 用户传递给API的参数中含有其它不合理的取值 */
-#define STATE_USER_INPUT_INVALID                    (STATE_USER_INPUT_BASE - 0x0012)
+#define STATE_USER_INPUT_INVALID                    (STATE_USER_INPUT_BASE - 0x0013)
 /* User Input: 0x0100 ~ 0x01FF */
 
 /* System: 0x0200 ~ 0x02FF */
@@ -126,6 +129,14 @@ extern "C" {
 /* SDK run into exception when RX through lower network layer */
 /* SDK调用的系统适配接口 HAL_TCP_Read() 或 HAL_SSL_Read() 返回异常, 未能成功读取一段内容 */
 #define STATE_SYS_DEPEND_NWK_READ_ERROR             (STATE_SYS_DEPEND_BASE - 0x000F)
+
+#define STATE_SYS_DEPEND_SEMAPHORE_CREATE           (STATE_SYS_DEPEND_BASE - 0x0010)
+
+#define STATE_SYS_DEPEND_SEMAPHORE_WAIT             (STATE_SYS_DEPEND_BASE - 0x0011)
+
+#define STATE_SYS_DEPEND_SNPRINTF                   (STATE_SYS_DEPEND_BASE - 0x0012)
+
+#define STATE_SYS_DEPEND_FIRMWAIRE_WIRTE            (STATE_SYS_DEPEND_BASE - 0x0013)
 
 /* System: 0x0200 ~ 0x02FF */
 
@@ -346,57 +357,98 @@ extern "C" {
 /* Requested device not found in list */
 /* 当前请求对应的设备未找到, 无法对其操作 */
 #define STATE_DEV_MODEL_DEVICE_NOT_FOUND            (STATE_DEV_MODEL_BASE - 0x0006)
+
+#define STATE_DEV_MODEL_DEVICE_TYPE_ERROR           (STATE_DEV_MODEL_BASE - 0x0007)
+
+#define STATE_DEV_MODEL_DEVICE_STATUS_ERROR         (STATE_DEV_MODEL_BASE - 0x0008)
+
 /* Internal error happens in device model function */
 /* 物模型/子设备管理模块发生内部错误 */
-#define STATE_DEV_MODEL_INTERNAL_ERROR              (STATE_DEV_MODEL_BASE - 0x0007)
+#define STATE_DEV_MODEL_INTERNAL_ERROR              (STATE_DEV_MODEL_BASE - 0x0009)
 /* Internal error about file descriptor happens in device model function */
 /* 物模型/子设备管理模块发生fd有关的内部错误 */
-#define STATE_DEV_MODEL_INTERNAL_FD_ERROR           (STATE_DEV_MODEL_BASE - 0x0008)
+#define STATE_DEV_MODEL_INTERNAL_FD_ERROR           (STATE_DEV_MODEL_BASE - 0x000A)
 /* Internal event about MQTT connect happens in device model function */
 /* 物模型/子设备管理模块发现MQTT连接已经建立, 跳过再次建连动作 */
-#define STATE_DEV_MODEL_INTERNAL_MQTT_DUP_INIT      (STATE_DEV_MODEL_BASE - 0x0009)
+#define STATE_DEV_MODEL_INTERNAL_MQTT_DUP_INIT      (STATE_DEV_MODEL_BASE - 0x000B)
 /* Internal error about MQTT unconnect happens in device model function */
 /* 物模型/子设备管理模块发生MQTT连接未建立的内部错误 */
-#define STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET  (STATE_DEV_MODEL_BASE - 0x000A)
+#define STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET  (STATE_DEV_MODEL_BASE - 0x000C)
 /* Failed to open handler for cloud abstract layer */
 /* 物模型模块中发生连接抽象层初始化失败 */
-#define STATE_DEV_MODEL_CM_OPEN_FAILED              (STATE_DEV_MODEL_BASE - 0x000B)
+#define STATE_DEV_MODEL_CM_OPEN_FAILED              (STATE_DEV_MODEL_BASE - 0x000D)
 /* Failed to find file descriptor in cloud abstract layer */
 /* 物模型模块中未找到连接抽象层的fd */
-#define STATE_DEV_MODEL_CM_FD_NOT_FOUND             (STATE_DEV_MODEL_BASE - 0x000C)
+#define STATE_DEV_MODEL_CM_FD_NOT_FOUND             (STATE_DEV_MODEL_BASE - 0x000E)
 /* Failed to connect MQTT in device model function */
 /* 物模型模块中发生MQTT连接建立失败 */
-#define STATE_DEV_MODEL_MQTT_CONNECT_FAILED         (STATE_DEV_MODEL_BASE - 0x000D)
+#define STATE_DEV_MODEL_MQTT_CONNECT_FAILED         (STATE_DEV_MODEL_BASE - 0x000F)
 /* Got unexpected MQTT message from server in device model */
 /* 物模型模块中接收到来自服务端的MQTT下推消息, 但报文内容不符合预期 */
-#define STATE_DEV_MODEL_RECV_UNEXP_MQTT_PUB         (STATE_DEV_MODEL_BASE - 0x000E)
+#define STATE_DEV_MODEL_RECV_UNEXP_MQTT_PUB         (STATE_DEV_MODEL_BASE - 0x0010)
 /* Got MQTT message from server but its JSON format is wrong */
 /* 物模型模块中接收到来自服务端的MQTT下推消息, 但报文内容不是合理的JSON格式 */
-#define STATE_DEV_MODEL_WRONG_JSON_FORMAT           (STATE_DEV_MODEL_BASE - 0x000F)
+#define STATE_DEV_MODEL_WRONG_JSON_FORMAT           (STATE_DEV_MODEL_BASE - 0x0011)
+
+#define STATE_DEV_MODEL_GET_JSON_ITEM_FAILED        (STATE_DEV_MODEL_BASE - 0x0012)
+
+#define STATE_DEV_MODEL_JSON_PARSE_FAILED           (STATE_DEV_MODEL_BASE - 0x0013)
+
 /* Service respond does not have correct request context in device model */
 /* 物模型模块中发送服务回应报文给服务端时, 没有找到对应的服务端请求上下文 */
-#define STATE_DEV_MODEL_SERVICE_CTX_NOT_EXIST       (STATE_DEV_MODEL_BASE - 0x0010)
+#define STATE_DEV_MODEL_SERVICE_CTX_NOT_EXIST       (STATE_DEV_MODEL_BASE - 0x0014)
 /* OTA service is not enabled in device model */
 /* 物模型模块中发现OTA功能未开启 */
-#define STATE_DEV_MODEL_OTA_NOT_ENABLED             (STATE_DEV_MODEL_BASE - 0x0011)
+#define STATE_DEV_MODEL_OTA_NOT_ENABLED             (STATE_DEV_MODEL_BASE - 0x0015)
 /* OTA service is not initialized correctly in device model */
 /* 物模型模块中发现OTA功能未能正确初始化 */
-#define STATE_DEV_MODEL_OTA_NOT_INITED              (STATE_DEV_MODEL_BASE - 0x0012)
+#define STATE_DEV_MODEL_OTA_NOT_INITED              (STATE_DEV_MODEL_BASE - 0x0016)
 /* OTA service is initialized but failed in device model */
 /* 物模型模块中发现对OTA功能初始化失败 */
-#define STATE_DEV_MODEL_OTA_INIT_FAILED             (STATE_DEV_MODEL_BASE - 0x0013)
+#define STATE_DEV_MODEL_OTA_INIT_FAILED             (STATE_DEV_MODEL_BASE - 0x0017)
 /* OTA for some sub-device is not finished yet so skip device switching */
 /* 子设备OTA时, 由于当前仍有其它子设备OTA尚未完成, 而跳过当前操作 */
-#define STATE_DEV_MODEL_OTA_STILL_IN_PROGRESS       (STATE_DEV_MODEL_BASE - 0x0014)
+#define STATE_DEV_MODEL_OTA_STILL_IN_PROGRESS       (STATE_DEV_MODEL_BASE - 0x0018)
 /* OTA firmware downloaded failed to pass integrity check */
 /* 物模型模块中发现OTA下载的固件, 未能通过完整性校验 */
-#define STATE_DEV_MODEL_OTA_IMAGE_CHECK_FAILED      (STATE_DEV_MODEL_BASE - 0x0015)
+#define STATE_DEV_MODEL_OTA_IMAGE_CHECK_FAILED      (STATE_DEV_MODEL_BASE - 0x0019)
+
+#define STATE_DEV_MODEL_OTA_TYPE_ERROR              (STATE_DEV_MODEL_BASE - 0x001A)
+
+#define STATE_DEV_MODEL_OTA_FETCH_FAILED            (STATE_DEV_MODEL_BASE - 0x001B)
+
 /* ALCS function failed to initialize itself */
 /* 本地控制功能初始化失败 */
-#define STATE_DEV_MODEL_ALCS_CONSTRUCT_FAILED       (STATE_DEV_MODEL_BASE - 0x0016)
+#define STATE_DEV_MODEL_ALCS_CONSTRUCT_FAILED       (STATE_DEV_MODEL_BASE - 0x001C)
 /* Gateway/Sub-device management function is not configured on */
 /* SDK当前未被配置为打开子设备管理/网关功能 */
-#define STATE_DEV_MODEL_GATEWAY_NOT_ENABLED         (STATE_DEV_MODEL_BASE - 0x0017)
+#define STATE_DEV_MODEL_GATEWAY_NOT_ENABLED         (STATE_DEV_MODEL_BASE - 0x001D)
+
+#define STATE_DEV_MODEL_RRPCID_LEN_ERROR            (STATE_DEV_MODEL_BASE - 0x001E)
+
+#define STATE_DEV_MODEL_RAWDATA_SOLO_ENABLED        (STATE_DEV_MODEL_BASE - 0x001F)
+
+#define STATE_DEV_MODEL_DUP_UPSTREAM_MSG            (STATE_DEV_MODEL_BASE - 0x0020)
+
+#define STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND     (STATE_DEV_MODEL_BASE - 0x0021)
+
+#define STATE_DEV_MODEL_CLOUD_RETURN_ERROR          (STATE_DEV_MODEL_BASE - 0x0022)
+
+#define STATE_DEV_MODEL_INVALID_DM_OPTION           (STATE_DEV_MODEL_BASE - 0x0023)
+
+#define STATE_DEV_MODEL_IPC_LIST_FULL               (STATE_DEV_MODEL_BASE - 0x0024)
+
+#define STATE_DEV_MODEL_IPC_LIST_EMPTY              (STATE_DEV_MODEL_BASE - 0x0025)
+
+#define STATE_DEV_MODEL_CACHE_LIST_FULL             (STATE_DEV_MODEL_BASE - 0x0026)
+
+#define STATE_DEV_MODEL_CACHE_LIST_EMPTY            (STATE_DEV_MODEL_BASE - 0x0027)
+
+#define STATE_DEV_MODEL_URL_SPLIT_FAILED            (STATE_DEV_MODEL_BASE - 0x0028)
+
+#define STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED      (STATE_DEV_MODEL_BASE - 0x0029)
+
+#define STATE_DEV_MODEL_LOG_REPORT_ERROR            (STATE_DEV_MODEL_BASE - 0x002A)
 
 /* Device Model: 0x0900 ~ 0x09FF */
 

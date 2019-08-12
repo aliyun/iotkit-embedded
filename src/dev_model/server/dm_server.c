@@ -12,14 +12,14 @@ static int _dm_server_malloc_context(_IN_ NetworkAddr *remote, _IN_ CoAPMessage 
 
     alcs_context = DM_malloc(sizeof(dm_server_alcs_context_t));
     if (alcs_context == NULL) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(alcs_context, 0, sizeof(dm_server_alcs_context_t));
 
     alcs_context->ip = DM_malloc(strlen((char *)remote->addr) + 1);
     if (alcs_context->ip == NULL) {
         DM_free(alcs_context);
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(alcs_context->ip, 0, strlen((char *)remote->addr) + 1);
     memcpy(alcs_context->ip, (char *)remote->addr, strlen((char *)remote->addr) + 1);
@@ -32,7 +32,7 @@ static int _dm_server_malloc_context(_IN_ NetworkAddr *remote, _IN_ CoAPMessage 
     if (alcs_context->token == NULL) {
         DM_free(alcs_context->ip);
         DM_free(alcs_context);
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(alcs_context->token, 0, message->header.tokenlen);
     memcpy(alcs_context->token, message->token, message->header.tokenlen);

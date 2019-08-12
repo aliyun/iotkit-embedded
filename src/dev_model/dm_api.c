@@ -336,7 +336,7 @@ int iotx_dm_set_opt(int opt, void *data)
 int iotx_dm_get_opt(int opt, void *data)
 {
     if (data == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_NULL_POINTER;
     }
 
     return dm_opt_get((dm_opt_t)opt, data);
@@ -735,13 +735,9 @@ int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type)
 
     _dm_api_lock();
     res = dm_mgr_get_dev_type(devid, type);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
     _dm_api_unlock();
-    return SUCCESS_RETURN;
+
+    return res;
 }
 
 int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status)
@@ -759,13 +755,13 @@ int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *st
     res = dm_mgr_search_device_by_devid(devid, product_key, device_name, device_secret);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
-        return FAIL_RETURN;
+        return res;
     }
 
     res = dm_mgr_get_dev_avail(product_key, device_name, status);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
-        return FAIL_RETURN;
+        return res;
     }
 
     _dm_api_unlock();
@@ -811,8 +807,7 @@ int iotx_dm_send_firmware_version(int devid, const char *version)
                            version
                           );
     if (ret <= 0) {
-        printf("firmware report message json data generate err");
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_SNPRINTF;
     }
 
     msg_len = strlen(msg);

@@ -125,7 +125,7 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     IOT_OTA_Ioctl(ota_handle, IOT_OTAG_OTA_TYPE, &ota_type, 4);
 
     if (ota_type != IOT_OTAT_COTA) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_OTA_TYPE_ERROR;
     }
 
     /* reset the size_fetched in ota_handle to be 0 */
@@ -139,7 +139,7 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
             IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_FETCH_FAILED, NULL);
             HAL_Firmware_Persistence_Stop();
             ctx->is_report_new_config = 0;
-            return FAIL_RETURN;
+            return STATE_DEV_MODEL_OTA_FETCH_FAILED;
         }
 
         /* Write Config File Into Stroage */
