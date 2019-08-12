@@ -97,16 +97,6 @@ void *HAL_Malloc(_IN_ uint32_t size)
     return malloc(size);
 }
 
-void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size)
-{
-    return realloc(ptr, size);
-}
-
-void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size)
-{
-    return calloc(nmemb, size);
-}
-
 void HAL_Free(_IN_ void *ptr)
 {
     free(ptr);
@@ -146,25 +136,6 @@ uint64_t HAL_UptimeMs(void)
     return time_ms;
 }
 
-char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
-{
-    struct timeval tv;
-    struct tm      tm;
-    int str_len    = 0;
-
-    if (buf == NULL && len >= 28) {
-        return NULL;
-    }
-    gettimeofday(&tv, NULL);
-    localtime_r(&tv.tv_sec, &tm);
-    strftime(buf, 28, "%m-%d %H:%M:%S", &tm);
-    str_len = strlen(buf);
-    if (str_len + 3 < len) {
-        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec) / 1000);
-    }
-    return buf;
-}
-
 void HAL_SleepMs(_IN_ uint32_t ms)
 {
     usleep(1000 * ms);
@@ -197,12 +168,6 @@ int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *format, v
     return vsnprintf(str, len, format, ap);
 }
 
-int HAL_GetDeviceID(_OU_ char device_id[IOTX_DEVICE_ID_LEN + 1])
-{
-    HAL_Snprintf(device_id, IOTX_DEVICE_ID_LEN + 1, "%s.%s", _product_key, _device_name);
-    return strlen(device_id);
-}
-
 int HAL_GetFirmwareVersion(_OU_ char version[IOTX_FIRMWARE_VER_LEN + 1])
 {
     memset(version, 0x0, IOTX_FIRMWARE_VER_LEN + 1);
@@ -210,12 +175,6 @@ int HAL_GetFirmwareVersion(_OU_ char version[IOTX_FIRMWARE_VER_LEN + 1])
     version[IOTX_FIRMWARE_VER_LEN] = '\0';
     return strlen(version);
 }
-
-int HAL_Awss_Get_Conn_Encrypt_Type()
-{
-    return 4;
-}
-
 
 typedef struct {
     int count;
@@ -309,21 +268,6 @@ int HAL_ThreadCreate(
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
 
     return ret;
-}
-
-void HAL_ThreadDetach(_IN_ void *thread_handle)
-{
-    pthread_detach((pthread_t)thread_handle);
-}
-
-void HAL_ThreadDelete(_IN_ void *thread_handle)
-{
-    if (NULL == thread_handle) {
-        pthread_exit(0);
-    } else {
-        /*main thread delete child thread*/
-        pthread_cancel((pthread_t)thread_handle);
-    }
 }
 
 static FILE *fp;
@@ -556,16 +500,6 @@ int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
 }
 
 int HAL_Kv_Del(const char *key)
-{
-    return 0;
-}
-
-void HAL_UTC_Set(long long ms)
-{
-
-}
-
-long long HAL_UTC_Get(void)
 {
     return 0;
 }

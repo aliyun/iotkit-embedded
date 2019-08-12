@@ -215,45 +215,6 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
     return (intptr_t)sockfd;
 }
 
-int HAL_UDP_connect(_IN_ intptr_t sockfd,
-                    _IN_ const char *host,
-                    _IN_ unsigned short port)
-{
-    int                     rc = -1;
-    char                    port_ptr[6] = {0};
-    struct addrinfo         hints;
-    struct addrinfo        *res, *ainfo;
-
-    if (NULL == host) {
-        return -1;
-    }
-
-    printf("HAL_UDP_connect, host=%s, port=%d\n", host, port);
-    sprintf(port_ptr, "%u", port);
-    memset((char *)&hints, 0x00, sizeof(hints));
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_family = AF_INET;
-    hints.ai_protocol = IPPROTO_UDP;
-
-    rc = getaddrinfo(host, port_ptr, &hints, &res);
-    if (0 != rc) {
-        printf("getaddrinfo error\n");
-        return -1;
-    }
-
-    for (ainfo = res; ainfo != NULL; ainfo = ainfo->ai_next) {
-        if (AF_INET == ainfo->ai_family) {
-            if (0 == connect(sockfd, ainfo->ai_addr, ainfo->ai_addrlen)) {
-                freeaddrinfo(res);
-                return 0;
-            }
-        }
-    }
-    freeaddrinfo(res);
-
-    return -1;
-}
-
 int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
 {
     return close((int)sockfd);

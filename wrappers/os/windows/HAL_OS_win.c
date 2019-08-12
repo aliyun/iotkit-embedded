@@ -190,11 +190,6 @@ int HAL_ThreadCreate(
     return 0;
 }
 
-
-void HAL_ThreadDelete(_IN_ void *thread_handle)
-{
-    CloseHandle(thread_handle);
-}
 #endif  /* #if 0 */
 
 #ifdef __DEMO__
