@@ -655,7 +655,7 @@ int HAL_AT_CONN_DomainToIp(char *domain, char ip[16])
 
     pccmd = g_pccmd;
     if (NULL == pccmd) {
-        at_conn_hal_err("fail to malloc memory %d at %s \r\n", SIM800_DOMAIN_CMD_LEN, __func__);
+        at_conn_hal_err("fail to malloc memory %d at %s \r\n", (int)SIM800_DOMAIN_CMD_LEN, __func__);
         return -1;
     }
 
