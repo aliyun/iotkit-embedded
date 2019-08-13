@@ -70,7 +70,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
         memcpy(random, rand, sizeof(random));
     }
 
-    awss_debug("security level: %d", sec_lvl);
+    dump_awss_status(STATE_WIFI_SECURITY_LEVEL, "security level: %d", sec_lvl);
 
     switch (sec_lvl) {
         case SEC_LVL_AES128_PRODUCT:

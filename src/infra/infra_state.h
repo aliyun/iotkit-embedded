@@ -262,7 +262,20 @@ extern "C" {
 
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 #define STATE_WIFI_BASE                             (-0x0400)
-
+#define STATE_WIFI_ENABLE_AWSS                      (STATE_WIFI_BASE - 0x0001)
+#define STATE_WIFI_PROCESS_FRAME                    (STATE_WIFI_BASE - 0x0002)
+#define STATE_WIFI_CHAN_SCAN                        (STATE_WIFI_BASE - 0x0003)
+#define STATE_WIFI_CONNECT_AP_SUCCESS               (STATE_WIFI_BASE - 0x0004)
+#define STATE_WIFI_CONNECT_AP_FAILED                (STATE_WIFI_BASE - 0x0005)
+#define STATE_WIFI_ALREADY_RUNNING                  (STATE_WIFI_BASE - 0x0006)
+#define STATE_WIFI_FORCE_STOPPED                    (STATE_WIFI_BASE - 0x0007)
+#define STATE_WIFI_DESTROY                          (STATE_WIFI_BASE - 0x0008)
+#define STATE_WIFI_GOT_HINT_FRAME                   (STATE_WIFI_BASE - 0x0009)
+#define STATE_WIFI_SECURITY_LEVEL                   (STATE_WIFI_BASE - 0x000a)
+#define STATE_WIFI_CRC_ERROR                        (STATE_WIFI_BASE - 0x000b)
+#define STATE_WIFI_PASSWD_DECODE_FAILED             (STATE_WIFI_BASE - 0x000c)
+#define STATE_WIFI_PASSWD_DECODE_SUCCESS            (STATE_WIFI_BASE - 0x000d)
+#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x000e)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 /* COAP: 0x0500 ~ 0x05FF */

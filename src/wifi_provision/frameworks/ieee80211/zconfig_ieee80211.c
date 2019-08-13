@@ -725,7 +725,7 @@ uint8_t *zconfig_remove_link_header(uint8_t **in, int *len, int link_type)
         check_ieee80211_buf_alignment(*in, *len);
         break;
     default:
-        awss_debug("un-supported link type!\r\n");
+        dump_awss_status(STATE_WIFI_OTHERS, "un-supported link type!");
         break;
     }
 

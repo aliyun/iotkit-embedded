@@ -115,7 +115,7 @@ uint8_t is_channel_locked(void)
 uint8_t zconfig_callback_channel_locked(uint8_t channel)
 {
     if (channel != zconfig_channel_locked) {
-        awss_info("channel lock @ %d\r\n", channel);
+        dump_awss_status(STATE_WIFI_CHAN_SCAN, "channel lock @ %d", channel);
         zconfig_channel_locked = channel;
     }
 
@@ -132,7 +132,7 @@ uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid, ui
 {
     uint8_t auth = ZC_AUTH_TYPE_INVALID, encry = ZC_ENC_TYPE_INVALID, channel = 0;
 
-    awss_info("zconfig done. ssid:%s, mac:%02x%02x%02x%02x%02x%02x\r\n",
+    dump_awss_status(STATE_WIFI_PASSWD_DECODE_SUCCESS, "zconfig done. ssid:%s, mac:%02x%02x%02x%02x%02x%02x",
                ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
     if (zconfig_finished) {

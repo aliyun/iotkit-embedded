@@ -220,7 +220,7 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t *bssid, uint8_t channel, uint8_t aut
     zconfig_aplist[i].encry[0] = group_cipher;
     zconfig_aplist[i].encry[1] = pairwise_cipher;
 
-    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, rssi:%d\r\n",
+    dump_awss_status(STATE_WIFI_CHAN_SCAN, "[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, rssi:%d",
                i, ssid, bssid[0], bssid[1], bssid[2],
                bssid[3], bssid[4], bssid[5], channel,
                rssi > 0 ? rssi - 256 : rssi);

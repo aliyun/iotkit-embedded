@@ -86,8 +86,8 @@ static char awss_aha_connect_to_router()
 int awss_start(void)
 {
     if (awss_stopped == 0) {
-        awss_debug("awss already running\n");
-        return -1;
+        dump_awss_status(STATE_WIFI_ALREADY_RUNNING, "awss already running");
+        return STATE_WIFI_ALREADY_RUNNING;
     }
 
     awss_stopped = 0;
@@ -142,13 +142,13 @@ int awss_start(void)
     } while (1);
 
     if (awss_stopped) {
-        return -1;
+        return STATE_WIFI_FORCE_STOPPED;
     }
 
     awss_success_notify();
     awss_stopped = 1;
 
-    return 0;
+    return STATE_SUCCESS;
 }
 
 int awss_stop(void)
@@ -174,7 +174,7 @@ static void awss_press_timeout(void)
 int awss_config_press(void)
 {
     config_press_start_timestamp = os_get_time_ms();
-    awss_trace("enable awss\r\n");
+    dump_awss_status(STATE_WIFI_ENABLE_AWSS, "enable awss");
     g_user_press = 1;
     awss_event_post(IOTX_AWSS_ENABLE);
 

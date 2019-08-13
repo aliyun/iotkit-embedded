@@ -69,7 +69,7 @@ int __awss_start(void)
         /*ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
                                   auth, encry, bssid, channel);*/
         if (!ret) {
-            awss_debug("awss connect ssid:%s success", ssid);
+            dump_awss_status(STATE_WIFI_CONNECT_AP_SUCCESS, "awss connect ssid:%s success", ssid);
             awss_event_post(IOTX_AWSS_GOT_IP);
 
 #if defined(AWSS_SUPPORT_AHA)
@@ -90,7 +90,7 @@ int __awss_start(void)
                 /*produce_random(aes_random, sizeof(aes_random));*/
             }
         } else {
-            awss_debug("awss connect ssid:%s fail", ssid);
+            dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "awss connect ssid:%s fail", ssid);
 #if defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
                 awss_event_post(IOTX_AWSS_CONNECT_AHA_FAIL);

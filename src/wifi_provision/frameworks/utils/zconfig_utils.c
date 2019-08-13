@@ -12,13 +12,9 @@ void dump_hex(uint8_t *data, int len, int tab_num)
 {
     int i;
     for (i = 0; i < len; i++) {
-        HAL_Printf("%02x ", data[i]);
-
-        if (!((i + 1) % tab_num))
-            HAL_Printf("\r\n");
+        dump_awss_status(STATE_WIFI_OTHERS, "%02x ", data[i]);
     }
 
-    HAL_Printf("\r\n");
 }
 #if 0
 void dump_ascii(uint8_t *data, int len, int tab_num)

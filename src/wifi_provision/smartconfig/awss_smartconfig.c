@@ -84,7 +84,7 @@ int zconfig_get_data_len(void)
     }
 
     if (len && score > score_mid) {
-        /* awss_debug("zconfig_get_data_len = %d\r\n", len); */
+        /* dump_awss_status("zconfig_get_data_len = %d\r\n", len); */
         goto out;
     }
 
@@ -122,7 +122,7 @@ int zconfig_recv_completed(uint8_t tods)
     }
 
     if (!len || pkg_score(1) <= score_min) {
-        /* awss_trace("len=%d, pkg_score(1)=%d\r\n", len, pkg_score(1));*/
+        /* dump_awss_status("len=%d, pkg_score(1)=%d\r\n", len, pkg_score(1));*/
         return 0;
     }
 
@@ -142,13 +142,13 @@ int zconfig_recv_completed(uint8_t tods)
 
         if (!(flag & SSID_ENCODE_MASK)) {/* ASCLL ssid */
             if ((ssid_len | 0x200) != pkg_len(3)) {
-                awss_warn("ssid len not match! ssid:%s != %d\r\n",
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "ssid len not match! ssid:%s != %d\r\n",
                           zc_ssid, (pkg_len(3) & ~0x200));
                 zc_ssid_auto_complete_disable = 1;
                 goto skip_ssid_auto_complete;
             }
 
-            awss_trace("ssid auto-complete: %s\r\n", zc_ssid);
+            dump_awss_status(STATE_WIFI_OTHERS, "ssid auto-complete: %s", zc_ssid);
             pkg_score(2) = SSID_AUTO_COMPLETE_SCORE;
 
             pkg_len(3) = ssid_len | 0x200;    /* 0x200 is the index 3 */
@@ -181,7 +181,7 @@ int zconfig_recv_completed(uint8_t tods)
                 return 0;
             }
 
-            awss_trace("chinese ssid auto-complete: %s\r\n", zc_ssid);
+            dump_awss_status(STATE_WIFI_OTHERS, "chinese ssid auto-complete: %s", zc_ssid);
             encode_chinese(zc_ssid, ssid_len, buf, &buf_len, 6);
 
             pkg_score(2) = SSID_AUTO_COMPLETE_SCORE;
@@ -199,7 +199,7 @@ int zconfig_recv_completed(uint8_t tods)
 #endif
 
 skip_ssid_auto_complete:
-    /* awss_debug("expect len = %d, max len = %d\r\n", len, zc_max_pos); */
+    /* dump_awss_status("expect len = %d, max len = %d\r\n", len, zc_max_pos); */
     if (zc_max_pos < len) {
         return 0;    /* receive all the packets */
     }
@@ -249,18 +249,18 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     /* package num */
     package_num = pkg_len(1) & PAYLOAD_BITS_MASK;/* total len, include len(1B) & crc(2B) */
 
-    awss_trace("\r\n");
     for (i = 1; i <= package_num; i ++) {
         data = pkg_len(i);
         score = pkg_score(i);
         buf[i - 1] = data & PAYLOAD_BITS_MASK;
         tmp[i - 1] = score;
     }
-
+    dump_awss_status(STATE_WIFI_OTHERS, " ====payload score is as follow====");
     dump_hex(&tmp[0], package_num, GROUP_NUMBER);
-    awss_trace("\r\n");
+    dump_awss_status(STATE_WIFI_OTHERS, " ====end of dump====");
+    dump_awss_status(STATE_WIFI_OTHERS, " ====payload data is as follow====");
     dump_hex(&buf[0], package_num, GROUP_NUMBER);
-    awss_trace("\r\n");
+    dump_awss_status(STATE_WIFI_OTHERS, " ====end of dump====");
 
     crc = os_get_unaligned_be16(&buf[package_num - 2]);
 
@@ -272,7 +272,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     passwd_encrypt = (flag & PASSWD_ENCRYPT_MASK) >> PASSWD_ENCRYPT_BIT_OFFSET;
 
     if (passwd_encrypt == PASSWD_ENCRYPT_CIPHER || passwd_encrypt == PASSWD_ENCRYPT_OPEN) {
-        awss_trace("!aes128-cfb is not support: flag 0x%x\r\n", flag);
+        dump_awss_status(STATE_WIFI_OTHERS, "!aes128-cfb is not support: flag 0x%x", flag);
         ret = -1;
         goto exit;
     } else {
@@ -280,7 +280,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     }
 
     if (crc != cal_crc) {
-        awss_trace("crc error: recv 0x%x != 0x%x\r\n", crc, cal_crc);
+        dump_awss_status(STATE_WIFI_CRC_ERROR, "crc error: recv 0x%x != 0x%x", crc, cal_crc);
         /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */
         tods_tmp = tods;
         for (tods = 0; tods < 2; tods ++) {
@@ -320,12 +320,12 @@ int zconfig_get_ssid_passwd(uint8_t tods)
 
         if (zc_ssid[0] == '\0' || zc_ssid_auto_complete_disable) {
             strncpy((char *)zc_ssid, (const char *)tmp, ZC_MAX_SSID_LEN - 1);
-            awss_trace("SSID0: [%s]\r\n", zc_ssid);
+            dump_awss_status(STATE_WIFI_OTHERS, "SSID0: [%s]", zc_ssid);
         } else {
             if (!strncmp((const char *)tmp, (char *)zc_ssid, ZC_MAX_SSID_LEN - 1)) {
-                awss_trace("SSID1: [%s]\r\n", zc_ssid);
+                dump_awss_status(STATE_WIFI_OTHERS, "SSID1: [%s]", zc_ssid);
             } else {
-                awss_trace("gbk%s SSID:[%s]\r\n", zc_ssid_is_gbk ? "" : "?", zc_ssid);
+                dump_awss_status(STATE_WIFI_OTHERS, "gbk%s SSID:[%s]", zc_ssid_is_gbk ? "" : "?", zc_ssid);
             }
         }
 #ifdef AWSS_SUPPORT_APLIST
@@ -363,7 +363,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
                            1, awss_get_encrypt_type(), 0, NULL);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
             void *tmp_mutex = zc_mutex;
-            awss_trace("passwd err\r\n");
+            dump_awss_status(STATE_WIFI_PASSWD_DECODE_FAILED, "passwd err");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
             zc_mutex = tmp_mutex;
             awss_event_post(IOTX_AWSS_PASSWD_ERR);
@@ -379,7 +379,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             tmp[i] += 32;
         }
         strncpy((char *)zc_passwd, (const char *)tmp, ZC_MAX_PASSWD_LEN - 1);
-        awss_trace("encrypt:%d not support\r\n", passwd_encrypt);
+        dump_awss_status(STATE_WIFI_OTHERS, "encrypt:%d not support", passwd_encrypt);
         temp_mutex = zc_mutex;
         memset(zconfig_data, 0, sizeof(*zconfig_data));
         zc_mutex = temp_mutex;
@@ -388,7 +388,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     }
 
 
-    /* awss_debug("PASSWD: [%s]\r\n", zc_passwd); */
+    /* dump_awss_status("PASSWD: [%s]\r\n", zc_passwd); */
     pbuf += passwd_len; /* passwd */
     ret = 0;
 exit:
@@ -469,7 +469,7 @@ found_match:
 
         if (memcmp(zc_src_mac, src, ETH_ALEN)) {/* case 1,2 */
             /* someone must be working in aws at the same time */
-            awss_warn("%c interference src:"MAC_FORMAT", bssid:"MAC_FORMAT"\r\n",
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%c interference src:"MAC_FORMAT", bssid:"MAC_FORMAT"\r\n",
                       flag_tods(tods), MAC_VALUE(src), MAC_VALUE(bssid));
             return 0;
         } else {
@@ -481,11 +481,11 @@ found_match:
                     if (zconfig_data->data[0].state_machine == STATE_CHN_LOCKED_BY_BR) {
                         zconfig_data->data[0].state_machine = STATE_CHN_SCANNING;
                     }
-                    awss_warn("%c WDS! bssid:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%c WDS! bssid:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
                               flag_tods(tods), MAC_VALUE(zc_bssid),
                               MAC_VALUE(bssid));
                 } else {
-                    awss_trace("%c WDS? src:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%c WDS? src:"MAC_FORMAT" -> bssid:"MAC_FORMAT"",
                                flag_tods(tods), MAC_VALUE(src),
                                MAC_VALUE(bssid));
                     return 0;
@@ -508,12 +508,12 @@ found_match:
         struct ap_info *ap_info = zconfig_get_apinfo(bssid);
         extern void aws_set_dst_chan(int channel);
         if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX) {
-            awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "invalid apinfo ssid:%s\r\n", ap_info->ssid);
         }
 
         if (ap_info && ap_info->encry[tods] == encry && ap_info->channel) {
             if (channel != ap_info->channel) {
-                awss_info("fix channel from %d to %d\r\n", channel, ap_info->channel);
+                dump_awss_status(STATE_WIFI_GOT_HINT_FRAME, "fix channel from %d to %d\r\n", channel, ap_info->channel);
                 zc_channel = ap_info->channel;  /* fix by ap_info channel */
                 aws_set_dst_chan(zc_channel);
             }
@@ -649,7 +649,7 @@ retry:
                     match ++;
                     score = (score > pkg_score(i + j)) ? pkg_score(i + j) : score;
                 } else {/* encounter first unmatch */
-                    awss_trace("[%d]=%x, [%d]=%x\r\n", i + j, pkg_len(i + j), j, tmp_len(j));
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "[%d]=%x, [%d]=%x", i + j, pkg_len(i + j), j, tmp_len(j));
                     break;
                 }
             }
@@ -659,7 +659,7 @@ retry:
             match_group = i;
             match_end = j - 1;
             match_score = score;
-            awss_trace("match=%d, match_group=%d, match_end=%d\r\n",
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "match=%d, match_group=%d, match_end=%d",
                        match, match_group, match_end);
         }
     }
@@ -723,9 +723,9 @@ retry:
 replace:
     if (final_pos != -1) {
         reason = reason;
-        awss_trace("\tX = %d, score=%d, match=%d, reason=%d\r\n", final_pos, match_score, max_match, reason);
+        dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tX = %d, score=%d, match=%d, reason=%d", final_pos, match_score, max_match, reason);
         if (match_end != GROUP_NUMBER) {
-            awss_trace("\t match from [1-%d]\r\n", match_end);
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t match from [1-%d]", match_end);
         }
         for (i = final_pos + 1, j = 1; i <= final_pos + match_end; i++, j++) {
             if (j > GROUP_NUMBER || i >= MAX_PKG_NUMS) {
@@ -735,7 +735,7 @@ replace:
                 pkg_len(i) = tmp_len(j);
                 pkg_score(i) = (match_score > tmp_score(j) - 1) ?
                                (match_score - (tmp_score(j) - 1)) : match_score;/*TODO*/
-                awss_trace("\t%d+%d [%d] %c %-3x\r\n", final_pos, j, pkg_score(i), flag_tods(tods), tmp_len(j));
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t%d+%d [%d] %c %-3x", final_pos, j, pkg_score(i), flag_tods(tods), tmp_len(j));
 
                 zc_replace = 1;
                 if (zc_max_pos < i) {
@@ -888,7 +888,7 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     } while (0);
 
     if (encry == ZC_ENC_TYPE_INVALID) {
-        awss_warn("invalid encry type!\r\n");
+        dump_awss_status(STATE_WIFI_PROCESS_FRAME, "invalid encry type!\r\n");
     }
     res->u.br.encry_type = encry;
 
@@ -945,10 +945,10 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                 statis = 1;
                 AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_TIME_START);
             }
-            awss_trace("hint frame: offset:%d, %c, sn:%x\r\n",
+            dump_awss_status(STATE_WIFI_GOT_HINT_FRAME, "hint frame: offset:%d, %c, sn:%x",
                        zc_frame_offset, flag_tods(tods), sn);
 
-            awss_trace("src:%02x%02x%02x%02x%02x%02x, bssid:%02x%02x%02x%02x%02x%02x\r\n",
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "src:%02x%02x%02x%02x%02x%02x, bssid:%02x%02x%02x%02x%02x%02x",
                        src[0], src[1], src[2], src[3], src[4], src[5],
                        bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
@@ -964,7 +964,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                     strncpy((char *)zc_android_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
                 }
                 memcpy(zc_android_bssid, bssid, ETH_ALEN);
-                awss_trace("src %02x%02x%02x match %02x%02x%02x\r\n",
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "src %02x%02x%02x match %02x%02x%02x",
                            zc_android_src[0], zc_android_src[1], zc_android_src[2],
                            zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
             }
@@ -979,7 +979,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         }
 
         if (timestamp - zc_timestamp > time_interval) {
-            awss_debug("\t\t\t\t\ttimestamp = %d\r\n", timestamp - zc_timestamp);
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t\t\t\t\ttimestamp = %d", timestamp - zc_timestamp);
             timeout = 1;
         }
 
@@ -988,10 +988,10 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
             zc_timestamp = timestamp;
         }
         if (ret == 0) {
-            awss_debug("drop: %3x == %3x\r\n", sn, zc_prev_sn);/* log level, too many retry pkg */
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "drop: %3x == %3x", sn, zc_prev_sn);/* log level, too many retry pkg */
             goto drop;
         } else if (ret < 0 && !timeout) {/* if timeout, goto pos_unsync */
-            awss_debug("drop: %3x < %3x\r\n", sn, zc_prev_sn);/* TODO: better not drop */
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "drop: %3x < %3x", sn, zc_prev_sn);/* TODO: better not drop */
             goto update_sn;/* FIXME: update sn??? */
         }
 
@@ -1023,16 +1023,16 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
             if (index < zc_last_index ||
                 (index == zc_last_index && len != zc_last_len) || timeout) {
                 if (zc_pos_unsync) {/* already in pos_unsync state */
-                    awss_trace("\texit try_to_sync_pos: re-enter!\r\n");
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\texit try_to_sync_pos: re-enter!");
                     try_to_sync_pos(tods, zc_prev_sn, sn, zc_group_pos, -1);
                 }
                 zc_pos_unsync = 1;/* also a new start */
                 if (index < zc_last_index) {
-                    awss_trace("\tenter try_to_sync_pos: rollback \r\n");
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tenter try_to_sync_pos: rollback");
                 } else if (timeout) {
-                    awss_trace("\tenter try_to_sync_pos: timeout \r\n");
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tenter try_to_sync_pos: timeout");
                 } else {
-                    awss_trace("\tenter try_to_sync_pos: != \r\n");
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tenter try_to_sync_pos: != ");
                 }
             }
 pos_unsync:
@@ -1044,14 +1044,14 @@ pos_unsync:
                     tmp_score(index) = (sn - zc_prev_sn);    /* TODO: index? last_tmp_score */
                 }
                 zc_pos_unsync ++; /* unsync pkg counter */
-                awss_trace("\tX+%d [%d] %-3x %c %-3x\r\n", index, tmp_score(index), sn, flag_tods(tods), len);
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tX+%d [%d] %-3x %c %-3x", index, tmp_score(index), sn, flag_tods(tods), len);
                 goto update_sn;/* FIXME: update prev_sn or not? */
             }
 
             /* assert(sn > zc_prev_sn && pos > zc_cur_pos) */
             score = get_data_score(zc_group_sn, sn, zc_prev_sn, pos, zc_cur_pos, tods);
             if (score == score_min) {/* better not drop any pkg here */
-                awss_trace("\t drop: group_sn:%x, sn:%x-%x=%x, pos:%d-%d, len:%x\r\n",
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t drop: group_sn:%x, sn:%x-%x=%x, pos:%d-%d, len:%x",
                            zc_group_sn, sn, zc_prev_sn, sn_minus(sn, zc_group_sn), pos, zc_cur_pos, len);
                 goto update_sn;
             } else {
@@ -1060,14 +1060,14 @@ pos_unsync:
                 }
 
                 zc_group_sn = sn;/* TODO */
-                awss_trace("%d+%d [%d] %-3x %c %-3x\r\n", zc_group_pos, index, score, sn, flag_tods(tods), len);
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%d+%d [%d] %-3x %c %-3x", zc_group_pos, index, score, sn, flag_tods(tods), len);
             }
         } else {
             if (is_start_frame(len) || is_group_frame(len)) {
                 uint8_t group = get_group_index(len);
 
                 if (zc_pos_unsync) {
-                    awss_trace("\texit try_to_sync_pos: group frame\r\n");
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\texit try_to_sync_pos: group frame");
                     try_to_sync_pos(tods, zc_prev_sn, sn, zc_group_pos, group);
                 }
 
@@ -1076,7 +1076,7 @@ pos_unsync:
                 zc_group_sn = sn;
                 zc_score_uplimit = score_max;
 
-                awss_trace("%d+%d [%d] %-3x %c %-3x\r\n", group, 0, zc_score_uplimit, sn, flag_tods(tods), len);
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%d+%d [%d] %-3x %c %-3x", group, 0, zc_score_uplimit, sn, flag_tods(tods), len);
 
                 /* ignore PKG_GROUP_FRAME here */
                 pkg_type = PKG_START_FRAME;
@@ -1090,14 +1090,14 @@ pos_unsync:
                 /* zc_replace may happen in try_to_sync_pos(), so goto is_recv_completed */
                 goto is_recv_completed;
             } else {
-                awss_trace("\t invalid len = %d\r\n", len + zc_frame_offset);
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t invalid len = %d", len + zc_frame_offset);
                 goto drop;
             }
         }
 
         /* start from pkg(1), leave pkg(0) for start frame */
         if (pos >= MAX_PKG_NUMS || pos <= 0) {
-            awss_warn("msg index(%d) out of range!\r\n", pos);
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "msg index(%d) out of range!\r\n", pos);
             goto drop;
         }
 
@@ -1134,12 +1134,12 @@ pos_unsync:
                 /* not equal */
                 replace = try_to_replace_same_pos(tods, pos, len);
                 if (replace) {
-                    awss_trace("\t replace @ %d, len=%x\r\n", pos, len);
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t replace @ %d, len=%x", pos, len);
                     continue;
                 }
                 pkg_score(pos) /= 2;
                 if (score >= score_mid)  /* better not happen */
-                    awss_warn("xxxxxxxx warn: pos=%d, score=[%d], %x != %x\r\n",
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "xxxxxxxx warn: pos=%d, score=[%d], %x != %x",
                               pos, score, pkg_len(pos), len);
 
             } else if (tods == res->tods) {/* pkg_score(pos) > score */
@@ -1148,13 +1148,13 @@ pos_unsync:
                         continue;
                     }
                     zc_pos_unsync = 1;
-                    awss_trace("\tenter try_to_sync_pos: data mismatch\r\n");
+                    dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tenter try_to_sync_pos: data mismatch");
                     tods = res->tods;
                     goto pos_unsync;
                 } else if (zc_score_uplimit >= score_mid && pkg_score(pos) - score < 10) { /* data equal */
                     uint8_t uplimit = (zc_score_uplimit + pkg_score(pos)) / 2;
                     if (zc_score_uplimit != uplimit) {
-                        awss_trace("\t\t\t uplimit [%d] -> [%d]\r\n", zc_score_uplimit, uplimit);
+                        dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t\t\t uplimit [%d] -> [%d]", zc_score_uplimit, uplimit);
                     }
                     zc_score_uplimit = uplimit;
                 }

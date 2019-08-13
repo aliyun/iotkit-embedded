@@ -95,11 +95,11 @@ void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
                                       uint8_t *bssid, uint8_t *token, uint8_t auth, uint8_t encry, uint8_t channel)
 {
     if (bssid) {
-        awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %d\r\n",
+        dump_awss_status(STATE_WIFI_PASSWD_DECODE_SUCCESS, "ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %d",
                    ssid, bssid[0], bssid[1], bssid[2],
                    bssid[3], bssid[4], bssid[5], channel);
     } else {
-        awss_debug("ssid:%s, bssid:--, %d\r\n",
+        dump_awss_status(STATE_WIFI_PASSWD_DECODE_SUCCESS, "ssid:%s, bssid:--, %d",
                    ssid, channel);
     }
 
@@ -163,7 +163,7 @@ void aws_switch_channel(void)
         int channel = aws_next_channel();
         aws_chn_timestamp = os_get_time_ms();
         HAL_Awss_Switch_Channel(channel, 0, NULL);
-        awss_trace("chan %d\r\n", channel);
+        dump_awss_status(STATE_WIFI_CHAN_SCAN, "chan %d", channel);
     } while (0);
     HAL_MutexUnlock(zc_mutex);
 }
@@ -211,7 +211,7 @@ static void aws_switch_dst_chan(int channel)
     }
     HAL_Awss_Switch_Channel(channel, 0, NULL);
 
-    awss_trace("adjust chan %d\r\n", channel);
+    dump_awss_status(STATE_WIFI_CHAN_SCAN, "adjust chan %d", channel);
 }
 
 enum {
@@ -329,7 +329,7 @@ rescanning:
     }
 
     /* channel lock */
-    awss_debug("[channel scanning] %d ms\r\n",
+    dump_awss_status(STATE_WIFI_CHAN_SCAN, "[channel scanning] %d msn",
                time_elapsed_ms_since(aws_start_timestamp));
 
     /*
@@ -339,7 +339,7 @@ rescanning:
 #ifdef AWSS_SUPPORT_APLIST
     aws_try_adjust_chan();
 #endif
-    awss_debug("final channel %d\r\n", aws_locked_chn);
+    dump_awss_status(STATE_WIFI_CHAN_SCAN, "final channel %d", aws_locked_chn);
 
     while (aws_state != AWS_SUCCESS) {
         awss_update_config_press();
@@ -357,7 +357,7 @@ rescanning:
         }
 
         if (aws_state == AWS_SCANNING) {
-            awss_debug("channel rescanning...\n");
+            dump_awss_status(STATE_WIFI_CHAN_SCAN, "channel rescanning...");
             if (zconfig_data != NULL) {
                 void *temp_mutex = zc_mutex;
                 memset(zconfig_data, 0, sizeof(struct zconfig_data));
@@ -367,7 +367,7 @@ rescanning:
         }
     }
 
-    awss_debug("[channel recving] %d ms\r\n",
+    dump_awss_status(STATE_WIFI_CHAN_SCAN, "[channel recving] %d ms\r\n",
                time_elapsed_ms_since(aws_start_timestamp));
 
     goto success;
@@ -403,7 +403,7 @@ success:
     /* don't destroy zconfig_data until monitor_cb is finished. */
     HAL_MutexLock(zc_mutex);
     HAL_MutexUnlock(zc_mutex);
-    awss_trace("ready to call zconfig_destroy to release mem \r\n");
+    dump_awss_status(STATE_WIFI_DESTROY, "ready to call zconfig_destroy to release mem");
     /*
      * zconfig_destroy() after os_awss_monitor_close() beacause
      * zconfig_destroy will release mem/buffer that
@@ -413,7 +413,7 @@ success:
      *    aws_get_ssid_passwd() was called in os_awss_monitor_close()
      */
     if (aws_stop == AWS_STOPPED) {
-        awss_trace("zconfig mem released \r\n");
+        dump_awss_status(STATE_WIFI_DESTROY, "zconfig mem released");
         zconfig_force_destroy();
     }
 #if defined(AWSS_SUPPORT_AHA)
@@ -506,7 +506,7 @@ void aws_destroy(void)
     }
 
     HAL_Awss_Close_Monitor();
-    awss_trace("aws_destroy \r\n");
+    dump_awss_status(STATE_WIFI_DESTROY, "aws_destroy");
     aws_stop = AWS_STOPPING;
 
     while (aws_stop != AWS_STOPPED) {

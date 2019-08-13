@@ -291,6 +291,13 @@ static int dynreg_device_secret(const char *device_secret)
     return 0;
 }
 
+static int wifi_provision_status_dump(int ev, const char *msg)
+{
+    printf("received event of wifi-prov as -0x%04x(%s)\n", -ev, msg);
+    return 0;
+}
+
+
 int main(int argc, char **argv)
 {
     int res = 0;
@@ -339,10 +346,8 @@ int main(int argc, char **argv)
  *  Then you can run wifi-provision example in Ubuntu, just to uncomment the following line
  */
 
-    /* run_ubuntu_wifi_provision_example(); */
-
-
     /* Register Callback */
+    IOT_RegisterCallback(ITE_STATE_EVERYTHING, wifi_provision_status_dump);
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
     IOT_RegisterCallback(ITE_DISCONNECTED, user_disconnected_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
@@ -355,6 +360,7 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
     IOT_RegisterCallback(ITE_DYNREG_DEVICE_SECRET, dynreg_device_secret);
+
 
     domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
@@ -377,6 +383,8 @@ int main(int argc, char **argv)
         EXAMPLE_TRACE("IOT_Linkkit_Open failed! retry after %d ms\n", 2000);
         HAL_SleepMs(2000);
     } while (1);
+
+    /* run_ubuntu_wifi_provision_example(); */
 
     do {
         res = IOT_Linkkit_Connect(g_user_example_ctx.master_devid);
