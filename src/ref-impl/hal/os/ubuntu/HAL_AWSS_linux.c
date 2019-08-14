@@ -653,7 +653,7 @@ int HAL_Awss_Close_Ap()
 }
 
 int HAL_Awss_Get_Conn_Encrypt_Type() {
-return 2;
+return 3;
 }
 
 int HAL_Awss_Get_Channelscan_Interval_Ms(){
