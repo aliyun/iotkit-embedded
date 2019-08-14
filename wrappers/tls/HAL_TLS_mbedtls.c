@@ -22,6 +22,7 @@
     #include <resolv.h>
 #endif
 #include "infra_config.h"
+#include "infra_compat.h"
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/net.h"
