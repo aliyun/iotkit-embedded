@@ -43,7 +43,6 @@
 #define AT_CMD_BRING_UP_GPRS_CONNECT "AT+CIICR"
 #define AT_CMD_GOT_LOCAL_IP "AT+CIFSR"
 
-#define AT_CMD_ENABLE_SSL "AT+CIPSSL=1"
 #define AT_CMD_START_CLIENT_CONN "AT+CIPSTART"
 
 #define AT_CMD_CLIENT_CONNECT_OK "CONNECT OK\r\n"
@@ -54,6 +53,18 @@
 #define AT_CMD_SEND_DATA "AT+CIPSEND"
 
 #define AT_CMD_DATA_RECV "\r\n+RECEIVE,"
+
+#if defined(AT_SSL_ENABLED)
+#define AT_CMD_CREATE_CERT "AT+FSCREATE=ROOT.CRT"
+#define AT_CMD_WRITE_CERT "AT+FSWRITE=ROOT.CRT,0"
+#define AT_CMD_SSL_SET_CERT "AT+SSLSETCERT=\"ROOT.CRT\""
+#define AT_CMD_SSL_SET_OK "+SSLSETCERT: 0"
+#define AT_CMD_SSL_SET_FAIL "+SSLSETCERT: 1"
+#define AT_CMD_ENABLE_SSL "AT+CIPSSL=1"
+#define AT_CERT_INPUT_TIME_SEC 10
+#define AT_CERT_MAX_LEN 10000
+extern const char *iotx_ca_crt;
+#endif
 
 #define SIM800_DEFAULT_CMD_LEN    64
 #define SIM800_DEFAULT_RSP_LEN    64
@@ -66,8 +77,9 @@
 
 #define SIM800_CONN_CMD_LEN   (SIM800_DOMAIN_MAX_LEN + SIM800_DEFAULT_CMD_LEN)
 
-#define SIM800_RETRY_MAX          50
-#define SIM800_WAIT_MAX_MS        10000
+#define SIM800_RETRY_MAX            50
+#define SIM800_WAIT_MAX_MS          10000
+#define SIM800_MAX_SEND_INTERVAL_MS 2000
 
 #ifdef AT_DEBUG_MODE
     #define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
@@ -96,6 +108,7 @@ static uint8_t inited = 0;
 static link_t g_link[SIM800_MAX_LINK_NUM];
 static void *g_link_mutex;
 static void *g_domain_mutex;
+static long long m_last_send_time = -1;
 #ifdef PLATFORM_HAS_OS
     static void *g_domain_sem;
 #else
@@ -294,7 +307,7 @@ static int sim800_send_with_retry(const char *cmd, int cmdlen, bool delimiter, c
             }
 
             at_conn_hal_err("%s %d cmd %s failed rsp %s retry count %d\r\n", __func__, __LINE__, cmd, rspbuf, retry);
-            HAL_SleepMs(50);
+            HAL_SleepMs(500);
         } else {
             break;
         }
@@ -484,6 +497,7 @@ static int sim800_gprs_got_ip(void)
                        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         at_conn_hal_err("%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        return -1;
     }
 
     /*try to got ip*/
@@ -492,6 +506,7 @@ static int sim800_gprs_got_ip(void)
                        rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config);
     if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) {
         at_conn_hal_err("%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        return -1;
     }
 
     return 0;
@@ -511,6 +526,54 @@ static int sim800_gprs_get_ip_only()
     }
     return 0;
 }
+
+#ifdef AT_SSL_ENABLED
+static int sim800_root_cert_init()
+{
+    char *cmd = g_cmd;
+    char *rsp = g_rsp;
+    int cert_len;
+    atcmd_config_t atcmd_config_ssl = { NULL, AT_CMD_SSL_SET_OK, AT_CMD_SSL_SET_FAIL};
+
+    if (NULL == iotx_ca_crt) {
+        return -1;
+    }
+
+    cert_len = strlen(iotx_ca_crt);
+    if (cert_len <= 0 || cert_len > AT_CERT_MAX_LEN) {
+        at_conn_hal_err("invalid cert_len\n");
+        return -1;
+    }
+
+    /*Create cert file*/
+    if (sim800_send_with_retry(AT_CMD_CREATE_CERT, strlen(AT_CMD_CREATE_CERT), true,
+                               NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+        at_conn_hal_err("create root cert failed\n");
+        return -1;
+    }
+
+    /*Write cert file*/
+    memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
+    memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s,%d,%d", AT_CMD_WRITE_CERT, cert_len, AT_CERT_INPUT_TIME_SEC);
+    at_send_wait_reply(cmd, strlen(cmd), true, iotx_ca_crt, cert_len, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) {
+        at_conn_hal_err("write root cert failed\n");
+        return -1;
+    }
+
+    /*Set ssl cert file*/
+    memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
+    at_send_wait_reply(AT_CMD_SSL_SET_CERT, strlen(AT_CMD_SSL_SET_CERT), true, NULL,
+                       0, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config_ssl);
+    if (strstr(rsp, AT_CMD_SSL_SET_FAIL) != NULL) {
+        at_conn_hal_err("set ssl root cert failed\n");
+        return -1;
+    }
+
+    return 0;
+}
+#endif
 
 int HAL_AT_CONN_Init(void)
 {
@@ -575,6 +638,14 @@ int HAL_AT_CONN_Init(void)
         goto err;
     }
 
+#ifdef AT_SSL_ENABLED
+    ret = sim800_root_cert_init();
+    if (ret) {
+        at_conn_hal_err("%s %d failed \r\n", __func__, __LINE__);
+        goto err;
+    }
+#endif
+
     inited = 1;
 
     return 0;
@@ -607,12 +678,12 @@ int HAL_AT_CONN_Deinit()
     return 0;
 }
 
-#ifndef PLATFORM_HAS_OS
 static uint64_t _get_time_ms(void)
 {
     return HAL_UptimeMs();
 }
 
+#ifndef PLATFORM_HAS_OS
 static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
 {
     uint64_t t_left;
@@ -789,6 +860,7 @@ int HAL_AT_CONN_Start(at_conn_t *conn)
             }
             break;
 
+#if defined(AT_SSL_ENABLED)
         case SSL_CLIENT:
             /* enable ssl set cert */
             at_send_wait_reply(AT_CMD_ENABLE_SSL, strlen(AT_CMD_ENABLE_SSL), true, NULL, 0,
@@ -798,9 +870,9 @@ int HAL_AT_CONN_Start(at_conn_t *conn)
                 return -1;
             }
 
+            memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
             HAL_Snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
                          conn->r_port);
-
             at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN,
                                &atcmd_config_client);
             if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
@@ -808,6 +880,7 @@ int HAL_AT_CONN_Start(at_conn_t *conn)
                 goto err;
             }
             break;
+#endif
 
         default:
             at_conn_hal_err("sim800 gprs module connect type %d not support \r\n", conn->type);
@@ -867,6 +940,7 @@ int HAL_AT_CONN_Send(int fd,
     int  linkid;
     char *cmd = g_cmd;
     char *rsp = g_rsp;
+    int ret;
 
     if (!inited) {
         at_conn_hal_err("%s sim800 gprs module haven't init yet \r\n", __func__);
@@ -882,8 +956,18 @@ int HAL_AT_CONN_Send(int fd,
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_SEND_DATA, linkid, len);
 
-    if (sim800_send_with_retry((const char *)cmd, strlen(cmd), true, (const char *)data, len,
-                               rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+    if (m_last_send_time > 0 && (_get_time_ms() - m_last_send_time) > SIM800_MAX_SEND_INTERVAL_MS) {
+        ret = sim800_uart_selfadaption(AT_CMD_TEST, AT_CMD_TEST_RESULT, strlen(AT_CMD_TEST_RESULT));
+        if (ret < 0) {
+            at_conn_hal_err("sim800_uart_selfadaption fail \r\n");
+            return -1;
+        }
+    }
+
+    ret = sim800_send_with_retry((const char *)cmd, strlen(cmd), true, (const char *)data, len,
+                                 rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP);
+    m_last_send_time = _get_time_ms();
+    if (ret < 0) {
         at_conn_hal_err("cmd %s rsp %s at %s %d failed \r\n", cmd, rsp, __func__, __LINE__);
         return -1;
     }

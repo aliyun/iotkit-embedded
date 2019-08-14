@@ -79,7 +79,7 @@ int32_t HAL_AT_Uart_Init(uart_dev_t *uart)
 
     if ((at_uart_fd = open(AT_UART_LINUX_DEV,
                            O_RDWR | O_NOCTTY | O_NDELAY)) == -1) {
-        printf("open at uart failed\r\n");
+        printf("open at uart failed, try sudo\r\n");
         return -1;
     }
 

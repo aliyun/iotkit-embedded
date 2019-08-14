@@ -37,7 +37,7 @@
     #include "wrappers_dtls.h"
 #endif
 
-#if defined(AT_TCP_ENABLED) || defined(AT_PARSER_ENABLED)
+#if defined(AT_TCP_ENABLED) || defined(AT_SSL_ENABLED) || defined(AT_PARSER_ENABLED)
     #include "wrappers_atm.h"
 #endif
 #endif

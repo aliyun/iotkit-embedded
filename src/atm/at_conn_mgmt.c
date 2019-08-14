@@ -569,7 +569,7 @@ int at_conn_send(int c, const void *data, uint32_t size)
         return -1;
     }
 
-    if (conn->type == NETCONN_TCP) {
+    if (conn->type == NETCONN_TCP || conn->type == NETCONN_SSL) {
         if (conn->state == NETCONN_NONE) {
             AT_ERROR("at_conn_send connect %d state %d\n", c, conn->state);
             return -1;
@@ -634,7 +634,7 @@ int at_conn_recv(int c, void *mem, uint32_t len)
         memcpy(&((uint8_t *)mem)[off], &((uint8_t *)buf->payload)[conn->lastoffset], copylen);
         off += copylen;
 
-        if (NETCONN_TCP == conn->type) {
+        if (NETCONN_TCP == conn->type || NETCONN_SSL == conn->type) {
             if (len < copylen) {
                 AT_ERROR("invalid copylen %d, len = %d\n", copylen, len);
                 return -1;
@@ -648,7 +648,7 @@ int at_conn_recv(int c, void *mem, uint32_t len)
             done = 1;
         }
 
-        if ((NETCONN_TCP == conn->type) && (buflen > copylen)) {
+        if ((NETCONN_TCP == conn->type || NETCONN_SSL == conn->type) && (buflen > copylen)) {
             conn->lastdata = buf;
             conn->lastoffset += copylen;
         } else {

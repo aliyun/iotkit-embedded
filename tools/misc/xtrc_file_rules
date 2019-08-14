@@ -45,7 +45,8 @@ ATM_ENABLED||wrappers/wrappers_atm.h|output/eng/wrappers/temp
 AT_PARSER_ENABLED||src/atm/at_parser.[ch]|output/eng/atm
 AT_PARSER_ENABLED||wrappers/wrappers_uart.h|output/eng/wrappers/temp
 
-AT_TCP_ENABLED||src/atm/at_conn_mbox.[ch] src/atm/at_conn_mgmt.[ch] src/atm/at_tcp.[ch]|output/eng/atm
+AT_TCP_ENABLED|AT_SSL_ENABLED|src/atm/at_conn_mbox.[ch] src/atm/at_conn_mgmt.[ch] src/atm/at_tcp.[ch]|output/eng/atm
+AT_SSL_ENABLED||src/atm/at_conn_mbox.[ch] src/atm/at_conn_mgmt.[ch] src/atm/at_ssl.[ch]|output/eng/atm
 AT_MQTT_ENABLED|MQTT_DEFAULT_IMPL&AT_TCP_ENABLED|src/atm/at_mqtt.[ch]|output/eng/atm
 AT_TCP_ENABLED&AT_TCP_HAL_SIM800||wrappers/atm/at_tcp/sim800.c|output/eng/atm
 AT_TCP_ENABLED&AT_TCP_HAL_MK3060||wrappers/atm/at_tcp/mk3060.c|output/eng/atm

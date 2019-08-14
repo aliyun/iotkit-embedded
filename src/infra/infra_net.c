@@ -61,19 +61,16 @@ static int connect_ssl(utils_network_pt pNetwork)
         return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
-    if (0 != (pNetwork->handle = (intptr_t)AT_SSL_Establish(
-            pNetwork->pHostAddress,
-            pNetwork->port,
-            pNetwork->ca_crt,
-            pNetwork->ca_crt_len + 1))) {
-        return STATE_SUCCESS;
-    }
-    else {
-        /* TODO SHOLUD not remove this handle space */
-        /* The space will be freed by calling disconnect_ssl() */
-        /* utils_memory_free((void *)pNetwork->handle); */
+    pNetwork->handle = AT_SSL_Establish(
+                        pNetwork->pHostAddress,
+                        pNetwork->port,
+                        pNetwork->ca_crt,
+                        pNetwork->ca_crt_len + 1);
+    if (pNetwork->handle == (uintptr_t)(-1)) {
         return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
+
+    return STATE_SUCCESS;
 }
 #else /* AT_SSL_ENABLED */
 #ifdef INFRA_MEM_STATS

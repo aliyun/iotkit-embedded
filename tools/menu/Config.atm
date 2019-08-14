@@ -14,15 +14,21 @@ config PLATFORM_HAS_OS
         Switching to "y" leads to SDK invoking HAL_MutexLock() / HAL_SemaphoreWait() etc
         Switching to "n" leads to SDK avoid using mutex and semaphore, and avoid using multi-task as well
 
+config AT_SSL_ENABLED
+    bool "FEATURE_AT_SSL_ENABLED"
+    depends on SUPPORT_TLS
+    default y if SUPPORT_TLS
+
 config AT_TCP_ENABLED
     bool "FEATURE_AT_TCP_ENABLED"
-    default n
+    default y if AT_SSL_ENABLED
 
 config AT_MQTT_ENABLED
     bool "FEATURE_AT_MQTT_ENABLED"
     depends on MQTT_COMM_ENABLED
     depends on !MQTT_DEFAULT_IMPL
     depends on !AT_TCP_ENABLED
+    depends on !AT_SSL_ENABLED
     default n
 
 config AT_PARSER_ENABLED
@@ -40,6 +46,7 @@ config AT_HAL_NONE
 config AT_TCP_HAL_MK3060
         bool "FEATURE_AT_TCP_HAL_MK3060"
         depends on AT_TCP_ENABLED
+        depends on !AT_SSL_ENABLED
 
 config AT_TCP_HAL_SIM800
         bool "FEATURE_AT_TCP_HAL_SIM800"

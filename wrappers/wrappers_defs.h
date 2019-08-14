@@ -200,7 +200,7 @@ typedef enum {
 
 typedef struct {
     int cert_len;
-    char *cert_data;
+    const char *cert_data;
     CERT_TYPE cert_type;
 } cert_info_t;
 #endif

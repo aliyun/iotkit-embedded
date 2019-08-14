@@ -78,7 +78,7 @@ uintptr_t AT_SSL_Establish(const char *host,
     return (uintptr_t)rc;
 }
 
-int32_t AT_SSL_Destroy(uintptr_t handle);
+int32_t AT_SSL_Destroy(uintptr_t handle)
 {
     int rc;
 
