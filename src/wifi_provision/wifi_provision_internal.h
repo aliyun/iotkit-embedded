@@ -70,6 +70,6 @@
 #endif
 
 #include "infra_state.h"
-#define dump_awss_status(code, fmt, arg...)    iotx_state_event(ITE_STATE_WIFI_PROV, __VA_ARGS__)
+#define dump_awss_status(...)       iotx_state_event(ITE_STATE_WIFI_PROV, __VA_ARGS__)
 
 #endif
