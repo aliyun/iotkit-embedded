@@ -2973,6 +2973,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
     void *callback = NULL;
+
 #if (WITH_MQTT_MULTI_INSTANCE)
     if (pInitParams == NULL) {
         return NULL;
@@ -2980,16 +2981,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #else
     iotx_conn_info_t *conn_info = NULL;
 
-    if (pInitParams != NULL) {
-        if (g_mqtt_client != NULL) {
-            IOT_MQTT_Destroy(&g_mqtt_client);
-        }
-        _conn_info_dynamic_create(pInitParams);
-    } else {
-        if (g_mqtt_client != NULL) {
-            return NULL;
-        }
+    if (g_mqtt_client != NULL) {
+        return g_mqtt_client;
+    }
 
+    if (pInitParams == NULL) {
         mqtt_params = (iotx_mqtt_param_t *)mqtt_malloc(sizeof(iotx_mqtt_param_t));
         if (mqtt_params == NULL) {
             return NULL;
