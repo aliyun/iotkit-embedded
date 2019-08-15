@@ -393,11 +393,6 @@ int mqtt_client(void *params)
 
 do_exit:
 
-    HAL_ThreadDelete(g_thread_sub_unsub_1);
-    HAL_ThreadDelete(g_thread_sub_unsub_2);
-    HAL_ThreadDelete(g_thread_pub_1);
-    HAL_ThreadDelete(g_thread_pub_2);
-    HAL_ThreadDelete(g_thread_yield);
     IOT_MQTT_Destroy(&pclient);
     return rc;
 }
