@@ -280,9 +280,6 @@ void aws_main_thread_func(void)
     aws_start_timestamp = os_get_time_ms();
     /* channel switch init */
     aws_switch_channel();
-#ifdef AWSS_SUPPORT_DISCOVER
-    aws_discover_init();
-#endif
 rescanning:
     /* start scaning channel */
     memset(zc_bssid, 0, ETH_ALEN);
@@ -397,9 +394,6 @@ timeout_recving:
 
 success:
 
-#ifdef AWSS_SUPPORT_DISCOVER
-    aws_discover_deinit();
-#endif
     /* don't destroy zconfig_data until monitor_cb is finished. */
     HAL_MutexLock(zc_mutex);
     HAL_MutexUnlock(zc_mutex);
@@ -474,7 +468,9 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     aws_result_channel = 0;
 
     zconfig_init();
-
+#ifdef AWSS_SUPPORT_DISCOVER
+    aws_discover_init();
+#endif
     HAL_Awss_Open_Monitor(aws_80211_frame_handler);
 
 #ifndef AWSS_DISABLE_ENROLLEE
@@ -482,6 +478,9 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
 #endif
 
     aws_main_thread_func();
+#ifdef AWSS_SUPPORT_DISCOVER
+    aws_discover_deinit();
+#endif
 }
 
 static void *aws_mutex = NULL;
