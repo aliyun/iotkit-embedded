@@ -135,6 +135,7 @@ extern int _sign_get_clientid(char *clientid_string, const char *device_id, cons
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
+    uint64_t time_now;
     void *pclient;
     iotx_dev_meta_info_t meta_info;
     iotx_mqtt_param_t mqtt_params;
@@ -372,14 +373,16 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
+    time_now = HAL_UptimeMs();
     ret = wrapper_mqtt_connect(pclient);
     if (ret < STATE_SUCCESS) {
         if (MQTT_CONNECT_BLOCK != ret) {
-            iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt wrapper connect fail");
+            iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt wrapper connect fail - ret = %d", ret);
             wrapper_mqtt_release(&pclient);
             return NULL;
         }
     }
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_SUCCESS, "connected in %d ms", (int)(HAL_UptimeMs() - time_now));
 
 #ifndef ASYNC_PROTOCOL_STACK
     iotx_mqtt_report_funcs(pclient);
