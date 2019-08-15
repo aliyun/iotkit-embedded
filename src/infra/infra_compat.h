@@ -141,7 +141,8 @@ DECLARE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*cb)(const int, const unsigned char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,      int (*cb)(const int, const char *, const int, const char *, const int,
                        char **, int *))
-DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*cb)(int, const char *, int, const char *, int, const char *, int, void *))
+DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*cb)(int, const char *, int, const char *, int, const char *, int,
+                       void *))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*cb)(const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*cb)(const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*cb)(const int, const char *, const int, char **, int *))
@@ -159,7 +160,7 @@ DECLARE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*cb)(const int, const char *, const char *))
 DECLARE_EVENT_CALLBACK(ITE_DYNREG_DEVICE_SECRET, int (*cb)(const char *))
 
-typedef int (*state_handler_t)(const int state_code, const char * state_message);
+typedef int (*state_handler_t)(const int state_code, const char *state_message);
 DECLARE_EVENT_CALLBACK(ITE_STATE_EVERYTHING, state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_USER_INPUT, state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_SYS_DEPEND, state_handler_t cb);
@@ -171,7 +172,7 @@ DECLARE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t cb);
 
-int iotx_state_event(const int event, const int state_code, const char * state_message);
+int iotx_state_event(const int event, const int state_code, const char *state_message_format, ...);
 
 void *iotx_event_callback(int evt);
 

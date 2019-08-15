@@ -136,7 +136,7 @@ int IOT_Ioctl(int option, void *data)
                 memset(ctx->product_key, 0, IOTX_PRODUCT_KEY_LEN + 1);
                 memcpy(ctx->product_key, data, strlen(data));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -145,7 +145,7 @@ int IOT_Ioctl(int option, void *data)
             if (data != NULL) {
                 memcpy(data, ctx->product_key, strlen(ctx->product_key));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -155,7 +155,7 @@ int IOT_Ioctl(int option, void *data)
                 memset(ctx->product_secret, 0, IOTX_PRODUCT_SECRET_LEN + 1);
                 memcpy(ctx->product_secret, data, strlen(data));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -164,7 +164,7 @@ int IOT_Ioctl(int option, void *data)
             if (data != NULL) {
                 memcpy(data, ctx->product_secret, strlen(ctx->product_secret));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -174,7 +174,7 @@ int IOT_Ioctl(int option, void *data)
                 memset(ctx->device_name, 0, IOTX_DEVICE_NAME_LEN + 1);
                 memcpy(ctx->device_name, data, strlen(data));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -183,7 +183,7 @@ int IOT_Ioctl(int option, void *data)
             if (data != NULL) {
                 memcpy(data, ctx->device_name, strlen(ctx->device_name));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -193,7 +193,7 @@ int IOT_Ioctl(int option, void *data)
                 memset(ctx->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
                 memcpy(ctx->device_secret, data, strlen(data));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -202,7 +202,7 @@ int IOT_Ioctl(int option, void *data)
             if (data != NULL) {
                 memcpy(data, ctx->device_secret, strlen(ctx->device_secret));
                 res = SUCCESS_RETURN;
-            }else{
+            } else {
                 res = FAIL_RETURN;
             }
         }
@@ -233,8 +233,7 @@ int IOT_Ioctl(int option, void *data)
             int devid = *(int *)(data);
             if (devid < 0) {
                 res = STATE_USER_INPUT_DEVID;
-            }
-            else {
+            } else {
                 res = iotx_dm_ota_switch_device(devid);
             }
         }
@@ -424,7 +423,7 @@ int iotx_register_for_ITE_STATE_EVERYTHING(state_handler_t callback)
 {
     int idx = 0;
 
-    for (idx = ITE_STATE_EVERYTHING;idx <= ITE_STATE_DEV_MODEL; idx++) {
+    for (idx = ITE_STATE_EVERYTHING; idx <= ITE_STATE_DEV_MODEL; idx++) {
         g_impl_event_map[idx].callback = (void *)callback;
     }
 
@@ -441,29 +440,31 @@ DEFINE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t callback)
 
+extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+
 #define IOTX_STATE_EVENT_MESSAGE_MAXLEN (64)
-int iotx_state_event(const int event, const int state_code, const char * state_message)
+int iotx_state_event(const int event, const int code, const char *msg_format, ...)
 {
-    char message[IOTX_STATE_EVENT_MESSAGE_MAXLEN + 1] = {0};
-    void *everything_state_handler = iotx_event_callback(ITE_STATE_EVERYTHING);
-    void *state_handler = iotx_event_callback(event);
+    char        message[IOTX_STATE_EVENT_MESSAGE_MAXLEN + 1] = {0};
+    void       *everything_state_handler = iotx_event_callback(ITE_STATE_EVERYTHING);
+    void       *state_handler = iotx_event_callback(event);
+    va_list     args;
 
     if (state_handler == NULL) {
         return -1;
     }
 
-    if (state_message != NULL) {
-        if (strlen(state_message) > IOTX_STATE_EVENT_MESSAGE_MAXLEN) {
-            memcpy(message, state_message, IOTX_STATE_EVENT_MESSAGE_MAXLEN);
-        }else{
-            memcpy(message, state_message, strlen(state_message));
-        }
+    if (msg_format != NULL) {
+        memset(message, 0, sizeof(message));
+        va_start(args, msg_format);
+        vsnprintf(message, IOTX_STATE_EVENT_MESSAGE_MAXLEN, msg_format, args);
+        va_end(args);
     }
 
-    ((state_handler_t)state_handler)(state_code, message);
+    ((state_handler_t)state_handler)(code, message);
 
     if (everything_state_handler && everything_state_handler != state_handler) {
-        ((state_handler_t)everything_state_handler)(state_code, message);
+        ((state_handler_t)everything_state_handler)(code, message);
     }
 
     return 0;
