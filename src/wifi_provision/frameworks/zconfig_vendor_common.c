@@ -468,19 +468,12 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     aws_result_channel = 0;
 
     zconfig_init();
-#ifdef AWSS_SUPPORT_DISCOVER
-    aws_discover_init();
-#endif
     HAL_Awss_Open_Monitor(aws_80211_frame_handler);
 
 #ifndef AWSS_DISABLE_ENROLLEE
     awss_init_enrollee_info();
 #endif
-
     aws_main_thread_func();
-#ifdef AWSS_SUPPORT_DISCOVER
-    aws_discover_deinit();
-#endif
 }
 
 static void *aws_mutex = NULL;

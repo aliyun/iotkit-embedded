@@ -754,6 +754,9 @@ struct awss_protocol_couple_type awss_protocol_couple_array[] = {
 #ifdef AWSS_SUPPORT_SMARTCONFIG_MCAST
     {ALINK_BROADCAST,    awss_ieee80211_mcast_smartconfig_process, awss_recv_callback_mcast_smartconfig}
  #endif
+#ifdef AWSS_SUPPORT_DISCOVER
+    {ALINK_BROADCAST,       aws_discover_callback,      NULL},
+#endif
 };
 
 /**
