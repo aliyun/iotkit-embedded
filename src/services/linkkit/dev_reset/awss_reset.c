@@ -38,7 +38,9 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
     log_debug("[RST]", "%s\r\n", __func__);
 
     awss_report_reset_suc = 1;
-    HAL_Kv_Set(AWSS_KV_RST, &rst, sizeof(rst), 0);
+    if (HAL_Kv_Set(AWSS_KV_RST, &rst, sizeof(rst), 0) != 0) {
+        iotx_state_event(ITE_STATE_DEV_BIND, STATE_SYS_DEPEND_KV_SET, AWSS_KV_RST);
+    }
 
     HAL_Timer_Stop(report_reset_timer);
     HAL_Timer_Delete(report_reset_timer);
