@@ -61,12 +61,6 @@ int     iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData)
 
 void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
 
-#ifndef BUILD_AOS
-unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
-                                  unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],
-                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
-#endif
-
 void iotx_set_report_func(info_report_func_pt func);
 int iotx_report_devinfo(void *pclient);
 int iotx_report_mid(void *pclient);

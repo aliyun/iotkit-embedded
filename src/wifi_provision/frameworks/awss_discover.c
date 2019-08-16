@@ -327,6 +327,7 @@ int aws_discover_callback(uint8_t *buffer, int length, int link_type, struct par
         default:
             break;
     }
+    return 0;
 }
 
 int aws_discover_send_beacon()

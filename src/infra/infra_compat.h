@@ -65,33 +65,6 @@ int iotx_event_regist_cb(void (*monitor_cb)(int event));
  */
 int iotx_event_post(int event);
 
-#ifndef BUILD_AOS
-
-#ifndef VERSION_NUM_SIZE
-    #define VERSION_NUM_SIZE    4
-#endif
-
-#ifndef RANDOM_NUM_SIZE
-    #define RANDOM_NUM_SIZE     4
-#endif
-
-#ifndef MAC_ADDRESS_SIZE
-    #define MAC_ADDRESS_SIZE    8
-#endif
-
-#ifndef CHIP_CODE_SIZE
-    #define CHIP_CODE_SIZE      4
-#endif
-
-#define AOS_ACTIVE_INFO_LEN (81)
-unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
-                                  unsigned char random_num[RANDOM_NUM_SIZE],
-                                  unsigned char mac_address[MAC_ADDRESS_SIZE],
-                                  unsigned char chip_code[CHIP_CODE_SIZE],
-                                  unsigned char *output_buffer,
-                                  unsigned int output_buffer_size);
-#endif
-
 typedef enum {
     ITE_AWSS_STATUS,
     ITE_CONNECT_SUCC,
