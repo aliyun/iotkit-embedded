@@ -46,7 +46,7 @@ static int _dm_server_dev_notify(void *handle)
     memcpy(notify_sa.addr, ALCS_NOTIFY_HOST, strlen(ALCS_NOTIFY_HOST));
     notify_sa.port = ALCS_NOTIFY_PORT;
 
-    dm_log_debug("notify path:%s; payload = %s", DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, payload);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_GENERAL, "core/service/dev notify, payload: %s", payload);
 
     for (i = 0; i < 2; i++) {
         ret = CoAPServerMultiCast_send(g_coap_ctx, &notify_sa, DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, (uint8_t *)payload,
@@ -125,14 +125,14 @@ int dm_server_send(char *uri, unsigned char *payload, int payload_len, void *con
 
     if (alcs_context == NULL) {
         res = iotx_alcs_observe_notify(ctx->conn_handle, alcs_msg.uri, alcs_msg.payload_len, alcs_msg.payload);
-        dm_log_info("Send Observe Notify Result %d", res);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_SEND_MSG, "alcs send msg through observe notify, result: %d", res);
     } else if (alcs_context->ip && alcs_context->port && NULL == alcs_context->token) {
         res = iotx_alcs_send(ctx->conn_handle, &alcs_msg);
-        dm_log_info("Send Result %d", res);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_SEND_MSG, "alcs send msg through alcs send, result: %d", res);
     } else if (alcs_context->ip && alcs_context->port && alcs_context->token_len && alcs_context->token) {
         res = iotx_alcs_send_Response(ctx->conn_handle, &alcs_msg, (uint8_t)alcs_context->token_len,
                                       (uint8_t *)alcs_context->token);
-        dm_log_info("Send Response Result %d", res);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_SEND_MSG, "alcs send msg through alcs response, result: %d", res);
     }
 
     return res;
@@ -153,11 +153,7 @@ int dm_server_subscribe(char *uri, CoAPRecvMsgHandler callback, int auth_type)
     alcs_res.need_auth = auth_type;
     alcs_res.callback = callback;
 
-    res = iotx_alcs_register_resource(ctx->conn_handle, &alcs_res);
-
-    dm_log_info("Register Resource Result: %d", res);
-
-    return res;
+    return iotx_alcs_register_resource(ctx->conn_handle, &alcs_res);
 }
 
 int dm_server_add_device(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1])
@@ -166,8 +162,8 @@ int dm_server_add_device(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device
     dm_server_ctx_t *ctx = dm_server_get_ctx();
 
     res = iotx_alcs_add_sub_device(ctx->conn_handle, (const char *)product_key, (const char *)device_name);
-    dm_log_info("Add Device Result: %d, Product Key: %s, Device Name: %s", res, product_key, device_name);
-
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_GENERAL, "alcs add subdev %s.%s return %d",
+                    product_key, device_name, res);
     return res;
 }
 
@@ -177,8 +173,8 @@ int dm_server_del_device(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device
     dm_server_ctx_t *ctx = dm_server_get_ctx();
 
     res = iotx_alcs_remove_sub_device(ctx->conn_handle, (const char *)product_key, (const char *)device_name);
-    dm_log_info("Del Device Result: %d, Product Key: %s, Device Name: %s", res, product_key, device_name);
-
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_GENERAL, "alcs delete subdev %s.%s return %d",
+                    product_key, device_name, res);
     return res;
 }
 

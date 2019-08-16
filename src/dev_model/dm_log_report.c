@@ -32,7 +32,6 @@ int remove_log_poll()
 unsigned int push_log(const char *input_log, int input_log_size)
 {
     if (NULL == current_log_pos || NULL == input_log || input_log_size <= 0) {
-        dm_log_debug("invalid params");
         return -1;
     }
     memcpy(current_log_pos, input_log, input_log_size);
@@ -57,7 +56,6 @@ void add_log_header()
 int reset_log_poll()
 {
     if (NULL == g_log_poll) {
-        dm_log_err("log buffer is NULL");
         return -1;
     }
     memset(g_log_poll, 0, LOG_POLL_SIZE);
@@ -88,7 +86,6 @@ int check_target_msg(const char *input, int len)
         return -1;
     }
     if (NULL == input || len <= 0) {
-        dm_log_err("invalid params");
         return -1;
     }
     return strncmp(input, msg_array, len);
@@ -103,7 +100,6 @@ int set_target_msg(const char *input, int len)
     }
     if ((msg_num % sample_interval == 0) && (msg_num < sample_count)) {
         if (NULL == input || len <= 0) {
-            dm_log_err("invalid params");
             return -1;
         }
         strncpy(msg_array, input, len);
@@ -130,7 +126,8 @@ int stop_sample()
         dm_mgr_upstream_thing_log_post(0, NULL, 0, 1);
     }
     switch_status = 0;
-    dm_log_info("stop sample");
+
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_LOG_REPORT_STOP, "log report stop");
     return remove_log_poll();
 }
 
@@ -168,15 +165,14 @@ void parse_switch_info(_IN_ char *payload, _IN_ int payload_len)
     sample_interval = lite_sample_interval.value_int;
     sample_target = lite_sample_target.value;
     sample_target_len  = lite_sample_target.value_length;
-    dm_log_info("switch count is %d, interval is %d, target is %.*s\n", sample_count, sample_interval,
-                sample_target_len, sample_target);
+
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_LOG_REPORT_SWITCH, "switch count is %d, interval is %d, target is %.*s\n",
+                    sample_count, sample_interval, sample_target_len, sample_target);
     /* if the target is not property set, return */
     if (0 != strncmp(sample_target, target, sample_target_len)) {
-        dm_log_info("target is not propSet, return\n");
         return;
     }
     if (sample_interval <= 0) {
-        dm_log_err("invalid sample interval\n");
         return;
     }
     msg_num = 0;
@@ -187,8 +183,6 @@ void parse_switch_info(_IN_ char *payload, _IN_ int payload_len)
         switch_status = 1;
         ret = create_log_poll();
     }
-
-    dm_log_info("log switch run status is %d\n", ret);
 }
 
 REPORT_STATE g_report_status = READY;
@@ -205,7 +199,6 @@ void send_permance_info(char *input, int input_len, char *comments, int report_f
     switch (report_format) {
         case 0:
             if (NULL == input || input_len <= 0) {
-                dm_log_err("invalid params");
                 return;
             }
             format = THING_LOG_POST_PARAMS_HEAD;
@@ -252,7 +245,6 @@ void get_msgid(char *payload, int is_cloud)
     msg_num++;
     parse_msg_id(found, strlen(found), &request);
     if (RUNNING == g_report_status) {
-        dm_log_info("current working on a sample, return");
         return;
     }
 

@@ -84,7 +84,8 @@ int dm_ipc_msg_insert(void *data)
     }
 
     _dm_ipc_lock();
-    dm_log_debug("dm msg list size: %d, max size: %d", ctx->msg_list.size, ctx->msg_list.max_size);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST, "ipc list size: %d, max size: %d",
+                     ctx->msg_list.size, ctx->msg_list.max_size);
     if (ctx->msg_list.size >= ctx->msg_list.max_size) {
         _dm_ipc_unlock();
         iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST_FULL, NULL);
@@ -131,6 +132,7 @@ int dm_ipc_msg_next(void **data)
     DM_free(node);
 
     _dm_ipc_unlock();
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST, "ipc list remove");
     return SUCCESS_RETURN;
 }
 

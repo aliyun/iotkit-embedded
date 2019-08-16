@@ -48,8 +48,6 @@ static int _dm_fota_send_new_config_to_user(void *ota_handle)
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, fota_new_config_fmt, version);
 
-    dm_log_info("Send To User: %s", message);
-
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_FOTA_NEW_FIRMWARE, message);
     if (res != SUCCESS_RETURN) {
         if (message) {
@@ -105,7 +103,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
             }
             retry_timeout += CONFIG_FOTA_RETRY_INTERNAL_MS;
             HAL_SleepMs(CONFIG_FOTA_RETRY_INTERNAL_MS);
-            dm_log_err("IOT_OTA_FetchYield next time");
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_OTA_FETCH_FAILED, "IOT_OTA_FetchYield return error");
             continue;
         }
         retry_timeout = 0;
@@ -115,7 +113,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
         if (ret < 0) {
             IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_BURN_FAILED, NULL);
             IOT_OTA_Ioctl(ota_handle, IOT_OTAG_RESET_STATE, NULL, 0);
-            dm_log_err("Fota write firmware failed");
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_FIRMWAIRE_WIRTE, "HAL_Firmware_Persistence_Write return error");
             HAL_Firmware_Persistence_Stop();
             ctx->is_report_new_config = 0;
             return STATE_SYS_DEPEND_FIRMWAIRE_WIRTE;
@@ -182,7 +180,6 @@ int dm_fota_status_check(void)
         if (ota_type == IOT_OTAT_FOTA) {
             /* Send New Config Information To User */
             if (ctx->is_report_new_config == 0) {
-                dm_log_debug("Fota Status Check");
                 res = _dm_fota_send_new_config_to_user(ota_handle);
                 if (res == SUCCESS_RETURN) {
                     ctx->is_report_new_config = 1;

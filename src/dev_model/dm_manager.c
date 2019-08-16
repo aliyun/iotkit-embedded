@@ -1075,13 +1075,8 @@ int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *pay
         return res;
     }
 
-    dm_log_info("DM Send Raw Data:");
-    HEXDUMP_INFO(payload, payload_len);
-
     res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload), dm_client_thing_model_up_raw_reply);
-
     if (res < SUCCESS_RETURN) {
-        dm_log_info("res of pub is %d:", res);
         DM_free(uri);
         return res;
     }
@@ -1121,7 +1116,6 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
         return res;
     }
 
-    dm_log_info("DM Send Raw Data:");
     HEXDUMP_INFO(payload, payload_len);
 
     res = dm_client_publish(uri, (unsigned char *)payload, payload_len, dm_client_thing_model_up_raw_reply);
@@ -1291,7 +1285,7 @@ int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int 
             return STATE_DEV_MODEL_LOG_REPORT_ERROR;
         }
 
-        dm_log_info("push log, len is %d, log_size is %d\n", payload_len, log_size);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_LOG_REPORT_SEND, "push log, len is %d, log_size is %d\n", payload_len, log_size);
         if (!(log_size > REPORT_LEN && DONE == g_report_status)) {
             return SUCCESS_RETURN;
         }
@@ -1565,7 +1559,6 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
         return res;
     }
 
-    dm_log_debug("Current Service Name: %s", service_name);
     if (ctx != NULL) {
         dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, payload, payload_len, ctx);
     } else {
@@ -1612,7 +1605,6 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     if (res != SUCCESS_RETURN) {
         return res;
     }
-    dm_log_debug("Current Service Name: %s", reply_service_name);
     dm_msg_response(reply_msg_type, &request, &response, payload, payload_len, ctx);
 
 #ifdef ALCS_ENABLED
@@ -1660,7 +1652,6 @@ int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
         return res;
     }
 
-    dm_log_debug("Current Service Name: %s", service_name);
     dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, NULL);
 
     DM_free(service_name);
@@ -1715,7 +1706,6 @@ static int dm_mgr_deprecated_search_devid_by_node(_IN_ dm_mgr_dev_node_t *node, 
 
     list_for_each_entry(search_node, &ctx->dev_list, linked_list, dm_mgr_dev_node_t) {
         if (search_node == node) {
-            /* dm_log_debug("Device Found, node: %p", node); */
             if (devid) {
                 *devid = search_node->devid;
             }
@@ -1723,7 +1713,6 @@ static int dm_mgr_deprecated_search_devid_by_node(_IN_ dm_mgr_dev_node_t *node, 
         }
     }
 
-    dm_log_debug("Device Not Found, node: %p", node);
     return FAIL_RETURN;
 }
 
@@ -2319,7 +2308,6 @@ int dm_mgr_deprecated_upstream_thing_service_response(_IN_ int devid, _IN_ int m
         return FAIL_RETURN;
     }
 
-    dm_log_debug("Current Service Name: %s", service_name);
     dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, NULL);
 
     DM_free(msgid_str);

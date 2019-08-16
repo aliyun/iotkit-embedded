@@ -72,7 +72,7 @@ extern "C" {
 /* User input parameters contain unacceptable device type */
 /* 用户传递给API的参数中含有不合理的设备类型, 既不是master又不是slave */
 #define STATE_USER_INPUT_DEVICE_TYPE                (STATE_USER_INPUT_BASE - 0x0011)
-/*  */
+/* User input parameters contain unacceptable message type */
 /*  */
 #define STATE_USER_INPUT_MSG_TYPE                   (STATE_USER_INPUT_BASE - 0x0012)
 
@@ -378,21 +378,23 @@ extern "C" {
 /* Internal error happens in device model function */
 /* 物模型/子设备管理模块发生内部错误 */
 #define STATE_DEV_MODEL_INTERNAL_ERROR              (STATE_DEV_MODEL_BASE - 0x0009)
-/* Internal error about file descriptor happens in device model function */
-/* 物模型/子设备管理模块发生fd有关的内部错误 */
-#define STATE_DEV_MODEL_INTERNAL_FD_ERROR           (STATE_DEV_MODEL_BASE - 0x000A)
 /* Internal event about MQTT connect happens in device model function */
 /* 物模型/子设备管理模块发现MQTT连接已经建立, 跳过再次建连动作 */
-#define STATE_DEV_MODEL_INTERNAL_MQTT_DUP_INIT      (STATE_DEV_MODEL_BASE - 0x000B)
+#define STATE_DEV_MODEL_INTERNAL_MQTT_DUP_INIT      (STATE_DEV_MODEL_BASE - 0x000A)
 /* Internal error about MQTT unconnect happens in device model function */
 /* 物模型/子设备管理模块发生MQTT连接未建立的内部错误 */
-#define STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET  (STATE_DEV_MODEL_BASE - 0x000C)
+#define STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET  (STATE_DEV_MODEL_BASE - 0x000B)
 /* Failed to open handler for cloud abstract layer */
 /* 物模型模块中发生连接抽象层初始化失败 */
-#define STATE_DEV_MODEL_CM_OPEN_FAILED              (STATE_DEV_MODEL_BASE - 0x000D)
+#define STATE_DEV_MODEL_CM_OPEN_FAILED              (STATE_DEV_MODEL_BASE - 0x000C)
 /* Failed to find file descriptor in cloud abstract layer */
 /* 物模型模块中未找到连接抽象层的fd */
-#define STATE_DEV_MODEL_CM_FD_NOT_FOUND             (STATE_DEV_MODEL_BASE - 0x000E)
+#define STATE_DEV_MODEL_CM_FD_NOT_FOUND             (STATE_DEV_MODEL_BASE - 0x000D)
+/* Internal error about file descriptor happens in device model function */
+/* 物模型/子设备管理模块发生fd有关的内部错误 */
+#define STATE_DEV_MODEL_CM_FD_ERROR                 (STATE_DEV_MODEL_BASE - 0x000E)
+
+
 /* Failed to connect MQTT in device model function */
 /* 物模型模块中发生MQTT连接建立失败 */
 #define STATE_DEV_MODEL_MQTT_CONNECT_FAILED         (STATE_DEV_MODEL_BASE - 0x000F)
@@ -404,8 +406,6 @@ extern "C" {
 #define STATE_DEV_MODEL_WRONG_JSON_FORMAT           (STATE_DEV_MODEL_BASE - 0x0011)
 
 #define STATE_DEV_MODEL_GET_JSON_ITEM_FAILED        (STATE_DEV_MODEL_BASE - 0x0012)
-
-#define STATE_DEV_MODEL_JSON_PARSE_FAILED           (STATE_DEV_MODEL_BASE - 0x0013)
 
 /* Service respond does not have correct request context in device model */
 /* 物模型模块中发送服务回应报文给服务端时, 没有找到对应的服务端请求上下文 */
@@ -449,19 +449,34 @@ extern "C" {
 
 #define STATE_DEV_MODEL_INVALID_DM_OPTION           (STATE_DEV_MODEL_BASE - 0x0023)
 
-#define STATE_DEV_MODEL_IPC_LIST_FULL               (STATE_DEV_MODEL_BASE - 0x0024)
+#define STATE_DEV_MODEL_URL_SPLIT_FAILED            (STATE_DEV_MODEL_BASE - 0x0024)
+#define STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED      (STATE_DEV_MODEL_BASE - 0x0025)
+#define STATE_DEV_MODEL_LOG_REPORT_ERROR            (STATE_DEV_MODEL_BASE - 0x0026)
+#define STATE_DEV_MODEL_AUTO_SUBSCRIBE_ENABLED      (STATE_DEV_MODEL_BASE - 0x0027)
+#define STATE_DEV_MODEL_RECV_CLOUD_DATA             (STATE_DEV_MODEL_BASE - 0x0028)
+#define STATE_DEV_MODEL_PUBLISH_MESSAGE             (STATE_DEV_MODEL_BASE - 0x0029)
 
-#define STATE_DEV_MODEL_IPC_LIST_EMPTY              (STATE_DEV_MODEL_BASE - 0x0025)
+#define STATE_DEV_MODLE_ALCS_RECV_MSG               (STATE_DEV_MODEL_BASE - 0x002A)
+#define STATE_DEV_MODLE_ALCS_SEND_MSG               (STATE_DEV_MODEL_BASE - 0x002B)
+#define STATE_DEV_MODLE_ALCS_GENERAL                (STATE_DEV_MODEL_BASE - 0x002C)
 
-#define STATE_DEV_MODEL_CACHE_LIST_FULL             (STATE_DEV_MODEL_BASE - 0x0026)
+#define STATE_DEV_MODEL_IPC_LIST                    (STATE_DEV_MODEL_BASE - 0x002D)
+#define STATE_DEV_MODEL_IPC_LIST_FULL               (STATE_DEV_MODEL_BASE - 0x002E)
+#define STATE_DEV_MODEL_IPC_LIST_EMPTY              (STATE_DEV_MODEL_BASE - 0x002F)
 
-#define STATE_DEV_MODEL_CACHE_LIST_EMPTY            (STATE_DEV_MODEL_BASE - 0x0027)
+#define STATE_DEV_MODEL_CACHE_LIST_INSERT           (STATE_DEV_MODEL_BASE - 0x0030)
+#define STATE_DEV_MODEL_CACHE_LIST_REMOVE           (STATE_DEV_MODEL_BASE - 0x0031)
+#define STATE_DEV_MODEL_CACHE_LIST_MSG_TIMEOUT      (STATE_DEV_MODEL_BASE - 0x0032)
+#define STATE_DEV_MODEL_CACHE_LIST_FULL             (STATE_DEV_MODEL_BASE - 0x0033)
+#define STATE_DEV_MODEL_CACHE_LIST_EMPTY            (STATE_DEV_MODEL_BASE - 0x0034)
 
-#define STATE_DEV_MODEL_URL_SPLIT_FAILED            (STATE_DEV_MODEL_BASE - 0x0028)
+#define STATE_DEV_MODLE_LOG_REPORT_STOP             (STATE_DEV_MODEL_BASE - 0x0035)
+#define STATE_DEV_MODLE_LOG_REPORT_SWITCH           (STATE_DEV_MODEL_BASE - 0x0036)
+#define STATE_DEV_MODLE_LOG_REPORT_SEND             (STATE_DEV_MODEL_BASE - 0x0037)
 
-#define STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED      (STATE_DEV_MODEL_BASE - 0x0029)
+#define STATE_DEV_MODEL_LINKKIT_SYNC_LIST           (STATE_DEV_MODEL_BASE - 0x0038)
+#define STATE_DEV_MODEL_LINKKIT_EVENT               (STATE_DEV_MODEL_BASE - 0x0039)
 
-#define STATE_DEV_MODEL_LOG_REPORT_ERROR            (STATE_DEV_MODEL_BASE - 0x002A)
 
 /* Device Model: 0x0900 ~ 0x09FF */
 

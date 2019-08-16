@@ -368,12 +368,12 @@ int dm_utils_json_parse(_IN_ const char *payload, _IN_ int payload_len, _IN_ int
     res = lite_cjson_parse(payload, payload_len, lite);
     if (res != SUCCESS_RETURN) {
         memset(lite, 0, sizeof(lite_cjson_t));
-        return STATE_DEV_MODEL_JSON_PARSE_FAILED;
+        return STATE_DEV_MODEL_WRONG_JSON_FORMAT;
     }
 
     if (type != cJSON_Invalid && lite->type != type) {
         memset(lite, 0, sizeof(lite_cjson_t));
-        return STATE_DEV_MODEL_JSON_PARSE_FAILED;
+        return STATE_DEV_MODEL_WRONG_JSON_FORMAT;
     }
 
     return SUCCESS_RETURN;
@@ -389,7 +389,7 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
     }
 
     if (lite->type != cJSON_Object) {
-        dm_log_err("lite->type != cJSON_Object, %d", lite->type);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_WRONG_JSON_FORMAT, "parse object item");
     }
 
     memset(lite_item, 0, sizeof(lite_cjson_t));

@@ -71,8 +71,6 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, cota_new_config_fmt, config_id, config_size, get_type, sign, sign_method, url);
 
-    dm_log_info("Send To User: %s", message);
-
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_COTA_NEW_CONFIG, message);
     if (res != SUCCESS_RETURN) {
         if (message) {
@@ -218,7 +216,6 @@ int dm_cota_status_check(void)
         if (ota_type == IOT_OTAT_COTA) {
             /* Send New Config Information To User */
             if (ctx->is_report_new_config == 0) {
-                dm_log_debug("Cota Status Check");
                 res = _dm_cota_send_new_config_to_user(ota_handle);
                 if (res == SUCCESS_RETURN) {
                     ctx->is_report_new_config = 1;

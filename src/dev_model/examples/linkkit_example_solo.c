@@ -291,12 +291,11 @@ static int dynreg_device_secret(const char *device_secret)
     return 0;
 }
 
-static int wifi_provision_status_dump(int ev, const char *msg)
+static int user_sdk_state_dump(int ev, const char *msg)
 {
-    printf("received event of wifi-prov as -0x%04x(%s)\n", -ev, msg);
+    printf("received state event, -0x%04x(%s)\n", -ev, msg);
     return 0;
 }
-
 
 int main(int argc, char **argv)
 {
@@ -347,7 +346,7 @@ int main(int argc, char **argv)
  */
 
     /* Register Callback */
-    IOT_RegisterCallback(ITE_STATE_EVERYTHING, wifi_provision_status_dump);
+    IOT_RegisterCallback(ITE_STATE_EVERYTHING, user_sdk_state_dump);
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
     IOT_RegisterCallback(ITE_DISCONNECTED, user_disconnected_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);

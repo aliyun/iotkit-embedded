@@ -75,7 +75,7 @@ int dm_msg_cache_insert(int msgid, int devid, iotx_dm_event_types_t type, char *
     dm_msg_cache_ctx_t *ctx = _dm_msg_cache_get_ctx();
     dm_msg_cache_node_t *node = NULL;
 
-    dm_log_debug("dmc list size: %d", ctx->dmc_list_size);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_INSERT, "cache list size: %d", ctx->dmc_list_size);
     if (ctx->dmc_list_size >= CONFIG_MSGCACHE_QUEUE_MAXLEN) {
         return STATE_DEV_MODEL_CACHE_LIST_FULL;
     }
@@ -97,6 +97,7 @@ int dm_msg_cache_insert(int msgid, int devid, iotx_dm_event_types_t type, char *
     list_add_tail(&node->linked_list, &ctx->dmc_list);
     ctx->dmc_list_size++;
     _dm_msg_cache_mutex_unlock();
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_INSERT, "cache insert msgid: %d", msgid);
 
     return SUCCESS_RETURN;
 }
@@ -138,7 +139,7 @@ int dm_msg_cache_remove(int msgid)
             }
             ctx->dmc_list_size--;
             DM_free(node);
-            dm_log_debug("Remove Message ID: %d", msgid);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_REMOVE, "cache remove msgid: %d", msgid);
             _dm_msg_cache_mutex_unlock();
             return SUCCESS_RETURN;
         }
@@ -161,7 +162,7 @@ void dm_msg_cache_tick(void)
             node->ctime = current_time;
         }
         if (current_time - node->ctime >= DM_MSG_CACHE_TIMEOUT_MS_DEFAULT) {
-            dm_log_debug("Message ID Timeout: %d", node->msgid);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_MSG_TIMEOUT, "cache timeout msgid: %d", node->msgid);
             /* Send Timeout Message To User */
             dm_msg_send_msg_timeout_to_user(node->msgid, node->devid, node->response_type);
             list_del(&node->linked_list);

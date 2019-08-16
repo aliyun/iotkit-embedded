@@ -239,7 +239,6 @@ static int _linkkit_service_list_delete(iotx_service_ctx_node_t *node)
         ctx->service_list_num--;
     }
 
-    dm_log_debug("servcie node deleted");
     return SUCCESS_RETURN;
 }
 
@@ -285,7 +284,6 @@ void iotx_linkkit_service_list_overtime_handle(void)
             search_node->ctime = current_time;
         }
         if (current_time - search_node->ctime >= CONFIG_SERVICE_REQUEST_TIMEOUT) {
-            dm_log_warning("service request timeout, msgid = %d", search_node->msgid);
             _linkkit_service_list_delete(search_node);
         }
     }
@@ -333,7 +331,7 @@ static int _iotx_linkkit_upstream_sync_callback_list_insert(int msgid, void *sem
     INIT_LIST_HEAD(&search_node->linked_list);
 
     list_add(&search_node->linked_list, &ctx->upstream_sync_callback_list);
-    dm_log_debug("New Message, msgid: %d", msgid);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_SYNC_LIST, "sync list insert, msgid: %d", msgid);
 
     *node = search_node;
     return SUCCESS_RETURN;
@@ -397,7 +395,7 @@ static void _iotx_linkkit_upstream_callback_remove(int msgid, int code)
     res = _iotx_linkkit_upstream_sync_callback_list_search(msgid, &sync_node);
     if (res == SUCCESS_RETURN) {
         sync_node->code = (code == IOTX_DM_ERR_CODE_SUCCESS) ? (SUCCESS_RETURN) : (STATE_DEV_MODEL_CLOUD_RETURN_ERROR);
-        dm_log_debug("Sync Message %d Result: %d", msgid, sync_node->code);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_SYNC_LIST, "sync list remove, msgid: %d", msgid);
         HAL_SemaphorePost(sync_node->semaphore);
     }
 }
@@ -420,9 +418,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     lite_cjson_t lite_item_version, lite_item_configid, lite_item_configsize, lite_item_gettype, lite_item_sign,
                  lite_item_signmethod, lite_item_url, lite_item_data, lite_item_message;
 
-    dm_log_info("Receive Message Type: %d", type);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "linkkit event type: %d", type);
+
     if (payload) {
-        dm_log_info("Receive Message: %s", payload);
         res = dm_utils_json_parse(payload, strlen(payload), cJSON_Invalid, &lite);
         if (res != SUCCESS_RETURN) {
             return;
@@ -490,7 +488,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "dev init, devid: %d",
+                            lite_item_devid.value_int);
 
             callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
             if (callback) {
@@ -506,13 +505,14 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current Raw Data: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "down raw, devid: %d, raw: %.*s",
+                            lite_item_devid.value_int,
+                            lite_item_payload.value_length, lite_item_payload.value);
 
             raw_data_len = lite_item_payload.value_length / 2;
             raw_data = IMPL_LINKKIT_MALLOC(raw_data_len);
             if (raw_data == NULL) {
-                dm_log_err("No Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             LITE_hexstr_convert(lite_item_payload.value, lite_item_payload.value_length, raw_data, raw_data_len);
@@ -534,13 +534,14 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current Raw Data: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "up raw reply, devid: %d, raw: %.*s",
+                            lite_item_devid.value_int,
+                            lite_item_payload.value_length, lite_item_payload.value);
 
             raw_data_len = lite_item_payload.value_length / 2;
             raw_data = IMPL_LINKKIT_MALLOC(raw_data_len);
             if (raw_data == NULL) {
-                dm_log_err("No Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(raw_data, 0, raw_data_len);
@@ -569,11 +570,11 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Id: %.*s", lite_item_id.value_length, lite_item_id.value);
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
-            dm_log_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
-            dm_log_debug("Current Ctx: %.*s", lite_item_ctx.value_length, lite_item_ctx.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "service req, msgid: %.*s, devid: %d, serviceid: %.*s, payload: %.*s",
+                            lite_item_id.value_length, lite_item_id.value,
+                            lite_item_devid.value_int,
+                            lite_item_serviceid.value_length, lite_item_serviceid.value,
+                            lite_item_payload.value_length, lite_item_payload.value);
 
             LITE_hexstr_convert(lite_item_ctx.value, lite_item_ctx.value_length, (unsigned char *)&property_get_ctx_num,
                                 sizeof(uintptr_t));
@@ -627,12 +628,13 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "property set, devid: %d, payload: %.*s",
+                            lite_item_devid.value_int,
+                            lite_item_payload.value_length, lite_item_payload.value);
 
             property_payload = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
             if (property_payload == NULL) {
-                dm_log_err("No Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(property_payload, 0, lite_item_payload.value_length + 1);
@@ -669,11 +671,13 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             if (payload == NULL || lite_item_data.type != cJSON_Object) {
                 return;
             }
-            dm_log_debug("Current Data: %.*s", lite_item_data.value_length, lite_item_data.value);
+
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "desired get, data: %.*s",
+                            lite_item_data.value_length, lite_item_data.value);
 
             property_data = IMPL_LINKKIT_MALLOC(lite_item_data.value_length + 1);
             if (property_data == NULL) {
-                dm_log_err("No Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(property_data, 0, lite_item_data.value_length + 1);
@@ -700,20 +704,18 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Id: %.*s", lite_item_id.value_length, lite_item_id.value);
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
-            dm_log_debug("Current Ctx: %.*s", lite_item_ctx.value_length, lite_item_ctx.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "property get, msgid: %.*s, devid: %d, payload: %.*s",
+                            lite_item_id.value_length, lite_item_id.value,
+                            lite_item_devid.value_int,
+                            lite_item_payload.value_length, lite_item_payload.value);
 
             LITE_hexstr_convert(lite_item_ctx.value, lite_item_ctx.value_length, (unsigned char *)&property_get_ctx_num,
                                 sizeof(uintptr_t));
             property_get_ctx = (void *)property_get_ctx_num;
-            dm_log_debug("property_get_ctx_num: %0x016llX", (unsigned int)property_get_ctx_num);
-            dm_log_debug("property_get_ctx: %p", property_get_ctx);
 
             request = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
             if (request == NULL) {
-                dm_log_err("No Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(request, 0, lite_item_payload.value_length + 1);
@@ -749,14 +751,13 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 || lite_item_devid.type != cJSON_Number) {
                 return;
             }
-            dm_log_debug("Current Id: %d", lite_item_id.value_int);
-            dm_log_debug("Current Code: %d", lite_item_code.value_int);
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "deviceinfo delete post reply, code: %d",
+                            lite_item_code.value_int);
 
             if (lite_item_payload.type == cJSON_Object && lite_item_payload.value_length > 0) {
                 user_payload = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
                 if (user_payload == NULL) {
-                    dm_log_err("No Enough Memory");
+                    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                     return;
                 }
                 memset(user_payload, 0, lite_item_payload.value_length + 1);
@@ -786,15 +787,12 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Id: %d", lite_item_id.value_int);
-            dm_log_debug("Current Code: %d", lite_item_code.value_int);
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current EventID: %.*s", lite_item_eventid.value_length, lite_item_eventid.value);
-            dm_log_debug("Current Message: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "event post reply, eventID: %.*s",
+                            lite_item_eventid.value_length, lite_item_eventid.value);
 
             user_eventid = IMPL_LINKKIT_MALLOC(lite_item_eventid.value_length + 1);
             if (user_eventid == NULL) {
-                dm_log_err("Not Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(user_eventid, 0, lite_item_eventid.value_length + 1);
@@ -802,7 +800,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             user_payload = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
             if (user_payload == NULL) {
-                dm_log_err("Not Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 IMPL_LINKKIT_FREE(user_eventid);
                 return;
             }
@@ -829,11 +827,12 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current UTC: %.*s", lite_item_utc.value_length, lite_item_utc.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "utc: %.*s",
+                        lite_item_utc.value_length, lite_item_utc.value);
 
             utc_payload = IMPL_LINKKIT_MALLOC(lite_item_utc.value_length + 1);
             if (utc_payload == NULL) {
-                dm_log_err("Not Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(utc_payload, 0, lite_item_utc.value_length + 1);
@@ -857,15 +856,12 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Id: %.*s", lite_item_id.value_length, lite_item_id.value);
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
-            dm_log_debug("Current RRPC ID: %.*s", lite_item_rrpcid.value_length, lite_item_rrpcid.value);
-            dm_log_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "rrpc request received, playload: %.*s",
+                            lite_item_payload.value_length, lite_item_payload.value);
 
             rrpc_request = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
             if (rrpc_request == NULL) {
-                dm_log_err("Not Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(rrpc_request, 0, lite_item_payload.value_length + 1);
@@ -912,7 +908,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "new fota information received, %.*s", lite_item_version.value_length, lite_item_version.value);
 
             version = IMPL_LINKKIT_MALLOC(lite_item_version.value_length + 1);
             if (version == NULL) {
@@ -941,12 +937,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            dm_log_debug("Current Config ID: %.*s", lite_item_configid.value_length, lite_item_configid.value);
-            dm_log_debug("Current Config Size: %d", lite_item_configsize.value_int);
-            dm_log_debug("Current Get Type: %.*s", lite_item_gettype.value_length, lite_item_gettype.value);
-            dm_log_debug("Current Sign: %.*s", lite_item_sign.value_length, lite_item_sign.value);
-            dm_log_debug("Current Sign Method: %.*s", lite_item_signmethod.value_length, lite_item_signmethod.value);
-            dm_log_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "new cota information received");
 
             _impl_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
                        lite_item_configid.value_length + 1);
@@ -1012,7 +1003,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             err_data = IMPL_LINKKIT_MALLOC(lite_item_data.value_length + 1);
             if (err_data == NULL) {
-                dm_log_err("Not Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
 
@@ -1021,8 +1012,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             err_detail = IMPL_LINKKIT_MALLOC(lite_item_message.value_length + 1);
             if (err_detail == NULL) {
-                dm_log_err("Not Enough Memory");
                 IMPL_LINKKIT_FREE(err_data);
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
 
@@ -1045,14 +1036,15 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 lite_item_code.type != cJSON_Number || lite_item_topo.type != cJSON_Array) {
                 return;
             }
-            dm_log_debug("Current Id: %d", lite_item_id.value_int);
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-            dm_log_debug("Current Code: %d", lite_item_code.value_int);
-            dm_log_debug("Current Topo List: %.*s", lite_item_topo.value_length, lite_item_topo.value);
+
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "topic get reply, msgid = %d, devid = %d, code = %d",
+                            lite_item_id.value_int,
+                            lite_item_devid.value_int,
+                            lite_item_code.value_int);
 
             topo_list = IMPL_LINKKIT_MALLOC(lite_item_topo.value_length + 1);
             if (topo_list == NULL) {
-                dm_log_err("Not Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(topo_list, 0, lite_item_topo.value_length + 1);
@@ -1078,9 +1070,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 lite_item_code.type != cJSON_Number) {
                 return;
             }
-            dm_log_debug("Current Id: %d", lite_item_id.value_int);
-            dm_log_debug("Current Code: %d", lite_item_code.value_int);
-            dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "login/logout reply, msgid = %d, devid = %d, code = %d",
+                            lite_item_id.value_int,
+                            lite_item_devid.value_int,
+                            lite_item_code.value_int);
 
             _iotx_linkkit_upstream_mutex_lock();
             _iotx_linkkit_upstream_callback_remove(lite_item_id.value_int, lite_item_code.value_int);
@@ -1093,18 +1086,20 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             if (payload == NULL || lite_item_time.type != cJSON_Number) {
                 return;
             }
-            dm_log_debug("Current Time: %d", lite_item_time.value_int);
 
             if (lite_item_pk.type == cJSON_String) {
-                dm_log_debug("Current Product Key: %.*s", lite_item_pk.value_length, lite_item_pk.value);
                 product_key = IMPL_LINKKIT_MALLOC(lite_item_pk.value_length + 1);
                 if (product_key == NULL) {
-                    dm_log_err("Not Enough Memory");
+                    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                     return;
                 }
                 memset(product_key, 0, lite_item_pk.value_length + 1);
                 memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
             }
+
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_LINKKIT_EVENT, "permitJoin recv, pk = %.*s, time = %d",
+                            lite_item_pk.value_length, lite_item_pk.value,
+                            lite_item_time.value_int);
 
             callback = iotx_event_callback(ITE_PERMIT_JOIN);
             if (callback) {

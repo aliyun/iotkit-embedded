@@ -95,7 +95,7 @@ int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1
 
 #ifdef MQTT_AUTO_SUBSCRIBE
     if (devid != 0) {
-        dm_log_info("Devid %d bypass Subscribe", devid);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_AUTO_SUBSCRIBE_ENABLED, "subdev bypass Subscribe");
         return SUCCESS_RETURN;
     }
 #else
@@ -106,7 +106,6 @@ int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1
         if ((g_dm_client_uri_map[index].dev_type & dev_type) == 0) {
             continue;
         }
-        dm_log_info("index: %d", index);
 
 #ifdef MQTT_AUTO_SUBSCRIBE
         res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,

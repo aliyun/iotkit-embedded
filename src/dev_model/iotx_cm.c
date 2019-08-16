@@ -60,7 +60,7 @@ int iotx_cm_connect(int fd, uint32_t timeout)
     int ret;
 
     if (_fd_is_valid(fd) < 0) {
-        return STATE_DEV_MODEL_INTERNAL_FD_ERROR;
+        return STATE_DEV_MODEL_CM_FD_ERROR;
     }
 
     HAL_MutexLock(fd_lock);
@@ -120,8 +120,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     }
 
     if (_fd_is_valid(fd) < 0) {
-        cm_err(ERR_INVALID_PARAMS);
-        return STATE_DEV_MODEL_INTERNAL_FD_ERROR;
+        return STATE_DEV_MODEL_CM_FD_ERROR;
     }
 
     HAL_MutexLock(fd_lock);
@@ -157,12 +156,11 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
     iotx_cm_sub_fp sub_func;
 
     if (_fd_is_valid(fd) < 0) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return STATE_DEV_MODEL_CM_FD_ERROR;
     }
 
     HAL_MutexLock(fd_lock);
-    sub_func =  _cm_fd[fd]->sub_func;
+    sub_func = _cm_fd[fd]->sub_func;
     HAL_MutexUnlock(fd_lock);
     return sub_func(ext, topic, topic_handle_func, pcontext);
 }
@@ -172,29 +170,25 @@ int iotx_cm_unsub(int fd, const char *topic)
     iotx_cm_unsub_fp unsub_func;
 
     if (_fd_is_valid(fd) < 0) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return STATE_DEV_MODEL_CM_FD_ERROR;
     }
 
     HAL_MutexLock(fd_lock);
-    unsub_func =  _cm_fd[fd]->unsub_func;
+    unsub_func = _cm_fd[fd]->unsub_func;
     HAL_MutexUnlock(fd_lock);
     return unsub_func(topic);
 }
-
-
 
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len)
 {
     iotx_cm_pub_fp pub_func;
 
     if (_fd_is_valid(fd) < 0) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return STATE_DEV_MODEL_CM_FD_ERROR;
     }
 
     HAL_MutexLock(fd_lock);
-    pub_func =  _cm_fd[fd]->pub_func;
+    pub_func = _cm_fd[fd]->pub_func;
     HAL_MutexUnlock(fd_lock);
     return pub_func(ext, topic, payload, payload_len);
 }
@@ -204,8 +198,7 @@ int iotx_cm_close(int fd)
     iotx_cm_close_fp close_func;
 
     if (_fd_is_valid(fd) < 0) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return STATE_DEV_MODEL_CM_FD_ERROR;
     }
 
     if (inited_conn_num > 0) {

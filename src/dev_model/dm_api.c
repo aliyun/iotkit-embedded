@@ -428,8 +428,6 @@ int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
     int res = 0;
 
     _dm_api_lock();
-    dm_log_debug("Current Service Response Payload, Length: %d, Payload: %.*s", payload_len, payload_len, payload);
-
     res = dm_mgr_upstream_thing_service_response(devid, msgid, msgid_len, code, identifier, identifier_len, payload,
             payload_len, ctx);
     _dm_api_unlock();
@@ -443,8 +441,6 @@ int iotx_dm_send_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ in
     int res = 0;
 
     _dm_api_lock();
-    dm_log_debug("Current Property Get Response Payload, Length: %d, Payload: %.*s", payload_len, payload_len, payload);
-
     res = dm_mgr_upstream_thing_property_get_response(devid, msgid, msgid_len, code, payload,
             payload_len, ctx);
     _dm_api_unlock();
@@ -1137,8 +1133,6 @@ int iotx_dm_deprecated_post_property_end(_IN_ void **handle)
         return STATE_SYS_DEPEND_MALLOC;
     }
 
-    dm_log_debug("Current Property Post Payload, Length: %d, Payload: %s", strlen(payload), payload);
-
     res = dm_mgr_upstream_thing_property_post(dapi_property->devid, payload, strlen(payload));
 
     DM_free(payload);
@@ -1185,8 +1179,6 @@ int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ in
         return STATE_SYS_DEPEND_MALLOC;
     }
 
-    dm_log_debug("Current Event Post Payload, Length: %d, Payload: %s", strlen(payload), payload);
-
     res = dm_mgr_deprecated_get_event_by_identifier(devid, identifier, &event);
     if (res != SUCCESS_RETURN) {
         DM_free(payload);
@@ -1200,8 +1192,6 @@ int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ in
         _dm_api_unlock();
         return FAIL_RETURN;
     }
-
-    dm_log_debug("Current Event Method: %s", method);
 
     res = dm_mgr_upstream_thing_event_post(devid, identifier, identifier_len, method, payload, strlen(payload));
 
@@ -1945,8 +1935,6 @@ int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN
         _dm_api_unlock();
         return STATE_SYS_DEPEND_MALLOC;
     }
-
-    dm_log_debug("Current Service Response Payload, Length: %d, Payload: %s", strlen(payload), payload);
 
     res = dm_mgr_deprecated_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload,
             strlen(payload));
