@@ -1267,8 +1267,6 @@ static int _iotx_linkkit_subdev_login(int devid)
         return FAIL_RETURN;
     }
 
-    iotx_dm_send_aos_active(devid);
-
     void *callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
     if (callback) {
         ((int (*)(const int))callback)(devid);
