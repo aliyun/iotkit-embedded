@@ -90,9 +90,9 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
     }
     p = &kv[j];
 
-    while (p && p->value_len) { /* if key is already stroed, update its value */
+    while (p && p->value_len) { /* if key is already stored, update its value */
 
-        if (strcmp(p->key, key) == 0) {
+        if (memcmp(p->key, key, strlen(key)) == 0) {
             memset(p->value, 0, ITEM_MAX_VAL_LEN);
             memcpy(p->value, value, value_len);
             p->value_len = value_len;
@@ -157,7 +157,7 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
     p = &kv[j];
 
     while (p && p->value_len) {
-        if (strcmp(key, p->key) == 0) {
+        if (memcmp(key, p->key, strlen(key)) == 0) {
             *len = p->value_len < *len ? p->value_len : *len;
             memcpy(value, p->value, *len);
             free_kv(kv);
@@ -200,7 +200,7 @@ static int hash_table_rm(kv_file_t *file,  const  char *key)
     p = &kv[j];
 
     while (p && p->value_len) {
-        if (strcmp(key, p->key) == 0) {
+        if (memcmp(key, p->key, strlen(key)) == 0) {
             memset(p, 0, ITEM_MAX_LEN);
         }
         if (++j == TABLE_ROW_SIZE) {
@@ -222,7 +222,7 @@ static int read_kv_item(const char *filename, void *buf, int location)
     struct stat st;
     int ret = 0;
     int offset;
-    if(filename == NULL || buf == NULL) {
+    if (filename == NULL || buf == NULL) {
         kv_err("paras err");
         return -1;
     }
