@@ -17,14 +17,15 @@ uint8_t aes_random[RANDOM_MAX_LEN] = {0};
 extern void awss_token_initial_lifetime(void);
 int awss_set_token(uint8_t token[RANDOM_MAX_LEN])
 {
-    char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
+    char rand_str[RANDOM_MAX_LEN * 2 + 1] = {0};
     if (token == NULL) {
         return STATE_USER_INPUT_NULL_POINTER;
     }
 
     memcpy(aes_random, token, RANDOM_MAX_LEN);
 
-    utils_hex_to_str(aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
+    memset(rand_str, 0, sizeof(rand_str));
+    LITE_hexbuf_convert(aes_random, rand_str, RANDOM_MAX_LEN, 1);
     iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_SET_APP_TOKEN, rand_str);
     awss_token_initial_lifetime();
     return 0;

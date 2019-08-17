@@ -330,7 +330,7 @@ static int awss_report_token_to_cloud()
         uint8_t i;
         char id_str[MSG_REQ_ID_LEN] = {0};
         char param[REPORT_TOKEN_PARAM_LEN] = {0};
-        char token_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
+        char token_str[RANDOM_MAX_LEN * 2 + 1] = {0};
 
         for (i = 0; i < sizeof(aes_random); i ++)  // check aes_random is initialed or not
             if (aes_random[i] != 0x00) {
@@ -344,7 +344,8 @@ static int awss_report_token_to_cloud()
         awss_report_token_time = os_get_time_ms();
 
         snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%u\"", awss_report_id ++);
-        utils_hex_to_str(aes_random, RANDOM_MAX_LEN, token_str, sizeof(token_str) - 1);
+        memset(token_str, 0, sizeof(token_str));
+        LITE_hexbuf_convert(aes_random, token_str, RANDOM_MAX_LEN, 1);
         snprintf(param, REPORT_TOKEN_PARAM_LEN - 1, "{\"token\":\"%s\"}", token_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_MATCH_REPORT, param, 0, packet, &packet_len);
         iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_REPORT_TOKEN, token_str);

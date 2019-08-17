@@ -353,7 +353,8 @@ static int awss_process_get_devinfo()
         memset(buf, 0x00, DEV_INFO_LEN_MAX);
         snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
 
-        utils_hex_to_str(aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
+        memset(rand_str, 0, sizeof(rand_str));
+        LITE_hexbuf_convert(aes_random, rand_str, RANDOM_MAX_LEN, 1);
         iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_SENT_TOKEN_RESP, dev_info);
 
         os_free(dev_info);
