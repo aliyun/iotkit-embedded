@@ -73,9 +73,8 @@ extern "C" {
 /* 用户传递给API的参数中含有不合理的设备类型, 既不是master又不是slave */
 #define STATE_USER_INPUT_DEVICE_TYPE                (STATE_USER_INPUT_BASE - 0x0011)
 /* User input parameters contain unacceptable message type */
-/*  */
+/* 用户传递给 IOT_Linkkit_Report() 等API的参数中含有不合理的消息类型 */
 #define STATE_USER_INPUT_MSG_TYPE                   (STATE_USER_INPUT_BASE - 0x0012)
-
 /* User input parameters contain unacceptable value */
 /* 用户传递给API的参数中含有其它不合理的取值 */
 #define STATE_USER_INPUT_INVALID                    (STATE_USER_INPUT_BASE - 0x0013)
@@ -115,7 +114,7 @@ extern "C" {
 /* SDK调用的系统适配接口 HAL_MutexLock() 返回异常, 未能成功申请互斥锁 */
 #define STATE_SYS_DEPEND_MUTEX_LOCK                 (STATE_SYS_DEPEND_BASE - 0x000A)
 /* SDK run into exception when invoking HAL_MutexUnlock() */
-/* SDK调用的系统适配接口 HAL_MutexUnlock() 返回异常, 未能成功申释放互斥锁 */
+/* SDK调用的系统适配接口 HAL_MutexUnlock() 返回异常, 未能成功释放互斥锁 */
 #define STATE_SYS_DEPEND_MUTEX_UNLOCK               (STATE_SYS_DEPEND_BASE - 0x000B)
 /* SDK run into exception when TX or RX through lower network layer */
 /* SDK调用的系统适配接口 HAL_TCP_Read|Write() 或 HAL_SSL_Read|Write() 返回异常, 底层连接已关闭而未能成功进行网络收发 */
@@ -129,13 +128,17 @@ extern "C" {
 /* SDK run into exception when RX through lower network layer */
 /* SDK调用的系统适配接口 HAL_TCP_Read() 或 HAL_SSL_Read() 返回异常, 未能成功读取一段内容 */
 #define STATE_SYS_DEPEND_NWK_READ_ERROR             (STATE_SYS_DEPEND_BASE - 0x000F)
-
+/* SDK run into exception when invoking HAL_SemaphoreCreate() */
+/* SDK调用的系统适配接口 HAL_SemaphoreCreate() 返回异常, 未能成功申请信号量 */
 #define STATE_SYS_DEPEND_SEMAPHORE_CREATE           (STATE_SYS_DEPEND_BASE - 0x0010)
-
+/* SDK run into exception when invoking HAL_SemaphoreWait() */
+/* SDK调用的系统适配接口 HAL_SemaphoreWait() 返回异常, 未能成功在信号量上睡眠 */
 #define STATE_SYS_DEPEND_SEMAPHORE_WAIT             (STATE_SYS_DEPEND_BASE - 0x0011)
-
+/* SDK run into exception when invoking HAL_Snprintf() */
+/* SDK调用的系统适配接口 HAL_Snprintf() 返回异常, 未能成功拼接格式化字符串 */
 #define STATE_SYS_DEPEND_SNPRINTF                   (STATE_SYS_DEPEND_BASE - 0x0012)
-
+/* SDK run into exception when invoking HAL_Firmware_Persistence_Write() */
+/* SDK调用的系统适配接口 HAL_Firmware_Persistence_Write() 返回异常, 未能成功将固件写入ROM */
 #define STATE_SYS_DEPEND_FIRMWAIRE_WIRTE            (STATE_SYS_DEPEND_BASE - 0x0013)
 
 /* System: 0x0200 ~ 0x02FF */
@@ -262,20 +265,48 @@ extern "C" {
 
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 #define STATE_WIFI_BASE                             (-0x0400)
+/* WiFi provision got enabled since user press switch button */
+/* WiFi配网进入使能状态 */
 #define STATE_WIFI_ENABLE_AWSS                      (STATE_WIFI_BASE - 0x0001)
+/* WiFi L2 frame is being processed */
+/* WiFi配网正在处理1个2层报文 */
 #define STATE_WIFI_PROCESS_FRAME                    (STATE_WIFI_BASE - 0x0002)
+/* WIFi channel is being operated */
+/* WiFi配网正在进行对信道进行切换/锁定等操作 */
 #define STATE_WIFI_CHAN_SCAN                        (STATE_WIFI_BASE - 0x0003)
+/* Successfully connect to specified SSID with decrypted password */
+/* 已使用WiFi配网接收到的密码, 连接WiFi热点成功 */
 #define STATE_WIFI_CONNECT_AP_SUCCESS               (STATE_WIFI_BASE - 0x0004)
+/* Failed connecting specified SSID with decrypted password */
+/* 已使用WiFi配网接收到的密码, 连接WiFi热点失败 */
 #define STATE_WIFI_CONNECT_AP_FAILED                (STATE_WIFI_BASE - 0x0005)
-#define STATE_WIFI_ALREADY_RUNNING                  (STATE_WIFI_BASE - 0x0006)
+/* Should not start new round WiFi provision since last round in progress */
+/* 不应启动新的一轮WiFi配网, 因为上一轮仍未结束 */
+#define STATE_WIFI_IN_PROGRESS                      (STATE_WIFI_BASE - 0x0006)
+/* WiFi provision stopped on request */
+/* 已按用户调用API的指令, 停止了WiFi配网进程 */
 #define STATE_WIFI_FORCE_STOPPED                    (STATE_WIFI_BASE - 0x0007)
+/* WiFi provision is releasing resources */
+/* 正在释放WiFi配网所占用的内部资源 */
 #define STATE_WIFI_DESTROY                          (STATE_WIFI_BASE - 0x0008)
+/* WiFi provision successfully detect hint frame */
+/* WiFi配网功能已成功监听到关键信息起始标志帧 */
 #define STATE_WIFI_GOT_HINT_FRAME                   (STATE_WIFI_BASE - 0x0009)
-#define STATE_WIFI_SECURITY_LEVEL                   (STATE_WIFI_BASE - 0x000a)
-#define STATE_WIFI_CRC_ERROR                        (STATE_WIFI_BASE - 0x000b)
-#define STATE_WIFI_PASSWD_DECODE_FAILED             (STATE_WIFI_BASE - 0x000c)
-#define STATE_WIFI_PASSWD_DECODE_SUCCESS            (STATE_WIFI_BASE - 0x000d)
-#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x000e)
+/* WiFi provision interpret information encrypt type */
+/* WiFi配网中发现关键信息的加密方式是一型一密或一机一密等 */
+#define STATE_WIFI_ENCRYPT_TYPE                     (STATE_WIFI_BASE - 0x000A)
+/* WiFi provision ran into mismatch CRC */
+/* WiFi配网中发现报文的校验和不符合预期 */
+#define STATE_WIFI_CRC_ERROR                        (STATE_WIFI_BASE - 0x000B)
+/* WiFi provision failed to decrypt WiFi password */
+/* WiFi配网中解密WiFi热点的密码失败 */
+#define STATE_WIFI_PASSWD_DECODE_FAILED             (STATE_WIFI_BASE - 0x000C)
+/* WiFi provision decrypt WiFi password successfully */
+/* WiFi配网中解密WiFi热点的密码成功 */
+#define STATE_WIFI_PASSWD_DECODE_SUCCESS            (STATE_WIFI_BASE - 0x000D)
+/* WiFi provision claiming other information */
+/* WiFi配网中的其它过程信息 */
+#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x000E)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 /* COAP: 0x0500 ~ 0x05FF */
@@ -409,73 +440,73 @@ extern "C" {
 
 /* Service respond does not have correct request context in device model */
 /* 物模型模块中发送服务回应报文给服务端时, 没有找到对应的服务端请求上下文 */
-#define STATE_DEV_MODEL_SERVICE_CTX_NOT_EXIST       (STATE_DEV_MODEL_BASE - 0x0014)
+#define STATE_DEV_MODEL_SERVICE_CTX_NOT_EXIST       (STATE_DEV_MODEL_BASE - 0x0013)
 /* OTA service is not enabled in device model */
 /* 物模型模块中发现OTA功能未开启 */
-#define STATE_DEV_MODEL_OTA_NOT_ENABLED             (STATE_DEV_MODEL_BASE - 0x0015)
+#define STATE_DEV_MODEL_OTA_NOT_ENABLED             (STATE_DEV_MODEL_BASE - 0x0014)
 /* OTA service is not initialized correctly in device model */
 /* 物模型模块中发现OTA功能未能正确初始化 */
-#define STATE_DEV_MODEL_OTA_NOT_INITED              (STATE_DEV_MODEL_BASE - 0x0016)
+#define STATE_DEV_MODEL_OTA_NOT_INITED              (STATE_DEV_MODEL_BASE - 0x0015)
 /* OTA service is initialized but failed in device model */
 /* 物模型模块中发现对OTA功能初始化失败 */
-#define STATE_DEV_MODEL_OTA_INIT_FAILED             (STATE_DEV_MODEL_BASE - 0x0017)
+#define STATE_DEV_MODEL_OTA_INIT_FAILED             (STATE_DEV_MODEL_BASE - 0x0016)
 /* OTA for some sub-device is not finished yet so skip device switching */
 /* 子设备OTA时, 由于当前仍有其它子设备OTA尚未完成, 而跳过当前操作 */
-#define STATE_DEV_MODEL_OTA_STILL_IN_PROGRESS       (STATE_DEV_MODEL_BASE - 0x0018)
+#define STATE_DEV_MODEL_OTA_STILL_IN_PROGRESS       (STATE_DEV_MODEL_BASE - 0x0017)
 /* OTA firmware downloaded failed to pass integrity check */
 /* 物模型模块中发现OTA下载的固件, 未能通过完整性校验 */
-#define STATE_DEV_MODEL_OTA_IMAGE_CHECK_FAILED      (STATE_DEV_MODEL_BASE - 0x0019)
+#define STATE_DEV_MODEL_OTA_IMAGE_CHECK_FAILED      (STATE_DEV_MODEL_BASE - 0x0018)
 
-#define STATE_DEV_MODEL_OTA_TYPE_ERROR              (STATE_DEV_MODEL_BASE - 0x001A)
+#define STATE_DEV_MODEL_OTA_TYPE_ERROR              (STATE_DEV_MODEL_BASE - 0x0019)
 
-#define STATE_DEV_MODEL_OTA_FETCH_FAILED            (STATE_DEV_MODEL_BASE - 0x001B)
+#define STATE_DEV_MODEL_OTA_FETCH_FAILED            (STATE_DEV_MODEL_BASE - 0x001A)
 
 /* ALCS function failed to initialize itself */
 /* 本地控制功能初始化失败 */
-#define STATE_DEV_MODEL_ALCS_CONSTRUCT_FAILED       (STATE_DEV_MODEL_BASE - 0x001C)
+#define STATE_DEV_MODEL_ALCS_CONSTRUCT_FAILED       (STATE_DEV_MODEL_BASE - 0x001B)
 /* Gateway/Sub-device management function is not configured on */
 /* SDK当前未被配置为打开子设备管理/网关功能 */
-#define STATE_DEV_MODEL_GATEWAY_NOT_ENABLED         (STATE_DEV_MODEL_BASE - 0x001D)
+#define STATE_DEV_MODEL_GATEWAY_NOT_ENABLED         (STATE_DEV_MODEL_BASE - 0x001C)
 
-#define STATE_DEV_MODEL_RRPCID_LEN_ERROR            (STATE_DEV_MODEL_BASE - 0x001E)
+#define STATE_DEV_MODEL_RRPCID_LEN_ERROR            (STATE_DEV_MODEL_BASE - 0x001D)
 
-#define STATE_DEV_MODEL_RAWDATA_SOLO_ENABLED        (STATE_DEV_MODEL_BASE - 0x001F)
+#define STATE_DEV_MODEL_RAWDATA_SOLO_ENABLED        (STATE_DEV_MODEL_BASE - 0x001E)
 
-#define STATE_DEV_MODEL_DUP_UPSTREAM_MSG            (STATE_DEV_MODEL_BASE - 0x0020)
+#define STATE_DEV_MODEL_DUP_UPSTREAM_MSG            (STATE_DEV_MODEL_BASE - 0x001F)
 
-#define STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND     (STATE_DEV_MODEL_BASE - 0x0021)
+#define STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND     (STATE_DEV_MODEL_BASE - 0x0020)
 
-#define STATE_DEV_MODEL_CLOUD_RETURN_ERROR          (STATE_DEV_MODEL_BASE - 0x0022)
+#define STATE_DEV_MODEL_CLOUD_RETURN_ERROR          (STATE_DEV_MODEL_BASE - 0x0021)
 
-#define STATE_DEV_MODEL_INVALID_DM_OPTION           (STATE_DEV_MODEL_BASE - 0x0023)
+#define STATE_DEV_MODEL_INVALID_DM_OPTION           (STATE_DEV_MODEL_BASE - 0x0022)
 
-#define STATE_DEV_MODEL_URL_SPLIT_FAILED            (STATE_DEV_MODEL_BASE - 0x0024)
-#define STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED      (STATE_DEV_MODEL_BASE - 0x0025)
-#define STATE_DEV_MODEL_LOG_REPORT_ERROR            (STATE_DEV_MODEL_BASE - 0x0026)
-#define STATE_DEV_MODEL_AUTO_SUBSCRIBE_ENABLED      (STATE_DEV_MODEL_BASE - 0x0027)
-#define STATE_DEV_MODEL_RECV_CLOUD_DATA             (STATE_DEV_MODEL_BASE - 0x0028)
-#define STATE_DEV_MODEL_PUBLISH_MESSAGE             (STATE_DEV_MODEL_BASE - 0x0029)
+#define STATE_DEV_MODEL_URL_SPLIT_FAILED            (STATE_DEV_MODEL_BASE - 0x0023)
+#define STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED      (STATE_DEV_MODEL_BASE - 0x0024)
+#define STATE_DEV_MODEL_LOG_REPORT_ERROR            (STATE_DEV_MODEL_BASE - 0x0025)
+#define STATE_DEV_MODEL_AUTO_SUBSCRIBE_ENABLED      (STATE_DEV_MODEL_BASE - 0x0026)
+#define STATE_DEV_MODEL_RECV_CLOUD_DATA             (STATE_DEV_MODEL_BASE - 0x0027)
+#define STATE_DEV_MODEL_PUBLISH_MESSAGE             (STATE_DEV_MODEL_BASE - 0x0028)
 
-#define STATE_DEV_MODLE_ALCS_RECV_MSG               (STATE_DEV_MODEL_BASE - 0x002A)
-#define STATE_DEV_MODLE_ALCS_SEND_MSG               (STATE_DEV_MODEL_BASE - 0x002B)
-#define STATE_DEV_MODLE_ALCS_GENERAL                (STATE_DEV_MODEL_BASE - 0x002C)
+#define STATE_DEV_MODLE_ALCS_RECV_MSG               (STATE_DEV_MODEL_BASE - 0x0029)
+#define STATE_DEV_MODLE_ALCS_SEND_MSG               (STATE_DEV_MODEL_BASE - 0x002A)
+#define STATE_DEV_MODLE_ALCS_GENERAL                (STATE_DEV_MODEL_BASE - 0x002B)
 
-#define STATE_DEV_MODEL_IPC_LIST                    (STATE_DEV_MODEL_BASE - 0x002D)
-#define STATE_DEV_MODEL_IPC_LIST_FULL               (STATE_DEV_MODEL_BASE - 0x002E)
-#define STATE_DEV_MODEL_IPC_LIST_EMPTY              (STATE_DEV_MODEL_BASE - 0x002F)
+#define STATE_DEV_MODEL_IPC_LIST                    (STATE_DEV_MODEL_BASE - 0x002C)
+#define STATE_DEV_MODEL_IPC_LIST_FULL               (STATE_DEV_MODEL_BASE - 0x002D)
+#define STATE_DEV_MODEL_IPC_LIST_EMPTY              (STATE_DEV_MODEL_BASE - 0x002E)
 
-#define STATE_DEV_MODEL_CACHE_LIST_INSERT           (STATE_DEV_MODEL_BASE - 0x0030)
-#define STATE_DEV_MODEL_CACHE_LIST_REMOVE           (STATE_DEV_MODEL_BASE - 0x0031)
-#define STATE_DEV_MODEL_CACHE_LIST_MSG_TIMEOUT      (STATE_DEV_MODEL_BASE - 0x0032)
-#define STATE_DEV_MODEL_CACHE_LIST_FULL             (STATE_DEV_MODEL_BASE - 0x0033)
-#define STATE_DEV_MODEL_CACHE_LIST_EMPTY            (STATE_DEV_MODEL_BASE - 0x0034)
+#define STATE_DEV_MODEL_CACHE_LIST_INSERT           (STATE_DEV_MODEL_BASE - 0x002F)
+#define STATE_DEV_MODEL_CACHE_LIST_REMOVE           (STATE_DEV_MODEL_BASE - 0x0030)
+#define STATE_DEV_MODEL_CACHE_LIST_MSG_TIMEOUT      (STATE_DEV_MODEL_BASE - 0x0031)
+#define STATE_DEV_MODEL_CACHE_LIST_FULL             (STATE_DEV_MODEL_BASE - 0x0032)
+#define STATE_DEV_MODEL_CACHE_LIST_EMPTY            (STATE_DEV_MODEL_BASE - 0x0033)
 
-#define STATE_DEV_MODLE_LOG_REPORT_STOP             (STATE_DEV_MODEL_BASE - 0x0035)
-#define STATE_DEV_MODLE_LOG_REPORT_SWITCH           (STATE_DEV_MODEL_BASE - 0x0036)
-#define STATE_DEV_MODLE_LOG_REPORT_SEND             (STATE_DEV_MODEL_BASE - 0x0037)
+#define STATE_DEV_MODLE_LOG_REPORT_STOP             (STATE_DEV_MODEL_BASE - 0x0034)
+#define STATE_DEV_MODLE_LOG_REPORT_SWITCH           (STATE_DEV_MODEL_BASE - 0x0035)
+#define STATE_DEV_MODLE_LOG_REPORT_SEND             (STATE_DEV_MODEL_BASE - 0x0036)
 
-#define STATE_DEV_MODEL_LINKKIT_SYNC_LIST           (STATE_DEV_MODEL_BASE - 0x0038)
-#define STATE_DEV_MODEL_LINKKIT_EVENT               (STATE_DEV_MODEL_BASE - 0x0039)
+#define STATE_DEV_MODEL_LINKKIT_SYNC_LIST           (STATE_DEV_MODEL_BASE - 0x0037)
+#define STATE_DEV_MODEL_LINKKIT_EVENT               (STATE_DEV_MODEL_BASE - 0x0038)
 
 
 /* Device Model: 0x0900 ~ 0x09FF */

@@ -12,10 +12,10 @@ char awss_stop_connecting = 0;
 int __awss_start(void)
 {
     char ssid[OS_MAX_SSID_LEN + 1] = {0}, passwd[OS_MAX_PASSWD_LEN + 1] = {0};
-/*    enum AWSS_AUTH_TYPE auth = AWSS_AUTH_TYPE_INVALID;
-    enum AWSS_ENC_TYPE encry = AWSS_ENC_TYPE_INVALID;
-    uint8_t channel = 0;
-    */
+    /*    enum AWSS_AUTH_TYPE auth = AWSS_AUTH_TYPE_INVALID;
+        enum AWSS_ENC_TYPE encry = AWSS_ENC_TYPE_INVALID;
+        uint8_t channel = 0;
+        */
     uint8_t bssid[OS_ETH_ALEN] = {0};
     uint8_t token[ZC_MAX_TOKEN_LEN] = {0};
 
@@ -27,13 +27,13 @@ int __awss_start(void)
     /* these params is useless, keep it for compatible reason */
     aws_start(NULL, NULL, NULL, NULL);
 
-    ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0],&token[0],
+    ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0], &token[0],
                               NULL, NULL, NULL);
     if (!ret) {
         awss_warn("awss timeout!");
     }
-    for(i = 0; i<ZC_MAX_TOKEN_LEN;i++) {
-        if(token[i] != 0) {
+    for (i = 0; i < ZC_MAX_TOKEN_LEN; i++) {
+        if (token[i] != 0) {
             find_token = 1;
             break;
         }
@@ -65,11 +65,12 @@ int __awss_start(void)
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
         }
 
-        ret = awss_connect(ssid, passwd, bssid, ETH_ALEN, find_token != 0 ? token : NULL, find_token == 1 ? ZC_MAX_TOKEN_LEN : 0);
+        ret = awss_connect(ssid, passwd, bssid, ETH_ALEN, find_token != 0 ? token : NULL,
+                           find_token == 1 ? ZC_MAX_TOKEN_LEN : 0);
         /*ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
                                   auth, encry, bssid, channel);*/
         if (!ret) {
-            dump_awss_status(STATE_WIFI_CONNECT_AP_SUCCESS, "awss connect ssid:%s success", ssid);
+            dump_awss_status(STATE_WIFI_CONNECT_AP_SUCCESS, "connect '%s' success", ssid);
             awss_event_post(IOTX_AWSS_GOT_IP);
 
 #if defined(AWSS_SUPPORT_AHA)
@@ -90,7 +91,7 @@ int __awss_start(void)
                 /*produce_random(aes_random, sizeof(aes_random));*/
             }
         } else {
-            dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "awss connect ssid:%s fail", ssid);
+            dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "connect '%s' failed", ssid);
 #if defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
                 awss_event_post(IOTX_AWSS_CONNECT_AHA_FAIL);

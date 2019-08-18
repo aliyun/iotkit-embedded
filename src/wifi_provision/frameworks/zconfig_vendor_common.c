@@ -96,11 +96,11 @@ void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
 {
     if (bssid) {
         dump_awss_status(STATE_WIFI_PASSWD_DECODE_SUCCESS, "ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %d",
-                   ssid, bssid[0], bssid[1], bssid[2],
-                   bssid[3], bssid[4], bssid[5], channel);
+                         ssid, bssid[0], bssid[1], bssid[2],
+                         bssid[3], bssid[4], bssid[5], channel);
     } else {
         dump_awss_status(STATE_WIFI_PASSWD_DECODE_SUCCESS, "ssid:%s, bssid:--, %d",
-                   ssid, channel);
+                         ssid, channel);
     }
 
     memset(aws_result_ssid, 0, sizeof(aws_result_ssid));
@@ -326,8 +326,8 @@ rescanning:
     }
 
     /* channel lock */
-    dump_awss_status(STATE_WIFI_CHAN_SCAN, "[channel scanning] %d msn",
-               time_elapsed_ms_since(aws_start_timestamp));
+    dump_awss_status(STATE_WIFI_CHAN_SCAN, "[channel scanning] %d ms",
+                     time_elapsed_ms_since(aws_start_timestamp));
 
     /*
      * make sure switch to locked channel,
@@ -365,7 +365,7 @@ rescanning:
     }
 
     dump_awss_status(STATE_WIFI_CHAN_SCAN, "[channel recving] %d ms\r\n",
-               time_elapsed_ms_since(aws_start_timestamp));
+                     time_elapsed_ms_since(aws_start_timestamp));
 
     goto success;
 

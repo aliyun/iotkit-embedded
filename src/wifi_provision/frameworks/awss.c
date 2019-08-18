@@ -39,11 +39,13 @@ void awss_update_config_press()
     }
 }
 
-uint32_t awss_get_channel_scan_interval_ms(){
+uint32_t awss_get_channel_scan_interval_ms()
+{
     return g_channel_scan_timeout_ms;
 }
 
-void awss_set_channel_scan_interval_ms(uint32_t timeout_ms){
+void awss_set_channel_scan_interval_ms(uint32_t timeout_ms)
+{
     g_channel_scan_timeout_ms = timeout_ms;
 }
 
@@ -86,8 +88,8 @@ static char awss_aha_connect_to_router()
 int awss_start(void)
 {
     if (awss_stopped == 0) {
-        dump_awss_status(STATE_WIFI_ALREADY_RUNNING, "awss already running");
-        return STATE_WIFI_ALREADY_RUNNING;
+        dump_awss_status(STATE_WIFI_IN_PROGRESS, "awss still in progress");
+        return STATE_WIFI_IN_PROGRESS;
     }
 
     awss_stopped = 0;
@@ -142,6 +144,7 @@ int awss_start(void)
     } while (1);
 
     if (awss_stopped) {
+        dump_awss_status(STATE_WIFI_FORCE_STOPPED, "awss stopped in %s", __func__);
         return STATE_WIFI_FORCE_STOPPED;
     }
 
@@ -174,7 +177,7 @@ static void awss_press_timeout(void)
 int awss_config_press(void)
 {
     config_press_start_timestamp = os_get_time_ms();
-    dump_awss_status(STATE_WIFI_ENABLE_AWSS, "enable awss");
+    dump_awss_status(STATE_WIFI_ENABLE_AWSS, "awss enabled in %s", __func__);
     g_user_press = 1;
     awss_event_post(IOTX_AWSS_ENABLE);
 

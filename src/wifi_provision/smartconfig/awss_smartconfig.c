@@ -143,7 +143,7 @@ int zconfig_recv_completed(uint8_t tods)
         if (!(flag & SSID_ENCODE_MASK)) {/* ASCLL ssid */
             if ((ssid_len | 0x200) != pkg_len(3)) {
                 dump_awss_status(STATE_WIFI_PROCESS_FRAME, "ssid len not match! ssid:%s != %d\r\n",
-                          zc_ssid, (pkg_len(3) & ~0x200));
+                                 zc_ssid, (pkg_len(3) & ~0x200));
                 zc_ssid_auto_complete_disable = 1;
                 goto skip_ssid_auto_complete;
             }
@@ -470,7 +470,7 @@ found_match:
         if (memcmp(zc_src_mac, src, ETH_ALEN)) {/* case 1,2 */
             /* someone must be working in aws at the same time */
             dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%c interference src:"MAC_FORMAT", bssid:"MAC_FORMAT"\r\n",
-                      flag_tods(tods), MAC_VALUE(src), MAC_VALUE(bssid));
+                             flag_tods(tods), MAC_VALUE(src), MAC_VALUE(bssid));
             return 0;
         } else {
             if (memcmp(zc_bssid, bssid, ETH_ALEN)) {/* case 4 */
@@ -482,12 +482,12 @@ found_match:
                         zconfig_data->data[0].state_machine = STATE_CHN_SCANNING;
                     }
                     dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%c WDS! bssid:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
-                              flag_tods(tods), MAC_VALUE(zc_bssid),
-                              MAC_VALUE(bssid));
+                                     flag_tods(tods), MAC_VALUE(zc_bssid),
+                                     MAC_VALUE(bssid));
                 } else {
                     dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%c WDS? src:"MAC_FORMAT" -> bssid:"MAC_FORMAT"",
-                               flag_tods(tods), MAC_VALUE(src),
-                               MAC_VALUE(bssid));
+                                     flag_tods(tods), MAC_VALUE(src),
+                                     MAC_VALUE(bssid));
                     return 0;
                 }
             } /* else case  */
@@ -508,12 +508,12 @@ found_match:
         struct ap_info *ap_info = zconfig_get_apinfo(bssid);
         extern void aws_set_dst_chan(int channel);
         if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX) {
-            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "invalid apinfo ssid:%s\r\n", ap_info->ssid);
+            dump_awss_status(STATE_WIFI_PROCESS_FRAME, "invalid apinfo ssid: '%s'", ap_info->ssid);
         }
 
         if (ap_info && ap_info->encry[tods] == encry && ap_info->channel) {
             if (channel != ap_info->channel) {
-                dump_awss_status(STATE_WIFI_GOT_HINT_FRAME, "fix channel from %d to %d\r\n", channel, ap_info->channel);
+                dump_awss_status(STATE_WIFI_GOT_HINT_FRAME, "lock channel from %d to %d", channel, ap_info->channel);
                 zc_channel = ap_info->channel;  /* fix by ap_info channel */
                 aws_set_dst_chan(zc_channel);
             }
@@ -660,7 +660,7 @@ retry:
             match_end = j - 1;
             match_score = score;
             dump_awss_status(STATE_WIFI_PROCESS_FRAME, "match=%d, match_group=%d, match_end=%d",
-                       match, match_group, match_end);
+                             match, match_group, match_end);
         }
     }
 
@@ -723,7 +723,8 @@ retry:
 replace:
     if (final_pos != -1) {
         reason = reason;
-        dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tX = %d, score=%d, match=%d, reason=%d", final_pos, match_score, max_match, reason);
+        dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tX = %d, score=%d, match=%d, reason=%d", final_pos, match_score, max_match,
+                         reason);
         if (match_end != GROUP_NUMBER) {
             dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t match from [1-%d]", match_end);
         }
@@ -735,7 +736,8 @@ replace:
                 pkg_len(i) = tmp_len(j);
                 pkg_score(i) = (match_score > tmp_score(j) - 1) ?
                                (match_score - (tmp_score(j) - 1)) : match_score;/*TODO*/
-                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t%d+%d [%d] %c %-3x", final_pos, j, pkg_score(i), flag_tods(tods), tmp_len(j));
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t%d+%d [%d] %c %-3x", final_pos, j, pkg_score(i), flag_tods(tods),
+                                 tmp_len(j));
 
                 zc_replace = 1;
                 if (zc_max_pos < i) {
@@ -946,11 +948,11 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                 AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_TIME_START);
             }
             dump_awss_status(STATE_WIFI_GOT_HINT_FRAME, "hint frame: offset:%d, %c, sn:%x",
-                       zc_frame_offset, flag_tods(tods), sn);
+                             zc_frame_offset, flag_tods(tods), sn);
 
             dump_awss_status(STATE_WIFI_PROCESS_FRAME, "src:%02x%02x%02x%02x%02x%02x, bssid:%02x%02x%02x%02x%02x%02x",
-                       src[0], src[1], src[2], src[3], src[4], src[5],
-                       bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+                             src[0], src[1], src[2], src[3], src[4], src[5],
+                             bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
             pkg_type = PKG_START_FRAME;
             zconfig_set_state(STATE_CHN_LOCKED_BY_BR, tods, channel);
@@ -965,8 +967,8 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                 }
                 memcpy(zc_android_bssid, bssid, ETH_ALEN);
                 dump_awss_status(STATE_WIFI_PROCESS_FRAME, "src %02x%02x%02x match %02x%02x%02x",
-                           zc_android_src[0], zc_android_src[1], zc_android_src[2],
-                           zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
+                                 zc_android_src[0], zc_android_src[1], zc_android_src[2],
+                                 zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
             }
 #endif
         }
@@ -1044,7 +1046,8 @@ pos_unsync:
                     tmp_score(index) = (sn - zc_prev_sn);    /* TODO: index? last_tmp_score */
                 }
                 zc_pos_unsync ++; /* unsync pkg counter */
-                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tX+%d [%d] %-3x %c %-3x", index, tmp_score(index), sn, flag_tods(tods), len);
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\tX+%d [%d] %-3x %c %-3x", index, tmp_score(index), sn, flag_tods(tods),
+                                 len);
                 goto update_sn;/* FIXME: update prev_sn or not? */
             }
 
@@ -1052,7 +1055,7 @@ pos_unsync:
             score = get_data_score(zc_group_sn, sn, zc_prev_sn, pos, zc_cur_pos, tods);
             if (score == score_min) {/* better not drop any pkg here */
                 dump_awss_status(STATE_WIFI_PROCESS_FRAME, "\t drop: group_sn:%x, sn:%x-%x=%x, pos:%d-%d, len:%x",
-                           zc_group_sn, sn, zc_prev_sn, sn_minus(sn, zc_group_sn), pos, zc_cur_pos, len);
+                                 zc_group_sn, sn, zc_prev_sn, sn_minus(sn, zc_group_sn), pos, zc_cur_pos, len);
                 goto update_sn;
             } else {
                 if (zc_score_uplimit > score) {
@@ -1060,7 +1063,8 @@ pos_unsync:
                 }
 
                 zc_group_sn = sn;/* TODO */
-                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%d+%d [%d] %-3x %c %-3x", zc_group_pos, index, score, sn, flag_tods(tods), len);
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%d+%d [%d] %-3x %c %-3x", zc_group_pos, index, score, sn, flag_tods(tods),
+                                 len);
             }
         } else {
             if (is_start_frame(len) || is_group_frame(len)) {
@@ -1076,7 +1080,8 @@ pos_unsync:
                 zc_group_sn = sn;
                 zc_score_uplimit = score_max;
 
-                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%d+%d [%d] %-3x %c %-3x", group, 0, zc_score_uplimit, sn, flag_tods(tods), len);
+                dump_awss_status(STATE_WIFI_PROCESS_FRAME, "%d+%d [%d] %-3x %c %-3x", group, 0, zc_score_uplimit, sn, flag_tods(tods),
+                                 len);
 
                 /* ignore PKG_GROUP_FRAME here */
                 pkg_type = PKG_START_FRAME;
@@ -1140,7 +1145,7 @@ pos_unsync:
                 pkg_score(pos) /= 2;
                 if (score >= score_mid)  /* better not happen */
                     dump_awss_status(STATE_WIFI_PROCESS_FRAME, "xxxxxxxx warn: pos=%d, score=[%d], %x != %x",
-                              pos, score, pkg_len(pos), len);
+                                     pos, score, pkg_len(pos), len);
 
             } else if (tods == res->tods) {/* pkg_score(pos) > score */
                 if (!equal) {/* data not equal */

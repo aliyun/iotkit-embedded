@@ -5,8 +5,7 @@
 #include "infra_sha256.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifndef SHA256_DIGEST_SIZE
@@ -19,13 +18,15 @@ static const char *cal_passwd(void *key, void *random, void *passwd)
     uint8_t digest[SHA256_DIGEST_SIZE + 1] = {0};
     uint8_t passwd_src[KEY_MAX_LEN + RANDOM_MAX_LEN + 2] = {0};
 
-    if (!passwd || !key || !random)
+    if (!passwd || !key || !random) {
         return NULL;
+    }
 
     /* combine key and random, with split of comma */
     key_len = strlen(key);
-    if (key_len > KEY_MAX_LEN)
+    if (key_len > KEY_MAX_LEN) {
         key_len = KEY_MAX_LEN;
+    }
     memcpy(passwd_src, key, key_len);
     passwd_src[key_len ++] = ',';
     memcpy(passwd_src + key_len, random, RANDOM_MAX_LEN);
@@ -47,8 +48,9 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
     uint8_t random[RANDOM_MAX_LEN] = {0};
 
     uint8_t *decoded = (uint8_t *)awss_zalloc(len + 1);
-    if (decoded == NULL)
+    if (decoded == NULL) {
         return -1;
+    }
 
     if (cipher_hex == 0) {
         /*
@@ -70,27 +72,24 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
         memcpy(random, rand, sizeof(random));
     }
 
-    dump_awss_status(STATE_WIFI_SECURITY_LEVEL, "security level: %d", sec_lvl);
+    dump_awss_status(STATE_WIFI_ENCRYPT_TYPE, "info encrypt type: %d", sec_lvl);
 
     switch (sec_lvl) {
-        case SEC_LVL_AES128_PRODUCT:
-        {
+        case SEC_LVL_AES128_PRODUCT: {
             char product_sec[OS_PRODUCT_SECRET_LEN + 1] = {0};
             IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, product_sec);
             cal_passwd(product_sec, random, key);
             memcpy(iv, random, sizeof(random));
             break;
         }
-        case SEC_LVL_AES128_DEVICE:
-        {
+        case SEC_LVL_AES128_DEVICE: {
             char dev_sec[OS_DEVICE_SECRET_LEN + 1] = {0};
             IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, dev_sec);
             cal_passwd(dev_sec, random, key);
             memcpy(iv, random, sizeof(random));
             break;
         }
-        default:
-        {
+        default: {
             decrypt = 0;
             awss_debug("wrong security level: %d\n", sec_lvl);
             res = -2;
