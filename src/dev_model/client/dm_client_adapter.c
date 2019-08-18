@@ -106,7 +106,7 @@ int dm_client_publish(char *uri, unsigned char *payload, int payload_len, iotx_c
     pub_uri = uri;
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_PUBLISH_MESSAGE, "publish uri: %s, payload: %.*s", pub_uri, payload_len, payload);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_TX_CLOUD_MESSAGE, "pub-uri: %s", pub_uri);
 
     res = iotx_cm_pub(ctx->fd, &pub_param, (const char *)pub_uri, (const char *)payload, (unsigned int)payload_len);
 

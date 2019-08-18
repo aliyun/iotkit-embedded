@@ -51,7 +51,8 @@ int awss_stop_report_token();
 int awss_cmp_coap_cancel_packet(uint16_t msgid);
 int awss_cmp_coap_register_cb(char *topic, void *cb);
 int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid);
-int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void* req, void *cb, uint16_t *msgid, char qos);
+int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void *req, void *cb, uint16_t *msgid,
+                            char qos);
 int awss_cmp_coap_ob_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb);
 int awss_cmp_coap_deinit();
 
@@ -72,7 +73,7 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg);
 void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg);
 void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg);
 void awss_report_token_reply(void *pcontext, void *pclient, void *msg);
-int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len);
+int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *payload_len);
 
 #ifdef __cplusplus
 }

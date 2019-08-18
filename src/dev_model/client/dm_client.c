@@ -61,8 +61,7 @@ static int _dm_client_subscribe_filter(char *uri, iotx_cm_data_handle_cb cb)
     if (event_post_reply_opt == 0) {
         res = dm_client_unsubscribe(uri);
         return res;
-    }
-    else {
+    } else {
         res = -1;
         while (res < SUCCESS_RETURN && retry_cnt--) {
             res = dm_client_subscribe(uri, cb, 0);
@@ -72,7 +71,8 @@ static int _dm_client_subscribe_filter(char *uri, iotx_cm_data_handle_cb cb)
 }
 #endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
 
-int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                            char device_name[IOTX_DEVICE_NAME_LEN + 1],
                             int dev_type)
 {
     int res = 0, index = 0;
@@ -83,7 +83,7 @@ int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     /* index 0 must be DM_URI_THING_EVENT_POST_REPLY_WILDCARD */
     res = dm_utils_service_name((char *)g_dm_client_uri_map[0].uri_prefix, (char *)g_dm_client_uri_map[0].uri_name,
-                    product_key, device_name, &uri);
+                                product_key, device_name, &uri);
     if (res == SUCCESS_RETURN) {
         _dm_client_subscribe_filter(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[0].callback);
         DM_free(uri);
@@ -95,7 +95,7 @@ int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1
 
 #ifdef MQTT_AUTO_SUBSCRIBE
     if (devid != 0) {
-        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_AUTO_SUBSCRIBE_ENABLED, "subdev bypass Subscribe");
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IN_AUTOSUB_MODE, "subdev subscribe bypass");
         return SUCCESS_RETURN;
     }
 #else

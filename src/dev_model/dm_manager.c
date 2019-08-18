@@ -292,7 +292,7 @@ int dm_mgr_device_destroy(_IN_ int devid)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0) {
-        return STATE_USER_INPUT_INVALID;
+        return STATE_USER_INPUT_DEVID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -301,7 +301,7 @@ int dm_mgr_device_destroy(_IN_ int devid)
     }
 
     if (node->devid == IOTX_DM_LOCAL_NODE_DEVID) {
-        return STATE_DEV_MODEL_DEVICE_TYPE_ERROR;
+        return STATE_DEV_MODEL_SUBD_NOT_DELETEABLE;
     }
 
     list_del(&node->linked_list);
@@ -999,7 +999,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return STATE_USER_INPUT_INVALID;
+        return STATE_USER_INPUT_DEVID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1008,7 +1008,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     }
 
     if (node->dev_status < IOTX_DM_DEV_STATUS_LOGINED) {
-        return STATE_DEV_MODEL_DEVICE_STATUS_ERROR;
+        return STATE_DEV_MODEL_SUBD_NOT_LOGIN;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1125,7 +1125,7 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
 
     if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
         DM_free(uri);
-        return (res < 0)? res : res1;
+        return (res < 0) ? res : res1;
     }
 
     DM_free(uri);
@@ -1285,7 +1285,8 @@ int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int 
             return STATE_DEV_MODEL_LOG_REPORT_ERROR;
         }
 
-        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_LOG_REPORT_SEND, "push log, len is %d, log_size is %d\n", payload_len, log_size);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_LOG_REPORT_SEND, "push log, len is %d, log_size is %d\n",
+                         payload_len, log_size);
         if (!(log_size > REPORT_LEN && DONE == g_report_status)) {
             return SUCCESS_RETURN;
         }

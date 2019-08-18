@@ -162,7 +162,7 @@ void dm_msg_cache_tick(void)
             node->ctime = current_time;
         }
         if (current_time - node->ctime >= DM_MSG_CACHE_TIMEOUT_MS_DEFAULT) {
-            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_MSG_TIMEOUT, "cache timeout msgid: %d", node->msgid);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_FADEOUT, "cache timeout msgid: %d", node->msgid);
             /* Send Timeout Message To User */
             dm_msg_send_msg_timeout_to_user(node->msgid, node->devid, node->response_type);
             list_del(&node->linked_list);

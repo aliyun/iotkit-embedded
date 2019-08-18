@@ -118,7 +118,7 @@ int dm_msg_proc_thing_model_up_raw_reply(_IN_ dm_msg_source_t *source)
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_MODEL_UP_RAW_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_MODEL_UP_RAW_REPLY);
 
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
                                 device_name);
@@ -143,7 +143,7 @@ int dm_msg_proc_thing_service_property_set(_IN_ dm_msg_source_t *source, _IN_ dm
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_SERVICE_PROPERTY_SET);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_SERVICE_PROPERTY_SET);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -183,7 +183,7 @@ int dm_msg_proc_thing_service_property_get(_IN_ dm_msg_source_t *source, _IN_ dm
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_SERVICE_PROPERTY_GET);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_SERVICE_PROPERTY_GET);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -238,7 +238,7 @@ int dm_msg_proc_thing_service_property_post(_IN_ dm_msg_source_t *source, _IN_ d
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_EVENT_PROPERTY_POST);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_EVENT_PROPERTY_POST);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -343,7 +343,7 @@ int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_PROPERTY_DESIRED_GET_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_PROPERTY_DESIRED_GET_REPLY);
 
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
@@ -370,7 +370,7 @@ int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY);
 
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
@@ -398,7 +398,7 @@ int dm_msg_proc_thing_deviceinfo_update_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_DEVICEINFO_UPDATE_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_DEVICEINFO_UPDATE_REPLY);
 
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
@@ -425,7 +425,7 @@ int dm_msg_proc_thing_deviceinfo_delete_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_DEVICEINFO_DELETE_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_DEVICEINFO_DELETE_REPLY);
 
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
@@ -452,7 +452,7 @@ int dm_msg_proc_thing_dynamictsl_get_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_DYNAMICTSL_GET_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_DYNAMICTSL_GET_REPLY);
 
     /* Response */
     res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
@@ -505,7 +505,7 @@ int dm_msg_proc_rrpc_request(_IN_ dm_msg_source_t *source)
 
 int dm_disp_ntp_response(_IN_ dm_msg_source_t *source)
 {
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_NTP_RESPONSE);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_NTP_RESPONSE);
 
     /* Operation */
     return dm_msg_ntp_response((char *)source->payload, source->payload_len);
@@ -525,7 +525,7 @@ int dm_msg_proc_thing_topo_add_notify(_IN_ dm_msg_source_t *source, _IN_ dm_msg_
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_TOPO_ADD_NOTIFY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_TOPO_ADD_NOTIFY);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -562,7 +562,7 @@ int dm_msg_proc_thing_disable(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_DISABLE);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_DISABLE);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -596,7 +596,7 @@ int dm_msg_proc_thing_enable(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *d
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_DISABLE);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_DISABLE);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -630,7 +630,7 @@ int dm_msg_proc_thing_delete(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *d
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_DELETE);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_DELETE);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -664,7 +664,7 @@ int dm_msg_proc_thing_gateway_permit(_IN_ dm_msg_source_t *source, _IN_ dm_msg_d
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_DELETE);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_DELETE);
 
     /* Request */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -699,7 +699,7 @@ int dm_msg_proc_thing_sub_register_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_SUB_REGISTER_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_SUB_REGISTER_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -729,7 +729,7 @@ int dm_msg_proc_thing_proxy_product_register_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_PROXY_PRODUCT_REGISTER_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_PROXY_PRODUCT_REGISTER_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -760,7 +760,7 @@ int dm_msg_proc_thing_sub_unregister_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_SUB_UNREGISTER_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_SUB_UNREGISTER_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -789,7 +789,7 @@ int dm_msg_proc_thing_topo_add_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_TOPO_ADD_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_TOPO_ADD_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -818,7 +818,7 @@ int dm_msg_proc_thing_topo_delete_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_TOPO_DELETE_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_TOPO_DELETE_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -847,7 +847,7 @@ int dm_msg_proc_thing_topo_get_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_TOPO_GET_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_TOPO_GET_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -876,7 +876,7 @@ int dm_msg_proc_thing_list_found_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_TOPO_GET_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_TOPO_GET_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -905,7 +905,7 @@ int dm_msg_proc_combine_login_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_TOPO_GET_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_TOPO_GET_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -934,7 +934,7 @@ int dm_msg_proc_combine_logout_reply(_IN_ dm_msg_source_t *source)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #endif
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_THING_TOPO_GET_REPLY);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_THING_TOPO_GET_REPLY);
 
     memset(&response, 0, sizeof(dm_msg_response_payload_t));
 
@@ -963,7 +963,7 @@ int dm_msg_proc_thing_dev_core_service_dev(_IN_ dm_msg_source_t *source, _IN_ dm
 {
     int res = 0;
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, DM_URI_DEV_CORE_SERVICE_DEV);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, DM_URI_DEV_CORE_SERVICE_DEV);
 
     /* Request */
     res = dm_msg_request_parse((char *)source->payload, source->payload_len, request);

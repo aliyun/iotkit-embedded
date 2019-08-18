@@ -84,12 +84,12 @@ int dm_ipc_msg_insert(void *data)
     }
 
     _dm_ipc_lock();
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST, "ipc list size: %d, max size: %d",
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_MSGQ_OPERATION, "msg queue size: %d, max size: %d",
                      ctx->msg_list.size, ctx->msg_list.max_size);
     if (ctx->msg_list.size >= ctx->msg_list.max_size) {
         _dm_ipc_unlock();
-        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST_FULL, NULL);
-        return STATE_DEV_MODEL_IPC_LIST_FULL;
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_MSGQ_FULL, NULL);
+        return STATE_DEV_MODEL_MSGQ_FULL;
     }
 
     node = DM_malloc(sizeof(dm_ipc_msg_node_t));
@@ -121,7 +121,7 @@ int dm_ipc_msg_next(void **data)
 
     if (list_empty(&ctx->msg_list.message_list)) {
         _dm_ipc_unlock();
-        return STATE_DEV_MODEL_IPC_LIST_EMPTY;
+        return STATE_DEV_MODEL_MSGQ_EMPTY;
     }
 
     node = list_first_entry(&ctx->msg_list.message_list, dm_ipc_msg_node_t, linked_list);
@@ -132,7 +132,7 @@ int dm_ipc_msg_next(void **data)
     DM_free(node);
 
     _dm_ipc_unlock();
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST, "ipc list remove");
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_MSGQ_OPERATION, "msg dequeue");
     return SUCCESS_RETURN;
 }
 

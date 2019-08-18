@@ -87,11 +87,11 @@ int awss_cmp_online_deinit()
     return 0;
 }
 
-int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len)
+int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *payload_len)
 {
     iotx_mqtt_event_msg_pt msg;
     iotx_mqtt_topic_info_pt ptopic_info;
-    if (mesg == NULL || payload == NULL || playload_len == NULL) {
+    if (mesg == NULL || payload == NULL || payload_len == NULL) {
         return - 1;
     }
 
@@ -101,7 +101,7 @@ int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
-            *playload_len = ptopic_info->payload_len;
+            *payload_len = ptopic_info->payload_len;
             *payload = (char *)ptopic_info->payload;
             break;
         default:

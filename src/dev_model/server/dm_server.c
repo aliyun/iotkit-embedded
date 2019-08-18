@@ -121,7 +121,7 @@ void dm_server_thing_service_property_set(CoAPContext *context, const char *path
 
     dest.uri_name = DM_URI_THING_SERVICE_PROPERTY_SET;
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_RECV_MSG, "recv property set from %s", remote->addr);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_RX_LOCAL_MESSAGE, "recv property set from %s", remote->addr);
 
     res = dm_msg_proc_thing_service_property_set(&source, &dest, &request, &response);
     if (res < SUCCESS_RETURN) {
@@ -162,7 +162,7 @@ void dm_server_thing_service_request(CoAPContext *context, const char *paths, Ne
     source.payload_len = message->payloadlen;
     source.context = alcs_context;
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_RECV_MSG, "recv service request from %s", remote->addr);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_RX_LOCAL_MESSAGE, "recv service request from %s", remote->addr);
 
     if (dm_msg_proc_thing_service_request(&source) < 0) {
         dm_server_free_context(alcs_context);
@@ -198,7 +198,7 @@ void dm_server_thing_service_property_get(CoAPContext *context, const char *path
 
     dest.uri_name = DM_URI_THING_SERVICE_PROPERTY_GET;
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_RECV_MSG, "recv property get from %s", remote->addr);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_RX_LOCAL_MESSAGE, "recv property get from %s", remote->addr);
 
     dm_msg_proc_thing_service_property_get(&source, &dest, &request, &response, &data, &data_len);
 
@@ -236,7 +236,7 @@ void dm_server_thing_service_property_post(CoAPContext *context, const char *pat
 
     dest.uri_name = DM_URI_THING_EVENT_PROPERTY_POST;
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_RECV_MSG, "recv property post from %s", remote->addr);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_RX_LOCAL_MESSAGE, "recv property post from %s", remote->addr);
 
     dm_msg_proc_thing_service_property_post(&source, &dest, &request, &response);
 
@@ -274,7 +274,7 @@ void dm_server_thing_dev_core_service_dev(CoAPContext *context, const char *path
 
     dest.uri_name = DM_URI_DEV_CORE_SERVICE_DEV;
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_ALCS_RECV_MSG, "recv core service dev from %s", remote->addr);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODLE_RX_LOCAL_MESSAGE, "recv core service dev from %s", remote->addr);
 
     res = dm_msg_proc_thing_dev_core_service_dev(&source, &dest, &request, &response, &data, &data_len);
     if (res < SUCCESS_RETURN) {

@@ -46,7 +46,7 @@ int _dm_msg_send_to_user(iotx_dm_event_types_t type, char *message)
         DM_free(dipc_msg);
         return res;
     }
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_IPC_LIST, "ipc insert, message type: %d", type);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_MSGQ_OPERATION, "msg enqueue w/ message type: %d", type);
     return SUCCESS_RETURN;
 }
 
@@ -71,7 +71,7 @@ int dm_msg_send_msg_timeout_to_user(int msg_id, int devid, iotx_dm_event_types_t
 
     return res;
 }
-extern void * g_user_topic_callback;
+extern void *g_user_topic_callback;
 int dm_msg_thing_model_user_sub(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN],
                                 _IN_ char device_name[IOTX_DEVICE_NAME_LEN],
                                 _IN_ char *payload, _IN_ int payload_len)
@@ -159,10 +159,11 @@ int dm_msg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_r
         return STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED;
     }
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, "cloud request msgid: %.*s, method: %.*s, params: %.*s",
-                    request->id.value_length, request->id.value,
-                    request->method.value_length, request->method.value,
-                    request->params.value_length, request->params.value);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE,
+                     "cloud request msgid: %.*s, method: %.*s, params: %.*s",
+                     request->id.value_length, request->id.value,
+                     request->method.value_length, request->method.value,
+                     request->params.value_length, request->params.value);
 
     return SUCCESS_RETURN;
 }
@@ -184,14 +185,15 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
         return STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED;
     }
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, "cloud response msgid: %.*s, code: %d, data: %.*s",
-                    response->id.value_length, response->id.value,
-                    response->code.value_int,
-                    response->data.value_length, response->data.value);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE,
+                     "cloud response msgid: %.*s, code: %d, data: %.*s",
+                     response->id.value_length, response->id.value,
+                     response->code.value_int,
+                     response->data.value_length, response->data.value);
 
     memset(&lite_message, 0, sizeof(lite_cjson_t));
     dm_utils_json_object_item(&lite, DM_MSG_KEY_MESSAGE, strlen(DM_MSG_KEY_MESSAGE), cJSON_Invalid,
-                                  &response->message);
+                              &response->message);
 
     return SUCCESS_RETURN;
 }
@@ -282,7 +284,8 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
     memset(&lite, 0, sizeof(lite_cjson_t));
     res = lite_cjson_parse(payload, payload_len, &lite);
     if (res < SUCCESS_RETURN) {
-        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_WRONG_JSON_FORMAT, "wrong JSON format, uri: %s, payload: %s", uri, payload);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_WRONG_JSON_FORMAT, "wrong JSON format, uri: %s, payload: %s", uri,
+                         payload);
         DM_free(uri);
         DM_free(payload);
         return FAIL_RETURN;
@@ -519,7 +522,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
 
     DM_free(ctx_addr_str);
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, "serviceID: %.*s", identifier_len, identifier);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, "serviceID: %.*s", identifier_len, identifier);
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_THING_SERVICE_REQUEST, message);
     if (res != SUCCESS_RETURN) {
         DM_free(message);
@@ -567,7 +570,7 @@ int dm_msg_rrpc_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                  serviceid_len, serviceid, rrpcid_len, rrpcid,
                  request->params.value_length, request->params.value);
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, "rrpcid: %.*s", rrpcid_len, rrpcid);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, "rrpcid: %.*s", rrpcid_len, rrpcid);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_RRPC_REQUEST, message);
     if (res != SUCCESS_RETURN) {
@@ -621,7 +624,7 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 
             payload = str_payload;
             payload_len = strlen(str_payload);
-        }else{
+        } else {
             payload = response->message.value;
             payload_len = response->message.value_length;
         }
@@ -684,7 +687,7 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT, id, response->code.value_int, devid,
                  identifier_len, identifier, response->message.value_length, response->message.value);
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_CLOUD_DATA, "eventID: %.*s", identifier_len, identifier);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RX_CLOUD_MESSAGE, "eventID: %.*s", identifier_len, identifier);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_EVENT_SPECIFIC_POST_REPLY, message);
     if (res != SUCCESS_RETURN) {
@@ -2153,7 +2156,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     HAL_Snprintf(sign_source, sign_source_len, DM_MSG_THING_TOPO_ADD_SIGN_SOURCE, client_id,
                  device_name, product_key, timestamp);
 
-    utils_hmac_sha256((uint8_t *)sign_source,strlen(sign_source), (uint8_t *)device_secret, strlen(device_secret), sign);
+    utils_hmac_sha256((uint8_t *)sign_source, strlen(sign_source), (uint8_t *)device_secret, strlen(device_secret), sign);
     infra_hex2str(sign, 32, sign_str);
 
     DM_free(sign_source);
@@ -2300,7 +2303,8 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     HAL_Snprintf(timestamp, DM_UTILS_UINT64_STRLEN, "%llu", (unsigned long long)HAL_UptimeMs());
 
     /* Client ID */
-    HAL_Snprintf(client_id, IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 25, "%s.%s|_ss=1,_v=sdk-c-"IOTX_SDK_VERSION"|", product_key, device_name);
+    HAL_Snprintf(client_id, IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 25,
+                 "%s.%s|_ss=1,_v=sdk-c-"IOTX_SDK_VERSION"|", product_key, device_name);
 
     /* Sign */
     sign_source_len = strlen(DM_MSG_COMBINE_LOGIN_SIGN_SOURCE) + strlen(client_id) +

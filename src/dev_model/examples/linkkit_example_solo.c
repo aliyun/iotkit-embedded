@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #ifdef __UBUNTU_SDK_DEMO__
-#include <unistd.h>
+    #include <unistd.h>
 #endif
 
 #include "infra_types.h"
@@ -39,7 +39,8 @@ char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv
         HAL_Printf("\033[0m\r\n");                                  \
     } while (0)
 
-void run_ubuntu_wifi_provision_example() {
+void run_ubuntu_wifi_provision_example()
+{
 #ifdef __UBUNTU_SDK_DEMO__
 #if defined(WIFI_PROVISION_ENABLED)
     char *wifi_name = "linkkit";
@@ -327,23 +328,23 @@ int main(int argc, char **argv)
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-/*
- * if the following conditions are met:
- *    1) wifi provision is enabled,
- *    2) current OS is Ubuntu,
- *    3) a wireless card(Linksys思科wusb600n双频无线网卡) is inserted
- *    4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
- *       for example, the output of command "ifconfig" is like:
- *         wlx00259ce04ceb Link encap:Ethernet  HWaddr 00:25:9c:e0:4c:eb
- *         UP BROADCAST PROMISC MULTICAST  MTU:1500  Metric:1
- *         RX packets:8709 errors:0 dropped:27 overruns:0 frame:0
- *         TX packets:2457 errors:0 dropped:0 overruns:0 carrier:0
- *         collisions:0 txqueuelen:1000
- *         RX bytes:2940097 (2.9 MB)  TX bytes:382827 (382.8 KB)
- *       then set g_ifname = "wlx00259ce04ceb"
- *    5) the linkkit-example-solo is running with sudo permission
- *  Then you can run wifi-provision example in Ubuntu, just to uncomment the following line
- */
+    /*
+     * if the following conditions are met:
+     *    1) wifi provision is enabled,
+     *    2) current OS is Ubuntu,
+     *    3) a wireless card(Linksys思科wusb600n双频无线网卡) is inserted
+     *    4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
+     *       for example, the output of command "ifconfig" is like:
+     *         wlx00259ce04ceb Link encap:Ethernet  HWaddr 00:25:9c:e0:4c:eb
+     *         UP BROADCAST PROMISC MULTICAST  MTU:1500  Metric:1
+     *         RX packets:8709 errors:0 dropped:27 overruns:0 frame:0
+     *         TX packets:2457 errors:0 dropped:0 overruns:0 carrier:0
+     *         collisions:0 txqueuelen:1000
+     *         RX bytes:2940097 (2.9 MB)  TX bytes:382827 (382.8 KB)
+     *       then set g_ifname = "wlx00259ce04ceb"
+     *    5) the linkkit-example-solo is running with sudo permission
+     *  Then you can run wifi-provision example in Ubuntu, just to uncomment the following line
+     */
 
     /* Register Callback */
     IOT_RegisterCallback(ITE_STATE_EVERYTHING, user_sdk_state_dump);

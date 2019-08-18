@@ -401,11 +401,12 @@ extern "C" {
 /* Requested device not found in list */
 /* 当前请求对应的设备未找到, 无法对其操作 */
 #define STATE_DEV_MODEL_DEVICE_NOT_FOUND            (STATE_DEV_MODEL_BASE - 0x0006)
-
-#define STATE_DEV_MODEL_DEVICE_TYPE_ERROR           (STATE_DEV_MODEL_BASE - 0x0007)
-
-#define STATE_DEV_MODEL_DEVICE_STATUS_ERROR         (STATE_DEV_MODEL_BASE - 0x0008)
-
+/* Requested device can not be deleted */
+/* 当前请求对应的设备不可删除, 无法对其进行删除操作 */
+#define STATE_DEV_MODEL_SUBD_NOT_DELETEABLE         (STATE_DEV_MODEL_BASE - 0x0007)
+/* Requested device not in login status so can not logout */
+/* 当前请求对应的设备不在登入状态, 无法对其进行登出操作 */
+#define STATE_DEV_MODEL_SUBD_NOT_LOGIN              (STATE_DEV_MODEL_BASE - 0x0008)
 /* Internal error happens in device model function */
 /* 物模型/子设备管理模块发生内部错误 */
 #define STATE_DEV_MODEL_INTERNAL_ERROR              (STATE_DEV_MODEL_BASE - 0x0009)
@@ -424,8 +425,6 @@ extern "C" {
 /* Internal error about file descriptor happens in device model function */
 /* 物模型/子设备管理模块发生fd有关的内部错误 */
 #define STATE_DEV_MODEL_CM_FD_ERROR                 (STATE_DEV_MODEL_BASE - 0x000E)
-
-
 /* Failed to connect MQTT in device model function */
 /* 物模型模块中发生MQTT连接建立失败 */
 #define STATE_DEV_MODEL_MQTT_CONNECT_FAILED         (STATE_DEV_MODEL_BASE - 0x000F)
@@ -435,9 +434,9 @@ extern "C" {
 /* Got MQTT message from server but its JSON format is wrong */
 /* 物模型模块中接收到来自服务端的MQTT下推消息, 但报文内容不是合理的JSON格式 */
 #define STATE_DEV_MODEL_WRONG_JSON_FORMAT           (STATE_DEV_MODEL_BASE - 0x0011)
-
+/* Failed to lookup value for specified key when parse JSON */
+/* 物模型模块中从JSON报文解析KV对失败 */
 #define STATE_DEV_MODEL_GET_JSON_ITEM_FAILED        (STATE_DEV_MODEL_BASE - 0x0012)
-
 /* Service respond does not have correct request context in device model */
 /* 物模型模块中发送服务回应报文给服务端时, 没有找到对应的服务端请求上下文 */
 #define STATE_DEV_MODEL_SERVICE_CTX_NOT_EXIST       (STATE_DEV_MODEL_BASE - 0x0013)
@@ -456,57 +455,102 @@ extern "C" {
 /* OTA firmware downloaded failed to pass integrity check */
 /* 物模型模块中发现OTA下载的固件, 未能通过完整性校验 */
 #define STATE_DEV_MODEL_OTA_IMAGE_CHECK_FAILED      (STATE_DEV_MODEL_BASE - 0x0018)
-
+/* OTA type is neither cota or fota */
+/* 物模型模块中发现OTA操作的类型既不是FOTA, 又不是COTA */
 #define STATE_DEV_MODEL_OTA_TYPE_ERROR              (STATE_DEV_MODEL_BASE - 0x0019)
-
+/* OTA fetching from cloud failed to get expected content */
+/* 物模型模块中从云端获取下载内容未达预期 */
 #define STATE_DEV_MODEL_OTA_FETCH_FAILED            (STATE_DEV_MODEL_BASE - 0x001A)
-
 /* ALCS function failed to initialize itself */
 /* 本地控制功能初始化失败 */
 #define STATE_DEV_MODEL_ALCS_CONSTRUCT_FAILED       (STATE_DEV_MODEL_BASE - 0x001B)
 /* Gateway/Sub-device management function is not configured on */
 /* SDK当前未被配置为打开子设备管理/网关功能 */
 #define STATE_DEV_MODEL_GATEWAY_NOT_ENABLED         (STATE_DEV_MODEL_BASE - 0x001C)
-
-#define STATE_DEV_MODEL_RRPCID_LEN_ERROR            (STATE_DEV_MODEL_BASE - 0x001D)
-
-#define STATE_DEV_MODEL_RAWDATA_SOLO_ENABLED        (STATE_DEV_MODEL_BASE - 0x001E)
-
+/* RRPC message contains too long identifier */
+/* 物模型模块中发现RRPC请求的ID太长, 超过了可处理的最大长度 */
+#define STATE_DEV_MODEL_RRPCID_TOO_LONG             (STATE_DEV_MODEL_BASE - 0x001D)
+/* Configured rawdata+solo mode, will not proceed JSON messages */
+/* 物模型模块已被配置为单品透传模式, 无法处理JSON报文 */
+#define STATE_DEV_MODEL_IN_RAWDATA_SOLO             (STATE_DEV_MODEL_BASE - 0x001E)
+/* Duplicated upstream device model messages */
+/* 物模型模块中发现重复的上行报文请求 */
 #define STATE_DEV_MODEL_DUP_UPSTREAM_MSG            (STATE_DEV_MODEL_BASE - 0x001F)
-
-#define STATE_DEV_MODEL_UPSTREAM_NODE_NOT_FOUND     (STATE_DEV_MODEL_BASE - 0x0020)
-
-#define STATE_DEV_MODEL_CLOUD_RETURN_ERROR          (STATE_DEV_MODEL_BASE - 0x0021)
-
+/* Corresponding upstream record not found for downstream messages */
+/* 物模型模块处理下行报文时, 未找到与之对应的上行报文记录 */
+#define STATE_DEV_MODEL_UPSTREAM_REC_NOT_FOUND      (STATE_DEV_MODEL_BASE - 0x0020)
+/* Got negative respond from clound in device model */
+/* 物模型/子设备管理模块中得到来自云端对请求的拒绝报文 */
+#define STATE_DEV_MODEL_REFUSED_BY_CLOUD            (STATE_DEV_MODEL_BASE - 0x0021)
+/* Encount unexpected option when invoke dm_opt_get() */
+/* 物模型模块中发现用于获取内部信息的option不合理 */
 #define STATE_DEV_MODEL_INVALID_DM_OPTION           (STATE_DEV_MODEL_BASE - 0x0022)
-
+/* Encount parsing failure when process URL in respond from cloud */
+/* 物模型模块在处理云端回复报文时, 从中解析URL失败 */
 #define STATE_DEV_MODEL_URL_SPLIT_FAILED            (STATE_DEV_MODEL_BASE - 0x0023)
+/* Failed to parse Alink request or respond messages */
+/* 解析Alink上行报文或下行报文失败 */
 #define STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED      (STATE_DEV_MODEL_BASE - 0x0024)
+/* Failed to upload device log to cloud */
+/* 上传设备日志到云端日志接口失败 */
 #define STATE_DEV_MODEL_LOG_REPORT_ERROR            (STATE_DEV_MODEL_BASE - 0x0025)
-#define STATE_DEV_MODEL_AUTO_SUBSCRIBE_ENABLED      (STATE_DEV_MODEL_BASE - 0x0026)
-#define STATE_DEV_MODEL_RECV_CLOUD_DATA             (STATE_DEV_MODEL_BASE - 0x0027)
-#define STATE_DEV_MODEL_PUBLISH_MESSAGE             (STATE_DEV_MODEL_BASE - 0x0028)
-
-#define STATE_DEV_MODLE_ALCS_RECV_MSG               (STATE_DEV_MODEL_BASE - 0x0029)
-#define STATE_DEV_MODLE_ALCS_SEND_MSG               (STATE_DEV_MODEL_BASE - 0x002A)
-#define STATE_DEV_MODLE_ALCS_GENERAL                (STATE_DEV_MODEL_BASE - 0x002B)
-
-#define STATE_DEV_MODEL_IPC_LIST                    (STATE_DEV_MODEL_BASE - 0x002C)
-#define STATE_DEV_MODEL_IPC_LIST_FULL               (STATE_DEV_MODEL_BASE - 0x002D)
-#define STATE_DEV_MODEL_IPC_LIST_EMPTY              (STATE_DEV_MODEL_BASE - 0x002E)
-
+/* Bypass current topic subscription since auto subscribed */
+/* 物模型模块被配置为免订阅模式, 跳过当前的系统Topic订阅 */
+#define STATE_DEV_MODEL_IN_AUTOSUB_MODE             (STATE_DEV_MODEL_BASE - 0x0026)
+/* Got message from cloud in device model */
+/* 物模型/子设备管理模块中, 接收到来自云端的下推报文 */
+#define STATE_DEV_MODEL_RX_CLOUD_MESSAGE            (STATE_DEV_MODEL_BASE - 0x0027)
+/* Sending message to cloud in device model */
+/* 物模型/子设备管理模块中, 正在发送去往云端的上行报文 */
+#define STATE_DEV_MODEL_TX_CLOUD_MESSAGE            (STATE_DEV_MODEL_BASE - 0x0028)
+/* Got message from local in device model */
+/* 物模型/子设备管理模块中, 接收到来自本地控制设备的报文 */
+#define STATE_DEV_MODLE_RX_LOCAL_MESSAGE            (STATE_DEV_MODEL_BASE - 0x0029)
+/* Sending message to local in device model */
+/* 物模型/子设备管理模块中, 正在发送去往本地控制设备的报文 */
+#define STATE_DEV_MODLE_TX_LOCAL_MESSAGE            (STATE_DEV_MODEL_BASE - 0x002A)
+/* Processing control messages in alcs protocol */
+/* 物模型/子设备管理模块中, 正在处理本地控制协议中的控制类消息 */
+#define STATE_DEV_MODLE_ALCS_CONTROL                (STATE_DEV_MODEL_BASE - 0x002B)
+/* Processing message queue of device model and external modules */
+/* 物模型模块中的消息队列正在被插入或删除元素 */
+#define STATE_DEV_MODEL_MSGQ_OPERATION              (STATE_DEV_MODEL_BASE - 0x002C)
+/* Message queue in device model is full */
+/* 物模型模块中的消息队列已满 */
+#define STATE_DEV_MODEL_MSGQ_FULL                   (STATE_DEV_MODEL_BASE - 0x002D)
+/* Message queue in device model is empty */
+/* 物模型模块中的消息队列已空 */
+#define STATE_DEV_MODEL_MSGQ_EMPTY                  (STATE_DEV_MODEL_BASE - 0x002E)
+/* Cache list in device model get inserted new element */
+/* 物模型模块中的高速缓存队列正在被插入新元素 */
 #define STATE_DEV_MODEL_CACHE_LIST_INSERT           (STATE_DEV_MODEL_BASE - 0x002F)
+/* Cache list in device model get removed element */
+/* 物模型模块中的高速缓存队列正在被删除某元素 */
 #define STATE_DEV_MODEL_CACHE_LIST_REMOVE           (STATE_DEV_MODEL_BASE - 0x0030)
-#define STATE_DEV_MODEL_CACHE_LIST_MSG_TIMEOUT      (STATE_DEV_MODEL_BASE - 0x0031)
+/* Element in cache list of device model removed since life-time over */
+/* 物模型模块中的高速缓存元素因为闲置时间太长而被老化删除 */
+#define STATE_DEV_MODEL_CACHE_LIST_FADEOUT          (STATE_DEV_MODEL_BASE - 0x0031)
+/* Cache list in device model get filled full */
+/* 物模型模块中的高速缓存队列已满 */
 #define STATE_DEV_MODEL_CACHE_LIST_FULL             (STATE_DEV_MODEL_BASE - 0x0032)
+/* Cache list in device model get consumed empty */
+/* 物模型模块中的高速缓存队列已空 */
 #define STATE_DEV_MODEL_CACHE_LIST_EMPTY            (STATE_DEV_MODEL_BASE - 0x0033)
-
+/* Log post to cloud get stopped */
+/* 物模型模块中的日志上云已被停止 */
 #define STATE_DEV_MODLE_LOG_REPORT_STOP             (STATE_DEV_MODEL_BASE - 0x0034)
+/* Log post to cloud get switched */
+/* 物模型模块中的日志上云已被调节 */
 #define STATE_DEV_MODLE_LOG_REPORT_SWITCH           (STATE_DEV_MODEL_BASE - 0x0035)
+/* Log post to cloud get transmitted */
+/* 物模型模块中的日志上云消息已被发送 */
 #define STATE_DEV_MODLE_LOG_REPORT_SEND             (STATE_DEV_MODEL_BASE - 0x0036)
-
-#define STATE_DEV_MODEL_LINKKIT_SYNC_LIST           (STATE_DEV_MODEL_BASE - 0x0037)
-#define STATE_DEV_MODEL_LINKKIT_EVENT               (STATE_DEV_MODEL_BASE - 0x0038)
+/* Operating to list of sync request in device model */
+/* 物模型模块中的同步请求队列正在被操作 */
+#define STATE_DEV_MODEL_SYNC_REQ_LIST               (STATE_DEV_MODEL_BASE - 0x0037)
+/* Event of alink protocol processing is happenning */
+/* 物模型模块正在处理Alink协议相关的报文 */
+#define STATE_DEV_MODEL_ALINK_PROT_EVENT            (STATE_DEV_MODEL_BASE - 0x0038)
 
 
 /* Device Model: 0x0900 ~ 0x09FF */
