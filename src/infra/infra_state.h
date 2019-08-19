@@ -522,20 +522,20 @@ extern "C" {
 /* 物模型模块中的消息队列已空 */
 #define STATE_DEV_MODEL_MSGQ_EMPTY                  (STATE_DEV_MODEL_BASE - 0x002E)
 /* Cache list in device model get inserted new element */
-/* 物模型模块中的高速缓存队列正在被插入新元素 */
-#define STATE_DEV_MODEL_CACHE_LIST_INSERT           (STATE_DEV_MODEL_BASE - 0x002F)
+/* 物模型模块中的会话上下文链表正在被插入新元素 */
+#define STATE_DEV_MODEL_CTX_LIST_INSERT             (STATE_DEV_MODEL_BASE - 0x002F)
 /* Cache list in device model get removed element */
-/* 物模型模块中的高速缓存队列正在被删除某元素 */
-#define STATE_DEV_MODEL_CACHE_LIST_REMOVE           (STATE_DEV_MODEL_BASE - 0x0030)
+/* 物模型模块中的会话上下文链表正在被删除某元素 */
+#define STATE_DEV_MODEL_CTX_LIST_REMOVE             (STATE_DEV_MODEL_BASE - 0x0030)
 /* Element in cache list of device model removed since life-time over */
-/* 物模型模块中的高速缓存元素因为闲置时间太长而被老化删除 */
-#define STATE_DEV_MODEL_CACHE_LIST_FADEOUT          (STATE_DEV_MODEL_BASE - 0x0031)
+/* 物模型模块中的会话上下文元素因为闲置时间太长而被老化删除 */
+#define STATE_DEV_MODEL_CTX_LIST_FADEOUT            (STATE_DEV_MODEL_BASE - 0x0031)
 /* Cache list in device model get filled full */
-/* 物模型模块中的高速缓存队列已满 */
-#define STATE_DEV_MODEL_CACHE_LIST_FULL             (STATE_DEV_MODEL_BASE - 0x0032)
+/* 物模型模块中的会话上下文链表已满 */
+#define STATE_DEV_MODEL_CTX_LIST_FULL               (STATE_DEV_MODEL_BASE - 0x0032)
 /* Cache list in device model get consumed empty */
-/* 物模型模块中的高速缓存队列已空 */
-#define STATE_DEV_MODEL_CACHE_LIST_EMPTY            (STATE_DEV_MODEL_BASE - 0x0033)
+/* 物模型模块中的会话上下文链表已空 */
+#define STATE_DEV_MODEL_CTX_LIST_EMPTY              (STATE_DEV_MODEL_BASE - 0x0033)
 /* Log post to cloud get stopped */
 /* 物模型模块中的日志上云已被停止 */
 #define STATE_DEV_MODLE_LOG_REPORT_STOP             (STATE_DEV_MODEL_BASE - 0x0034)

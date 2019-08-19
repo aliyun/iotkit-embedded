@@ -75,9 +75,9 @@ int dm_msg_cache_insert(int msgid, int devid, iotx_dm_event_types_t type, char *
     dm_msg_cache_ctx_t *ctx = _dm_msg_cache_get_ctx();
     dm_msg_cache_node_t *node = NULL;
 
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_INSERT, "cache list size: %d", ctx->dmc_list_size);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CTX_LIST_INSERT, "context list size: %d", ctx->dmc_list_size);
     if (ctx->dmc_list_size >= CONFIG_MSGCACHE_QUEUE_MAXLEN) {
-        return STATE_DEV_MODEL_CACHE_LIST_FULL;
+        return STATE_DEV_MODEL_CTX_LIST_FULL;
     }
 
     node = DM_malloc(sizeof(dm_msg_cache_node_t));
@@ -97,7 +97,7 @@ int dm_msg_cache_insert(int msgid, int devid, iotx_dm_event_types_t type, char *
     list_add_tail(&node->linked_list, &ctx->dmc_list);
     ctx->dmc_list_size++;
     _dm_msg_cache_mutex_unlock();
-    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_INSERT, "cache insert msgid: %d", msgid);
+    iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CTX_LIST_INSERT, "context elem inserted, msgid: %d", msgid);
 
     return SUCCESS_RETURN;
 }
@@ -121,7 +121,7 @@ int dm_msg_cache_search(_IN_ int msgid, _OU_ dm_msg_cache_node_t **node)
     }
 
     _dm_msg_cache_mutex_unlock();
-    return STATE_DEV_MODEL_CACHE_LIST_EMPTY;
+    return STATE_DEV_MODEL_CTX_LIST_EMPTY;
 }
 
 int dm_msg_cache_remove(int msgid)
@@ -139,14 +139,14 @@ int dm_msg_cache_remove(int msgid)
             }
             ctx->dmc_list_size--;
             DM_free(node);
-            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_REMOVE, "cache remove msgid: %d", msgid);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CTX_LIST_REMOVE, "context elem remove, msgid: %d", msgid);
             _dm_msg_cache_mutex_unlock();
             return SUCCESS_RETURN;
         }
     }
 
     _dm_msg_cache_mutex_unlock();
-    return STATE_DEV_MODEL_CACHE_LIST_EMPTY;
+    return STATE_DEV_MODEL_CTX_LIST_EMPTY;
 }
 
 void dm_msg_cache_tick(void)
@@ -162,7 +162,7 @@ void dm_msg_cache_tick(void)
             node->ctime = current_time;
         }
         if (current_time - node->ctime >= DM_MSG_CACHE_TIMEOUT_MS_DEFAULT) {
-            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CACHE_LIST_FADEOUT, "cache timeout msgid: %d", node->msgid);
+            iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_CTX_LIST_FADEOUT, "context elem timeout, msgid: %d", node->msgid);
             /* Send Timeout Message To User */
             dm_msg_send_msg_timeout_to_user(node->msgid, node->devid, node->response_type);
             list_del(&node->linked_list);
