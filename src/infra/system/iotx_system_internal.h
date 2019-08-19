@@ -20,7 +20,7 @@
 #include "utils_httpc.h"
 #include "iotx_system.h"
 
-#define GUIDER_IOT_ID_LEN           (128)
+#define GUIDER_IOT_ID_LEN           (80)
 #define GUIDER_IOT_TOKEN_LEN        (64)
 #define GUIDER_DEFAULT_TS_STR       "2524608000000"
 
