@@ -731,7 +731,7 @@ static int _mqtt_connect(void *client)
 
         rc = iotx_mc_wait_CONNACK(pClient);
 
-        if (rc <= STATE_MQTT_CONNACK_NOT_AUTHORIZED && rc >= STATE_MQTT_CONNACK_VERSION_UNACCEPT) {
+        if (rc <= STATE_MQTT_CONNACK_VERSION_UNACCEPT && rc >= STATE_MQTT_CONNACK_NOT_AUTHORIZED) {
             mqtt_err("received reject ACK from MQTT server! rc = %d", rc);
             pClient->ipstack.disconnect(&pClient->ipstack);
             return rc;
@@ -1776,9 +1776,10 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             IOTX_MC_STATE_CONNECT_BLOCK == currentState) {
             /* Reconnection is successful, Resume regularly ping packets */
             rc = iotx_mc_handle_reconnect(pClient);
-            if (rc != STATE_SUCCESS) {
-            } else if (rc == STATE_MQTT_ASYNC_STACK_CONN_IN_PROG) {
-                mqtt_debug("now using async protocol stack, wait network connected...");
+            if (rc < STATE_SUCCESS) {
+                if (rc == STATE_MQTT_ASYNC_STACK_CONN_IN_PROG) {
+                    mqtt_debug("now using async protocol stack, wait network connected...");
+                }
             } else {
                 mqtt_info("network is reconnected!");
                 iotx_mc_reconnect_callback(pClient);

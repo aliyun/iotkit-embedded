@@ -105,14 +105,15 @@ int iotx_report_devinfo(void *pclient)
     VERSION_DEBUG("devinfo report data: %s", msg);
 
     if (info_report_func != NULL) {
-        info_report_func(pclient, topic_name, 1, msg, strlen(msg));
+        ret = info_report_func(pclient, topic_name, 1, msg, strlen(msg));
+        if (ret < 0) {
+            VERSION_ERR("publish failed, ret = %d", ret);
+            SYS_REPORT_FREE(msg);
+            return FAIL_RETURN;
+        }
     }
 
     SYS_REPORT_FREE(msg);
-    if (ret < 0) {
-        VERSION_ERR("publish failed, ret = %d", ret);
-        return FAIL_RETURN;
-    }
     VERSION_DEBUG("devinfo report succeed");
 
     return SUCCESS_RETURN;
