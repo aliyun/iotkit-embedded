@@ -49,7 +49,12 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
     if (length >= (LOG_PUBLISH_MSG_MAXLEN - sizeof(THING_LOG_POST_PARAMS_TAIL))) {
         strcpy(logbuf + LOG_PUBLISH_MSG_MAXLEN - sizeof(THING_LOG_POST_PARAMS_TAIL) - 3, THING_LOG_POST_PARAMS_TAIL);
     } else {
-        strcat(logbuf, THING_LOG_POST_PARAMS_TAIL + 3);
+        if (strlen(logbuf) + strlen(THING_LOG_POST_PARAMS_TAIL) + 3 > LOG_PUBLISH_MSG_MAXLEN) {
+            IMPL_LOGPOST_FREE(logbuf);
+            return FAIL_RETURN;
+        }else{
+            strcat(logbuf, THING_LOG_POST_PARAMS_TAIL + 3);
+        }
     }
 
     ret = iotx_mc_log_post(pHandle, logbuf);
