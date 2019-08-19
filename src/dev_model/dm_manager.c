@@ -1121,15 +1121,13 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
     res = dm_client_publish(uri, (unsigned char *)payload, payload_len, dm_client_thing_model_up_raw_reply);
 #ifdef ALCS_ENABLED
     res1 = dm_server_send(uri, (unsigned char *)payload, payload_len, NULL);
+    if (res1 < 0) {
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_ALCS_SEND_FAILED, NULL);
+    }
 #endif
 
-    if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
-        DM_free(uri);
-        return (res < 0) ? res : res1;
-    }
-
     DM_free(uri);
-    return SUCCESS_RETURN;
+    return res;
 }
 
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)

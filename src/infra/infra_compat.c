@@ -143,12 +143,8 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_PRODUCT_KEY: {
-            if (data != NULL) {
-                memcpy(data, ctx->product_key, strlen(ctx->product_key));
-                res = SUCCESS_RETURN;
-            } else {
-                res = FAIL_RETURN;
-            }
+            memcpy(data, ctx->product_key, strlen(ctx->product_key));
+            res = SUCCESS_RETURN;
         }
         break;
         case IOTX_IOCTL_SET_PRODUCT_SECRET: {
@@ -162,12 +158,8 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_PRODUCT_SECRET: {
-            if (data != NULL) {
-                memcpy(data, ctx->product_secret, strlen(ctx->product_secret));
-                res = SUCCESS_RETURN;
-            } else {
-                res = FAIL_RETURN;
-            }
+            memcpy(data, ctx->product_secret, strlen(ctx->product_secret));
+            res = SUCCESS_RETURN;
         }
         break;
         case IOTX_IOCTL_SET_DEVICE_NAME: {
@@ -181,12 +173,8 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_DEVICE_NAME: {
-            if (data != NULL) {
-                memcpy(data, ctx->device_name, strlen(ctx->device_name));
-                res = SUCCESS_RETURN;
-            } else {
-                res = FAIL_RETURN;
-            }
+            memcpy(data, ctx->device_name, strlen(ctx->device_name));
+            res = SUCCESS_RETURN;
         }
         break;
         case IOTX_IOCTL_SET_DEVICE_SECRET: {
@@ -200,12 +188,8 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_DEVICE_SECRET: {
-            if (data != NULL) {
-                memcpy(data, ctx->device_secret, strlen(ctx->device_secret));
-                res = SUCCESS_RETURN;
-            } else {
-                res = FAIL_RETURN;
-            }
+            memcpy(data, ctx->device_secret, strlen(ctx->device_secret));
+            res = SUCCESS_RETURN;
         }
         break;
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)

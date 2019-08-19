@@ -82,7 +82,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
 
     memset(clientid_string, 0, DEV_SIGN_CLIENT_ID_MAXLEN);
     memcpy(clientid_string, device_id, strlen(device_id));
-    memcpy(clientid_string + strlen(clientid_string), "|", 1);
+    memcpy(clientid_string + strlen(clientid_string), "|", 2);
 
     if (enable_itls > 0) {
         clientid_kv[2][1] = MODE_ITLS_DNS_ID2;

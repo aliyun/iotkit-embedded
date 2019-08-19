@@ -552,6 +552,7 @@ extern "C" {
 /* 物模型模块正在处理Alink协议相关的报文 */
 #define STATE_DEV_MODEL_ALINK_PROT_EVENT            (STATE_DEV_MODEL_BASE - 0x0038)
 
+#define STATE_DEV_MODEL_ALCS_SEND_FAILED            (STATE_DEV_MODEL_BASE - 0x0039)
 
 /* Device Model: 0x0900 ~ 0x09FF */
 
