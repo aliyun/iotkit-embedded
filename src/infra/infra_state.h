@@ -304,11 +304,11 @@ extern "C" {
 /* WiFi provision decrypt WiFi password successfully */
 /* WiFi配网中解密WiFi热点的密码成功 */
 #define STATE_WIFI_PASSWD_DECODE_SUCCESS            (STATE_WIFI_BASE - 0x000D)
-/* WiFi provision claiming other information */
-/* WiFi配网中的其它过程信息 */
-#define STATE_WIFI_STATICS                          (STATE_WIFI_BASE - 0x000E)
 /* WiFi configuration statics report, including overall time, pack number, pack lens */
 /* WiFi配网中的统计信息，比如收到包的数量，配网时间，收包报文的总长度*/
+#define STATE_WIFI_STATISTIC                        (STATE_WIFI_BASE - 0x000E)
+/* WiFi provision claiming other information */
+/* WiFi配网中的其它过程信息 */
 #define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x000F)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
@@ -554,7 +554,8 @@ extern "C" {
 /* Event of alink protocol processing is happenning */
 /* 物模型模块正在处理Alink协议相关的报文 */
 #define STATE_DEV_MODEL_ALINK_PROT_EVENT            (STATE_DEV_MODEL_BASE - 0x0038)
-
+/* Failed to transimit alcs packets into local network */
+/* 物模型模块中, 在局域网内发送本地控制相关报文失败 */
 #define STATE_DEV_MODEL_ALCS_SEND_FAILED            (STATE_DEV_MODEL_BASE - 0x0039)
 
 /* Device Model: 0x0900 ~ 0x09FF */
