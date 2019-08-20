@@ -235,6 +235,10 @@ void awss_update_pack_info(int awss_statis_idx, int len)
             g_awss_statis.sm.sm_packet_num++;
             g_awss_statis.sm.sm_packet_len_sum += len;
             break;
+        case AWSS_STATIS_MCAST_IDX:
+            g_awss_statis.sm.mcast_packet_num++;
+            g_awss_statis.sm.mcast_packet_len_sum += len;
+            break;
         default:
             break;
     }
@@ -435,6 +439,20 @@ void awss_update_statis(int awss_statis_idx, int type)
             }
             break;
 #endif
+        case AWSS_STATIS_MCAST_IDX:
+            switch (type) {
+                case AWSS_STATIS_TYPE_TIME_START:
+                    g_awss_statis.sm.mcast_parse_start = time;
+                    break;
+                case AWSS_STATIS_TYPE_TIME_SUC:
+                    time = (uint32_t)(time - g_awss_statis.sm.mcast_parse_start);
+                    dump_awss_status(STATE_WIFI_STATISTIC, "mcast took %d ms, processed %d packs, total len is %d", time,
+                                     g_awss_statis.sm.mcast_packet_num, g_awss_statis.sm.mcast_packet_len_sum);
+                    break;
+                default:
+                    break;
+            }
+
         default:
             break;
     }

@@ -44,7 +44,7 @@ int decode_passwd()
                        passwd_len,
                        1, awss_get_encrypt_type(), 0, NULL);
     if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
-        awss_trace("passwd err\r\n");
+        dump_awss_status(STATE_WIFI_PASSWD_DECODE_FAILED, "mcast passwd err");
         awss_event_post(IOTX_AWSS_PASSWD_ERR);
         AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         return FAILURE_RETURN;
@@ -59,7 +59,7 @@ int verify_checksum()
     uint8_t crc = mcast_smartconfig_data.checksum;
     cal_crc = (cal_crc & 0xFF);
     ret = cal_crc - crc;
-    awss_debug("mcast: verify checksum diff is %d, cal_crc, crc is %d,%d\n", ret, cal_crc, crc);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: verify checksum diff is %d, cal_crc, crc is %d,%d", ret, cal_crc, crc);
     return ret;
 
 }
@@ -90,14 +90,14 @@ int set_zc_bssid()
     /* compare the last 3 bytes of bssid from apist with the one from app */
     if (!memcmp(mcast_smartconfig_data.bssid, (uint8_t *)mcast_bssid_mac + 3, 3)) {
         memcpy(zc_bssid, mcast_bssid_mac, ETH_ALEN);
-        awss_debug("mcast_bssid_mac from aplist");
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast_bssid_mac from aplist");
         return SUCCESS_RETURN;
     } else {
 #ifdef AWSS_SUPPORT_APLIST
         struct ap_info *ap_info = zconfig_get_apinfo_by_3_byte_mac(mcast_smartconfig_data.bssid);
         if (NULL != ap_info) {
             memcpy(zc_bssid, ap_info->mac, 6);
-            awss_debug("bssid1: bssid is %x,%x,%x,%x,%x,%x", zc_bssid[0], zc_bssid[1], zc_bssid[2],
+            dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "bssid1: bssid is %x,%x,%x,%x,%x,%x", zc_bssid[0], zc_bssid[1], zc_bssid[2],
                        zc_bssid[3], zc_bssid[4], zc_bssid[5]);
             return SUCCESS_RETURN;
         }
@@ -122,10 +122,10 @@ int parse_result()
     uint8_t BIT2_token = 0;
     uint8_t BIT6_7_version = 0;
 
-    awss_debug("mcast: tlen is %d\n", mcast_smartconfig_data.tlen);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: tlen is %d", mcast_smartconfig_data.tlen);
     mcast_smartconfig_data.flag = mcast_smartconfig_data.data[1];
     offset = 2;
-    awss_debug("mcast: flag is %d\n", mcast_smartconfig_data.flag);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: flag is %d", mcast_smartconfig_data.flag);
 
     BIT0_passwd = 0x1 & mcast_smartconfig_data.flag;
     BIT1_ssid = 0x1 & (mcast_smartconfig_data.flag >> 1);
@@ -133,44 +133,44 @@ int parse_result()
     BIT6_7_version = 0x3 & (mcast_smartconfig_data.flag >> 6);
 
     if (0x3 != BIT6_7_version) {
-        awss_err("error version");
+        dump_awss_status(STATE_WIFI_ERROR_VERSION, "mcast: error version");
         return -1;
     }
 
     if (1 == BIT0_passwd) {
         mcast_smartconfig_data.passwd_len = mcast_smartconfig_data.data[2];
-        awss_debug("mcast: passwd_len is %d\n", mcast_smartconfig_data.passwd_len);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: passwd_len is %d", mcast_smartconfig_data.passwd_len);
         mcast_smartconfig_data.passwd = &(mcast_smartconfig_data.data[3]);
         offset = 3 + mcast_smartconfig_data.passwd_len;
     }
 
     if (1 == BIT2_token) {
         mcast_smartconfig_data.token_len = mcast_smartconfig_data.data[offset];
-        awss_debug("mcast: token_len is %d\n", mcast_smartconfig_data.token_len);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: token_len is %d", mcast_smartconfig_data.token_len);
         offset++;
         mcast_smartconfig_data.token = &(mcast_smartconfig_data.data[offset]);
-        awss_debug("mcast: token is %.*s\n", mcast_smartconfig_data.token_len, mcast_smartconfig_data.token);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: token is %.*s", mcast_smartconfig_data.token_len, mcast_smartconfig_data.token);
         offset += mcast_smartconfig_data.token_len;
     }
 
     if (1 == BIT1_ssid) {
         mcast_smartconfig_data.ssid_len = mcast_smartconfig_data.data[offset];
-        awss_debug("mcast: ssid_len is %d\n", mcast_smartconfig_data.ssid_len);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: ssid_len is %d", mcast_smartconfig_data.ssid_len);
         offset++;
         mcast_smartconfig_data.ssid = &(mcast_smartconfig_data.data[offset]);
-        awss_debug("mcast: ssid is %.*s\n", mcast_smartconfig_data.ssid_len, mcast_smartconfig_data.ssid);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: ssid is %.*s", mcast_smartconfig_data.ssid_len, mcast_smartconfig_data.ssid);
         offset += mcast_smartconfig_data.ssid_len;
     }
 
     mcast_smartconfig_data.bssid_type_len = mcast_smartconfig_data.data[offset];
-    awss_debug("mcast: bssid_type_len is %d\n", mcast_smartconfig_data.bssid_type_len);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: bssid_type_len is %d", mcast_smartconfig_data.bssid_type_len);
     offset++;
     mcast_smartconfig_data.bssid = &(mcast_smartconfig_data.data[offset]);
     /* get bssid len from last 5 bits from bssid_type_len */
     offset += mcast_smartconfig_data.bssid_type_len & 0b11111;
     mcast_smartconfig_data.checksum = mcast_smartconfig_data.data[offset];
-    awss_debug("mcast: checksum is %d\n", mcast_smartconfig_data.checksum);
-    awss_debug("mcast: total processed %d packagets \n", processed_packet);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: checksum is %d", mcast_smartconfig_data.checksum);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: total processed %d packagets", processed_packet);
 
     /* set zc_bssid*/
     valid_bssid = set_zc_bssid();
@@ -178,16 +178,17 @@ int parse_result()
     set_zc_ssid(valid_bssid);
     ret = verify_checksum();
     if (SUCCESS_RETURN != ret) {
-        awss_err("mcast: checksum mismatch\n");
+        dump_awss_status(STATE_WIFI_CRC_ERROR, "mcast: checksum mismatch");
         return -1;
     }
     ret = decode_passwd();
     gen16ByteToken();
     reset_mcast_data();
     if (SUCCESS_RETURN != ret) {
-        awss_err("mcast: passwd error\n");
+        dump_awss_status(STATE_WIFI_PASSWD_DECODE_FAILED, "mcast: passwd error");
         return -1;
     }
+    AWSS_UPDATE_STATIS(AWSS_STATIS_MCAST_IDX, AWSS_STATIS_TYPE_TIME_SUC);
     /* TODO: check channel info*/
     zconfig_set_state(STATE_RCV_DONE, 0, mcast_locked_channel);
     return SUCCESS_RETURN;
@@ -242,7 +243,7 @@ int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int li
     /* only multicast is passed */
     if (0x1 != dst_mac[0] || 0x0 != dst_mac[1] || 0x5e != dst_mac[2]) {
 #ifdef VERBOSE_MCAST_DEBUG
-        awss_debug("error type, %x, %x, %x\n", dst_mac[0], dst_mac[1], dst_mac[2]);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "error type, %x, %x, %x", dst_mac[0], dst_mac[1], dst_mac[2]);
 #endif
         return ALINK_INVALID;    /* only handle br frame */
     }
@@ -338,7 +339,7 @@ int lock_mcast_channel(struct parser_res *res, int encry_type)
 
         if (ap_info && ap_info->encry[tods] == encry_type && ap_info->channel) {
             if (res->channel != ap_info->channel) {
-                awss_info("fix channel from %d to %d\r\n", res->channel, ap_info->channel);
+                dump_awss_status(STATE_WIFI_CHAN_SCAN, "fix channel from %d to %d", res->channel, ap_info->channel);
                 zc_channel = ap_info->channel;  /* fix by ap_info channel */
                 aws_set_dst_chan(zc_channel);
             }
@@ -349,6 +350,7 @@ int lock_mcast_channel(struct parser_res *res, int encry_type)
         find_channel_from_aplist = 1;
         zconfig_set_state(STATE_CHN_LOCKED_BY_MCAST, 0, res->channel);
         mcast_locked_channel = res->channel;
+        AWSS_UPDATE_STATIS(AWSS_STATIS_MCAST_IDX, AWSS_STATIS_TYPE_TIME_START);
     } while (0);
 #endif
     return  SUCCESS_RETURN;
@@ -371,10 +373,11 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
 
     if (index > MCAST_MAX_LEN) {
 #ifdef VERBOSE_MCAST_DEBUG
-        awss_debug("error index\n");
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "error index");
 #endif
         return FAILURE_RETURN;
     }
+
     len = res->u.br.data_len;
     encry_type = res->u.br.encry_type;
 
@@ -383,10 +386,14 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
     len -= frame_offset;
     if (len != 1) {
 #ifdef VERBOSE_MCAST_DEBUG
-        awss_debug("error len, len is %d\n", len);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "error len, len is %d", len);
 #endif
         return FAILURE_RETURN;
     }
+
+    /* calculate the statics info */
+    AWSS_UPDATE_PACK_INFO(AWSS_STATIS_MCAST_IDX, len);
+
     /* Filter out interference */
     /*
          * 1) src not equal, bssid equal, interference
@@ -411,7 +418,7 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
     }
     processed_packet++;
 
-    awss_debug("mcast: index is %d, %d, %d, %d\n", index, payload1, payload2, len);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: index is %d, %d, %d, %d", index, payload1, payload2, len);
 
     mcast_smartconfig_data.data[index] = payload1;
     receive_record[index] = 1;

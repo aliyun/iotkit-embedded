@@ -18,6 +18,7 @@ enum {
     AWSS_STATIS_DAP_IDX,              /* Statistic for device AP */
     AWSS_STATIS_ROUTE_IDX,            /* Statistic for route solution */
     AWSS_STATIS_ZCONFIG_IDX,          /* Statistic for zero config */
+    AWSS_STATIS_MCAST_IDX,            /* Statistic for multi-cast smartconfig */
 };
 
 enum {
@@ -58,6 +59,9 @@ struct awss_statis_sm_t {
     uint32_t sm_time_min;         /* the min time of smartconfig */
     uint32_t sm_packet_num;       /* the total number of received packests of smartconfig */
     uint32_t sm_packet_len_sum;   /* the sum of received packet lens of smartconfig */
+    uint32_t mcast_parse_start;   /* the start time to mcast smartconfig*/
+    uint32_t mcast_packet_num;    /* the total number of received packests of mcast smartconfig */
+    uint32_t mcast_packet_len_sum;/* the sum of received packet lens of mcast smartconfig */
 };  /* smartconfig-bcast statistic  */
 
 struct awss_statis_wps_t {

@@ -147,7 +147,7 @@ int zconfig_recv_completed(uint8_t tods)
                 goto skip_ssid_auto_complete;
             }
 
-            dump_awss_status(STATE_WIFI_OTHERS, "ssid auto-complete: %s", zc_ssid);
+            dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, "ssid auto-complete: %s", zc_ssid);
             pkg_score(2) = SSID_AUTO_COMPLETE_SCORE;
 
             pkg_len(3) = ssid_len | 0x200;    /* 0x200 is the index 3 */
@@ -180,7 +180,7 @@ int zconfig_recv_completed(uint8_t tods)
                 return 0;
             }
 
-            dump_awss_status(STATE_WIFI_OTHERS, "chinese ssid auto-complete: %s", zc_ssid);
+            dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, "chinese ssid auto-complete: %s", zc_ssid);
             encode_chinese(zc_ssid, ssid_len, buf, &buf_len, 6);
 
             pkg_score(2) = SSID_AUTO_COMPLETE_SCORE;
@@ -254,12 +254,12 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         buf[i - 1] = data & PAYLOAD_BITS_MASK;
         tmp[i - 1] = score;
     }
-    dump_awss_status(STATE_WIFI_OTHERS, " ====payload score is as follow====");
+    dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, " ====payload score is as follow====");
     dump_hex(&tmp[0], package_num, GROUP_NUMBER);
-    dump_awss_status(STATE_WIFI_OTHERS, " ====end of dump====");
-    dump_awss_status(STATE_WIFI_OTHERS, " ====payload data is as follow====");
+    dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, " ====end of dump====");
+    dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, " ====payload data is as follow====");
     dump_hex(&buf[0], package_num, GROUP_NUMBER);
-    dump_awss_status(STATE_WIFI_OTHERS, " ====end of dump====");
+    dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, " ====end of dump====");
 
     crc = os_get_unaligned_be16(&buf[package_num - 2]);
 
@@ -271,7 +271,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     passwd_encrypt = (flag & PASSWD_ENCRYPT_MASK) >> PASSWD_ENCRYPT_BIT_OFFSET;
 
     if (passwd_encrypt == PASSWD_ENCRYPT_CIPHER || passwd_encrypt == PASSWD_ENCRYPT_OPEN) {
-        dump_awss_status(STATE_WIFI_OTHERS, "!aes128-cfb is not support: flag 0x%x", flag);
+        dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, "!aes128-cfb is not support: flag 0x%x", flag);
         ret = -1;
         goto exit;
     } else {
@@ -319,12 +319,12 @@ int zconfig_get_ssid_passwd(uint8_t tods)
 
         if (zc_ssid[0] == '\0' || zc_ssid_auto_complete_disable) {
             strncpy((char *)zc_ssid, (const char *)tmp, ZC_MAX_SSID_LEN - 1);
-            dump_awss_status(STATE_WIFI_OTHERS, "SSID0: [%s]", zc_ssid);
+            dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, "SSID0: [%s]", zc_ssid);
         } else {
             if (!strncmp((const char *)tmp, (char *)zc_ssid, ZC_MAX_SSID_LEN - 1)) {
-                dump_awss_status(STATE_WIFI_OTHERS, "SSID1: [%s]", zc_ssid);
+                dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, "SSID1: [%s]", zc_ssid);
             } else {
-                dump_awss_status(STATE_WIFI_OTHERS, "gbk%s SSID:[%s]", zc_ssid_is_gbk ? "" : "?", zc_ssid);
+                dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, "gbk%s SSID:[%s]", zc_ssid_is_gbk ? "" : "?", zc_ssid);
             }
         }
 #ifdef AWSS_SUPPORT_APLIST
@@ -378,7 +378,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             tmp[i] += 32;
         }
         strncpy((char *)zc_passwd, (const char *)tmp, ZC_MAX_PASSWD_LEN - 1);
-        dump_awss_status(STATE_WIFI_OTHERS, "encrypt:%d not support", passwd_encrypt);
+        dump_awss_status(STATE_WIFI_BCAST_DEBUG_INFO, "encrypt:%d not support", passwd_encrypt);
         temp_mutex = zc_mutex;
         memset(zconfig_data, 0, sizeof(*zconfig_data));
         zc_mutex = temp_mutex;

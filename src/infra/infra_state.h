@@ -307,9 +307,18 @@ extern "C" {
 /* WiFi configuration statics report, including overall time, pack number, pack lens */
 /* WiFi配网中的统计信息，比如收到包的数量，配网时间，收包报文的总长度*/
 #define STATE_WIFI_STATISTIC                        (STATE_WIFI_BASE - 0x000E)
+/* the version info from the packet is not the expected one */
+/* 手机端发来的配网协议的版本号不符合预期 */
+#define STATE_WIFI_ERROR_VERSION                    (STATE_WIFI_BASE - 0x000F)
+/* WiFi provision debug info during multi-cast wifi-provision */
+/* WiFi组播配网中的调试信息 */
+#define STATE_WIFI_MCAST_DEBUG_INFO                 (STATE_WIFI_BASE - 0x0010)
+/* WiFi provision debug info during broad-cast wifi-provision */
+/* WiFi包长编码的一键配网中的调试信息 */
+#define STATE_WIFI_BCAST_DEBUG_INFO                 (STATE_WIFI_BASE - 0x0011)
 /* WiFi provision claiming other information */
 /* WiFi配网中的其它过程信息 */
-#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x000F)
+#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0012)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 /* COAP: 0x0500 ~ 0x05FF */
