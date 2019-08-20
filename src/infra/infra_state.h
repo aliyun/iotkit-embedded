@@ -306,7 +306,10 @@ extern "C" {
 #define STATE_WIFI_PASSWD_DECODE_SUCCESS            (STATE_WIFI_BASE - 0x000D)
 /* WiFi provision claiming other information */
 /* WiFi配网中的其它过程信息 */
-#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x000E)
+#define STATE_WIFI_STATICS                          (STATE_WIFI_BASE - 0x000E)
+/* WiFi configuration statics report, including overall time, pack number, pack lens */
+/* WiFi配网中的统计信息，比如收到包的数量，配网时间，收包报文的总长度*/
+#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x000F)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 /* COAP: 0x0500 ~ 0x05FF */

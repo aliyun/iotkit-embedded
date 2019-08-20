@@ -68,7 +68,6 @@ static void *awss_statis_mutex = NULL;
 static uint32_t awss_statis_trace_id = 0;
 static uint32_t awss_statis_report_id = 0;
 static struct awss_statis_t g_awss_statis = {0};
-
 int awss_report_statis(const char *module)
 {
     const char *elem_fmt = "[%s max:%u min:%u mean:%u cnt:%u suc:%u crc-err:%u pw-err:%u],";
@@ -217,6 +216,17 @@ void awss_clear_statis()
     awss_statis_mutex = NULL;
 }
 
+void awss_update_pack_info(int awss_statis_idx, int len) {
+    switch (awss_statis_idx) {
+        case AWSS_STATIS_SM_IDX:
+             g_awss_statis.sm.sm_packet_num++;
+             g_awss_statis.sm.sm_packet_len_sum += len;
+             break;
+        default:
+              break;
+    }
+}
+
 void awss_update_statis(int awss_statis_idx, int type)
 {
     uint32_t time = HAL_UptimeMs();
@@ -291,6 +301,7 @@ void awss_update_statis(int awss_statis_idx, int type)
                     SM_SUC ++;
                     SM_END = time;
                     time = (uint32_t)(SM_END - SM_START);
+                    dump_awss_status(STATE_WIFI_STATICS, "smartconfig took %d ms, processed %d packs, total len is %d", time, g_awss_statis.sm.sm_packet_num, g_awss_statis.sm.sm_packet_len_sum);
                     if (SM_SUC > 0) {
                         SM_TMEAN = (SM_TMEAN + time) / (SM_SUC);
                     } else {
@@ -325,6 +336,7 @@ void awss_update_statis(int awss_statis_idx, int type)
                     PAP_SUC ++;
                     PAP_END = time;
                     time = (uint32_t)(PAP_END - PAP_START);
+
                     if (PAP_SUC > 0) {
                         PAP_TMEAN = (PAP_TMEAN + time) / (PAP_SUC);
                     } else {

@@ -3,7 +3,6 @@
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
-
 /* following is broadcast protocol related code */
 uint8_t is_start_frame(uint16_t len)
 {
@@ -1004,6 +1003,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         }
 
         len -= zc_frame_offset;
+        AWSS_UPDATE_PACK_INFO(AWSS_STATIS_SM_IDX, len);
 
         if (is_data_frame(len)) {
             pkg_type = PKG_DATA_FRAME;

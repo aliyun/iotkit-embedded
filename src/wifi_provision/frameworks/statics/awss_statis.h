@@ -56,6 +56,8 @@ struct awss_statis_sm_t {
     uint32_t sm_time_mean;        /* the mean time of smartconfig */
     uint32_t sm_time_max;         /* the max time of smartconfig */
     uint32_t sm_time_min;         /* the min time of smartconfig */
+    uint32_t sm_packet_num;       /* the total number of received packests of smartconfig */
+    uint32_t sm_packet_len_sum;   /* the sum of received packet lens of smartconfig */
 };  /* smartconfig-bcast statistic  */
 
 struct awss_statis_wps_t {
@@ -119,7 +121,9 @@ int awss_report_statis(const char *module);
 void awss_update_statis(int awss_statis_idx, int type);
 void awss_clear_statis();
 void awss_disp_statis();
+void awss_update_pack_info(int awss_statis_idx, int len);
 
+#define AWSS_UPDATE_PACK_INFO(idx, len) awss_update_pack_info(idx, len)
 #define AWSS_UPDATE_STATIS(idx, type) awss_update_statis(idx, type)
 #define AWSS_CLEAR_STATIS()           awss_clear_statis()
 #define AWSS_DISP_STATIS()            awss_disp_statis()
