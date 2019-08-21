@@ -147,6 +147,7 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
 
         if (strlen("code") == len && !memcmp(p_start, "code", len)) {
             infra_str2int(++p, &code);
+            iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_RSP, "code: %d", code);
             if (code != 200) {
                 return STATE_HTTP_PREAUTH_INVALID_RESP;
             }
@@ -162,6 +163,7 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
             }
         } else if (strlen("host") == len && !memcmp(p_start, "host", len)) {
             res = _preauth_get_string_value(p, output->hostname, PREAUTH_IOT_HOST_MAXLEN);
+            iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_RSP, "host: %s", output->hostname);
             if (res < SUCCESS_RETURN) {
                 return STATE_HTTP_PREAUTH_INVALID_RESP;
             }
@@ -169,6 +171,7 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
             int port_temp;
             infra_str2int(++p, &port_temp);
             output->port = port_temp;
+            iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_RSP, "port: %d", (int)(output->port));
         }
     }
 
@@ -191,6 +194,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
 {
     char http_url[128] = "http://";
     char http_url_frag[] = "/auth/devicename";
+    uint64_t timestamp;
 #ifdef SUPPORT_TLS
     int http_port = 443;
     char *pub_key = (char *)iotx_ca_crt;
@@ -233,7 +237,16 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVMAXLEN, (void *)&http_recv_maxlen);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
 
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_REQ, "%s", http_url);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_REQ, "%d", http_port);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_REQ, "%d", http_timeout_ms);
+
+    timestamp = HAL_UptimeMs();
     res = wrapper_http_perform(http_handle, request_buff, strlen(request_buff));
+
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_REQ, "preauth done in %d ms - ret: %d",
+                     (int)(HAL_UptimeMs() - timestamp), res);
+
     wrapper_http_deinit(&http_handle);
 
     if (res < SUCCESS_RETURN) {

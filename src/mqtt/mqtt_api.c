@@ -242,8 +242,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         extern const char *iotx_ca_crt;
         if (enalbe_itls == 0) {
             mqtt_params.pub_key = iotx_ca_crt;
-        }
-        else {
+        } else {
             memset(iotx_ca_crt_itls, 0, sizeof(iotx_ca_crt_itls));
             IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, iotx_ca_crt_itls);
             iotx_ca_crt_itls[strlen(iotx_ca_crt_itls)] = '.';
@@ -373,16 +372,22 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_CONN_USER_INFO, "%s", mqtt_params.host);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_CONN_USER_INFO, "%d", (int)mqtt_params.port);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_CONN_USER_INFO, "%s", strstr(mqtt_params.client_id, ",") + 1);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_CONN_USER_INFO, "%s", mqtt_params.username);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_CONN_USER_INFO, "%s", mqtt_params.password);
+
     time_now = HAL_UptimeMs();
     ret = wrapper_mqtt_connect(pclient);
     if (ret < STATE_SUCCESS) {
         if (MQTT_CONNECT_BLOCK != ret) {
-            iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt wrapper connect fail - ret = %d", ret);
+            iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt connect failed - ret = %d", ret);
             wrapper_mqtt_release(&pclient);
             return NULL;
         }
     }
-    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_SUCCESS, "connected in %d ms", (int)(HAL_UptimeMs() - time_now));
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_SUCCESS, "mqtt connected in %d ms", (int)(HAL_UptimeMs() - time_now));
 
 #ifndef ASYNC_PROTOCOL_STACK
     iotx_mqtt_report_funcs(pclient);
@@ -455,6 +460,7 @@ int IOT_MQTT_Subscribe(void *handle,
         qos = IOTX_MQTT_QOS0;
     }
 
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_SUB_INFO, "sub - '%s'", topic_filter);
     return wrapper_mqtt_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
 }
 
@@ -483,6 +489,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
         qos = IOTX_MQTT_QOS0;
     }
 
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_SUB_INFO, "subs - '%s'", topic_filter);
     return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, timeout_ms);
 }
 
@@ -495,6 +502,7 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter)
         return STATE_USER_INPUT_INVALID;
     }
 
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_SUB_INFO, "unsub - '%s'", topic_filter);
     return wrapper_mqtt_unsubscribe(client, topic_filter);
 }
 
@@ -509,12 +517,14 @@ int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_
     }
 
     rc = wrapper_mqtt_publish(client, topic_name, topic_msg);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_PUB_INFO, "pub - '%s': %d", topic_name, rc);
     return rc;
 }
 
 int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len)
 {
     iotx_mqtt_topic_info_t mqtt_msg;
+    int rc;
     void *client = handle ? handle : g_mqtt_client;
 
     if (client == NULL || topic_name == NULL || strlen(topic_name) == 0) {
@@ -529,7 +539,9 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
     mqtt_msg.payload     = (void *)data;
     mqtt_msg.payload_len = len;
 
-    return wrapper_mqtt_publish(client, topic_name, &mqtt_msg);
+    rc = wrapper_mqtt_publish(client, topic_name, &mqtt_msg);
+    iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_PUB_INFO, "pub - '%s': %d", topic_name, rc);
+    return rc;
 }
 
 int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_mqtt_nwk_param_t *param)

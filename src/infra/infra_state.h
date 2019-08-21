@@ -261,6 +261,13 @@ extern "C" {
 /* SDK在异步协议栈上工作时, 接收到来自协议栈的事件, 但不能理解 */
 #define STATE_MQTT_ASYNC_STACK_UNKNOWN_EVENT        (STATE_MQTT_BASE - 0x0026)
 
+#define STATE_MQTT_CONN_USER_INFO                   (STATE_MQTT_BASE - 0x0027)
+
+#define STATE_MQTT_SUB_INFO                         (STATE_MQTT_BASE - 0x0028)
+
+#define STATE_MQTT_PUB_INFO                         (STATE_MQTT_BASE - 0x0029)
+
+
 /* MQTT: 0x0300 ~ 0x03FF */
 
 /* WiFi Provision: 0x0400 ~ 0x04FF */
@@ -343,6 +350,10 @@ extern "C" {
 /* Content length field does not exist in HTTP response from server */
 /* 从HTTP服务器返回的报文中, 没有找到 Content-Length 字段 */
 #define STATE_HTTP_RESP_MISSING_CONTENT_LEN         (STATE_HTTP_BASE - 0x0005)
+
+#define STATE_HTTP_PREAUTH_REQ                      (STATE_HTTP_BASE - 0x0006)
+
+#define STATE_HTTP_PREAUTH_RSP                      (STATE_HTTP_BASE - 0x0007)
 
 /* HTTP: 0x0600 ~ 0x06FF */
 
