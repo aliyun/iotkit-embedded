@@ -3,8 +3,8 @@ config HAL_KV
     default n
 
 config SUPPORT_TLS
-    bool "FEATURE_SUPPORT_TLS"
-    default y if OTA_ENABLED
+    bool
+    default y
 
 config PLATFORM_HAS_MBEDTLS
     bool "PLATFROM_HAS_MBEDTLS"
