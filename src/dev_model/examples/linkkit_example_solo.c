@@ -294,7 +294,7 @@ static int dynreg_device_secret(const char *device_secret)
 
 static int user_sdk_state_dump(int ev, const char *msg)
 {
-    printf("received state event, -0x%04x(%s)\n", -ev, msg);
+    printf("received state: -0x%04X(%s)\n", -ev, msg);
     return 0;
 }
 

@@ -110,12 +110,12 @@ int everything_state_handle(const int state_code, const char *state_message)
      */
 
     /*
-        EXAMPLE_TRACE("recv -0x%04x(%s), means '%s'",
+        EXAMPLE_TRACE("recv -0x%04X(%s), means '%s'",
                       -state_code,
                       state_message,
                       IOT_Extension_StateDesc(state_code));
     */
-    EXAMPLE_TRACE("recv -0x%04x(%s)",
+    EXAMPLE_TRACE("recv -0x%04X(%s)",
                   -state_code,
                   state_message);
     return 0;
