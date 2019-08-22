@@ -581,6 +581,9 @@ extern "C" {
 /* Failed to transimit alcs packets into local network */
 /* 物模型模块中, 在局域网内发送本地控制相关报文失败 */
 #define STATE_DEV_MODEL_ALCS_SEND_FAILED            (STATE_DEV_MODEL_BASE - 0x0039)
+/* Got invalid alink protocol mqtt packet */
+/* 接收到非法的alink协议报文 */
+#define STATE_DEV_MODEL_INVALID_ALINK_PAYLOAD       (STATE_DEV_MODEL_BASE - 0x003A)
 
 /* Device Model: 0x0900 ~ 0x09FF */
 
