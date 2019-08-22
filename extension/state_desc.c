@@ -3,7 +3,7 @@
 
 typedef struct code_desc_s {
     int     code;
-    char    desc[128];
+    char   *desc;
 } code_desc_t;
 
 static code_desc_t user_input_desc[] = {
@@ -212,6 +212,7 @@ static code_desc_t dev_model_desc[] = {
     {STATE_DEV_MODEL_SYNC_REQ_LIST, "Operating to list of sync request in device model"},
     {STATE_DEV_MODEL_ALINK_PROT_EVENT, "Event of alink protocol processing is happenning"},
     {STATE_DEV_MODEL_ALCS_SEND_FAILED, "Failed to transimit alcs packets into local network"},
+    {STATE_DEV_MODEL_INVALID_ALINK_PAYLOAD, "Got invalid alink protocol mqtt packet"},
     {0, "Should not reach"}
 };
 
