@@ -14,7 +14,8 @@ static int mcast_locked_channel = -1;
 static struct mcast_smartconfig_data_type mcast_smartconfig_data = {0};
 static uint8_t receive_record[MCAST_MAX_LEN] = {0};
 
-void reset_mcast_data() {
+void reset_mcast_data()
+{
     processed_packet = 0;
     memset(mcast_bssid_mac, 0, ETH_ALEN);
     memset(mcast_src_mac, 0, ETH_ALEN);
@@ -59,7 +60,8 @@ int verify_checksum()
     uint8_t crc = mcast_smartconfig_data.checksum;
     cal_crc = (cal_crc & 0xFF);
     ret = cal_crc - crc;
-    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: verify checksum diff is %d, cal_crc, crc is %d,%d", ret, cal_crc, crc);
+    dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: verify checksum diff is %d, cal_crc, crc is %d,%d", ret, cal_crc,
+                     crc);
     return ret;
 
 }
@@ -97,8 +99,9 @@ int set_zc_bssid()
         struct ap_info *ap_info = zconfig_get_apinfo_by_3_byte_mac(mcast_smartconfig_data.bssid);
         if (NULL != ap_info) {
             memcpy(zc_bssid, ap_info->mac, 6);
-            dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "bssid1: bssid is %x,%x,%x,%x,%x,%x", zc_bssid[0], zc_bssid[1], zc_bssid[2],
-                       zc_bssid[3], zc_bssid[4], zc_bssid[5]);
+            dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "bssid1: bssid is %x,%x,%x,%x,%x,%x", zc_bssid[0], zc_bssid[1],
+                             zc_bssid[2],
+                             zc_bssid[3], zc_bssid[4], zc_bssid[5]);
             return SUCCESS_RETURN;
         }
 #endif
@@ -133,7 +136,7 @@ int parse_result()
     BIT6_7_version = 0x3 & (mcast_smartconfig_data.flag >> 6);
 
     if (0x3 != BIT6_7_version) {
-        dump_awss_status(STATE_WIFI_ERROR_VERSION, "mcast: error version");
+        dump_awss_status(STATE_WIFI_UNEXP_PROT_VERSION, "mcast: error version");
         return -1;
     }
 
@@ -149,7 +152,8 @@ int parse_result()
         dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: token_len is %d", mcast_smartconfig_data.token_len);
         offset++;
         mcast_smartconfig_data.token = &(mcast_smartconfig_data.data[offset]);
-        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: token is %.*s", mcast_smartconfig_data.token_len, mcast_smartconfig_data.token);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: token is %.*s", mcast_smartconfig_data.token_len,
+                         mcast_smartconfig_data.token);
         offset += mcast_smartconfig_data.token_len;
     }
 
@@ -158,7 +162,8 @@ int parse_result()
         dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: ssid_len is %d", mcast_smartconfig_data.ssid_len);
         offset++;
         mcast_smartconfig_data.ssid = &(mcast_smartconfig_data.data[offset]);
-        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: ssid is %.*s", mcast_smartconfig_data.ssid_len, mcast_smartconfig_data.ssid);
+        dump_awss_status(STATE_WIFI_MCAST_DEBUG_INFO, "mcast: ssid is %.*s", mcast_smartconfig_data.ssid_len,
+                         mcast_smartconfig_data.ssid);
         offset += mcast_smartconfig_data.ssid_len;
     }
 
@@ -407,7 +412,7 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
         memcpy(mcast_src_mac, res->src, ETH_ALEN);
     } else {
         /* case 1, 2 */
-        if(memcmp(mcast_src_mac, res->src, ETH_ALEN)) {
+        if (memcmp(mcast_src_mac, res->src, ETH_ALEN)) {
             return FAILURE_RETURN;
         }
     }

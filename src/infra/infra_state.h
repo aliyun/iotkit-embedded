@@ -318,7 +318,7 @@ extern "C" {
 #define STATE_WIFI_STATISTIC                        (STATE_WIFI_BASE - 0x000E)
 /* the version info from the packet is not the expected one */
 /* 手机端发来的配网协议的版本号不符合预期 */
-#define STATE_WIFI_ERROR_VERSION                    (STATE_WIFI_BASE - 0x000F)
+#define STATE_WIFI_UNEXP_PROT_VERSION               (STATE_WIFI_BASE - 0x000F)
 /* WiFi provision debug info during multi-cast wifi-provision */
 /* WiFi组播配网中的调试信息 */
 #define STATE_WIFI_MCAST_DEBUG_INFO                 (STATE_WIFI_BASE - 0x0010)
