@@ -93,9 +93,31 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     EXAMPLE_TRACE("msg->event_type : %d", msg->event_type);
 }
 
-int everything_state_handle(const int state_code, const char * state_message)
+extern const char *IOT_Extension_StateDesc(const int);
+int everything_state_handle(const int state_code, const char *state_message)
 {
-    EXAMPLE_TRACE("code: -0x%04x, message: %s", -state_code, state_message);
+    /*
+     * NOTE: Uncomment below to demonstrate how to dump code descriptions
+     *
+     * After invoking IOT_Extension_StateDesc(), integer code will be translated into strings
+     *
+     * It looks like:
+     *
+     * ...
+     * everything_state_handle|102 :: recv -0x0329(pub - '/a1MZxOdcBnO/example1/user/get': 0), means 'Report publish relative parameters such as topic string'
+     * ...
+     *
+     */
+
+    /*
+        EXAMPLE_TRACE("recv -0x%04x(%s), means '%s'",
+                      -state_code,
+                      state_message,
+                      IOT_Extension_StateDesc(state_code));
+    */
+    EXAMPLE_TRACE("recv -0x%04x(%s)",
+                  -state_code,
+                  state_message);
     return 0;
 }
 

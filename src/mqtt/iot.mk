@@ -2,8 +2,8 @@ LIBA_TARGET         := libiot_mqtt.a
 HDR_REFS            := src/infra
 LIB_SRCS_PATTERN    := *.c
 
-SRCS_mqtt-example       := examples/mqtt_example.c
-SRCS_mqtt-task-example   := examples/mqtt_task_example.c examples/cJSON.c
+SRCS_mqtt-example       := examples/mqtt_example.c $(TOP_DIR)/extension/state_desc.c
+SRCS_mqtt-task-example  := examples/mqtt_task_example.c examples/cJSON.c
 SRCS_mqtt-example-at    := examples/mqtt_example_at.c
 
 $(call Append_Conditional, LIB_SRCS_PATTERN, impl/*.c, MQTT_DEFAULT_IMPL)
