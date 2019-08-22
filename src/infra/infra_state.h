@@ -584,6 +584,9 @@ extern "C" {
 /* Got invalid alink protocol mqtt packet */
 /* 接收到非法的alink协议报文 */
 #define STATE_DEV_MODEL_INVALID_ALINK_PAYLOAD       (STATE_DEV_MODEL_BASE - 0x003A)
+/* Got invalid requested alink protocol mqtt topic */
+/* 收到不符合当前场景的alink协议topic */
+#define STATE_DEV_MODEL_INVALID_ALINK_TOPIC         (STATE_DEV_MODEL_BASE - 0x003B)
 
 /* Device Model: 0x0900 ~ 0x09FF */
 
