@@ -260,13 +260,15 @@ extern "C" {
 /* Got unknown event when work with async protocol stack */
 /* SDK在异步协议栈上工作时, 接收到来自协议栈的事件, 但不能理解 */
 #define STATE_MQTT_ASYNC_STACK_UNKNOWN_EVENT        (STATE_MQTT_BASE - 0x0026)
-
+/* Report connect relative parameters such as username and password */
+/* MQTT发起连接的过程中, 上报连接相关参数如用户名和密码等 */
 #define STATE_MQTT_CONN_USER_INFO                   (STATE_MQTT_BASE - 0x0027)
-
+/* Report subscribe relative parameters such as topic string */
+/* MQTT发起订阅的过程中, 上报订阅相关参数如Topic等 */
 #define STATE_MQTT_SUB_INFO                         (STATE_MQTT_BASE - 0x0028)
-
+/* Report publish relative parameters such as topic string */
+/* MQTT发布上报的过程中, 上报发布相关参数如Topic等 */
 #define STATE_MQTT_PUB_INFO                         (STATE_MQTT_BASE - 0x0029)
-
 
 /* MQTT: 0x0300 ~ 0x03FF */
 
@@ -350,9 +352,11 @@ extern "C" {
 /* Content length field does not exist in HTTP response from server */
 /* 从HTTP服务器返回的报文中, 没有找到 Content-Length 字段 */
 #define STATE_HTTP_RESP_MISSING_CONTENT_LEN         (STATE_HTTP_BASE - 0x0005)
-
+/* Report preauth relative HTTP request parameters */
+/* 进行HTTP预认证的过程中, 上报预认证请求的相关信息 */
 #define STATE_HTTP_PREAUTH_REQ                      (STATE_HTTP_BASE - 0x0006)
-
+/* Report preauth relative HTTP respond parameters */
+/* 进行HTTP预认证的过程中, 上报预认证应答的相关信息 */
 #define STATE_HTTP_PREAUTH_RSP                      (STATE_HTTP_BASE - 0x0007)
 
 /* HTTP: 0x0600 ~ 0x06FF */
