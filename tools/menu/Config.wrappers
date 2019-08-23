@@ -10,10 +10,6 @@ config PLATFORM_HAS_MBEDTLS
     bool "PLATFROM_HAS_MBEDTLS"
     default y if SUPPORT_TLS
 
-config HAL_CRYPTO
-    bool
-    default n
-
 config COAP_DTLS_SUPPORT
     bool
     default n

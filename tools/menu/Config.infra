@@ -127,6 +127,11 @@ config INFRA_PREAUTH
     bool
     default n
 
+config INFRA_AES_BUILDIN
+    bool
+    default n
+
 config INFRA_AES
     bool
+    select INFRA_AES_BUILDIN if !PLATFORM_HAS_MBEDTLS
     default n

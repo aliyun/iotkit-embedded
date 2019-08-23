@@ -2,7 +2,7 @@ config COAP_COMM_ENABLED
     bool "FEATURE_COAP_COMM_ENABLED"
     default n
     select COAP_CLIENT
-    select INFRA_AES if !PLATFORM_HAS_MBEDTLS
+    select INFRA_AES
 
     help
         Establish non-persistent connection with AliCloud via CoAP-based protocol
@@ -24,7 +24,7 @@ config COAP_CLIENT
     select INFRA_REPORT
     select INFRA_STRING
     select COAP_DTLS_SUPPORT
-    select HAL_CRYPTO
+    select INFRA_AES
     select COAP_PACKET
 
 config COAP_SERVER
@@ -35,5 +35,5 @@ config COAP_SERVER
     select INFRA_JSON_PARSER
     select INFRA_SHA1
     select HAL_KV
-    select HAL_CRYPTO
+    select INFRA_AES
     select COAP_PACKET
