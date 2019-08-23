@@ -587,6 +587,12 @@ extern "C" {
 /* Got invalid requested alink protocol mqtt topic */
 /* 收到不符合当前场景的alink协议topic */
 #define STATE_DEV_MODEL_INVALID_ALINK_TOPIC         (STATE_DEV_MODEL_BASE - 0x003B)
+/* IOT_Linkkit_Yield already stopped */
+/* IOT_Linkkit_Yield 已停止运行 */
+#define STATE_DEV_MODEL_YIELD_STOPPED               (STATE_DEV_MODEL_BASE - 0x003C)
+/* IOT_Linkkit_Yield still running */
+/* IOT_Linkkit_Yield 仍在运行 */
+#define STATE_DEV_MODEL_YIELD_RUNNING               (STATE_DEV_MODEL_BASE - 0x003D)
 
 /* Device Model: 0x0900 ~ 0x09FF */
 

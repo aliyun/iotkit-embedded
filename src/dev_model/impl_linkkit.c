@@ -92,6 +92,8 @@ typedef struct {
     int service_list_num;
     int is_opened;
     int is_connected;
+    int is_yield_running;
+    int yield_running;
     struct list_head upstream_sync_callback_list;
     struct list_head downstream_service_list;
 } iotx_linkkit_ctx_t;
@@ -1240,6 +1242,7 @@ static int _iotx_linkkit_master_connect(void)
         _awss_reported = 1;
     }
 #endif
+    ctx->yield_running = 1;
     return SUCCESS_RETURN;
 }
 
@@ -1419,6 +1422,10 @@ static int _iotx_linkkit_master_close(void)
 {
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
+    ctx->yield_running = 0;
+    if (ctx->is_yield_running) {
+        return STATE_DEV_MODEL_YIELD_RUNNING；
+    }
     _iotx_linkkit_mutex_lock();
     if (ctx->is_opened == 0) {
         _iotx_linkkit_mutex_unlock();
@@ -1532,11 +1539,19 @@ int IOT_Linkkit_Yield(int timeout_ms)
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     int res = 0;
 
+    if (ctx->yield_running == 0) {
+        HAL_SleepMs(timeout_ms);
+        return STATE_DEV_MODEL_YIELD_STOPPED;
+    }
+
+    ctx->is_yield_running = 1;
     if (timeout_ms <= 0) {
+        ctx->is_yield_running = 0;
         return STATE_USER_INPUT_INVALID;
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
+        ctx->is_yield_running = 0;
         return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
@@ -1546,6 +1561,7 @@ int IOT_Linkkit_Yield(int timeout_ms)
 #ifdef DEVICE_MODEL_GATEWAY
     HAL_SleepMs(timeout_ms);
 #endif
+    ctx->is_yield_running = 0;
 
     return res;
 }
