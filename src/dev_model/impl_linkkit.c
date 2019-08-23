@@ -1424,7 +1424,7 @@ static int _iotx_linkkit_master_close(void)
 
     ctx->yield_running = 0;
     if (ctx->is_yield_running) {
-        return STATE_DEV_MODEL_YIELD_RUNNING；
+        return STATE_DEV_MODEL_YIELD_RUNNING;
     }
     _iotx_linkkit_mutex_lock();
     if (ctx->is_opened == 0) {
