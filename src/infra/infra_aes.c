@@ -9,13 +9,13 @@
  *  http://csrc.nist.gov/encryption/aes/rijndael/Rijndael.pdf
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
-#ifdef INFRA_AES
+
 #include "infra_config.h"
 #include "infra_aes.h"
 #include <string.h>
 #include <stdlib.h>
 #include "infra_compat.h"
-
+#ifdef INFRA_AES
 #ifdef INFRA_AES_BUILDIN
 #if !defined(INFRA_CONFIG_FILE)
 #include "infra_aes_config.h"

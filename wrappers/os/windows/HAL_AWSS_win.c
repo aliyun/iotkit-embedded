@@ -12,11 +12,6 @@
 
 #if defined(WIFI_PROVISION_ENABLED)
 
-
-
-
-#include "iot_import_awss.h"
-
 #define  HAL_DEBUG_OUT 1
 
 /*This variable is to define the name of the network interface, you must change it to yours*/
