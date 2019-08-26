@@ -54,13 +54,11 @@ menu "Wifi Provision Configurations"
         help
             Switching on a wifi provision method based on length-encoding
 
-    config AWSS_SUPPORT_ZEROCONFIG
-        bool "FEATURE_AWSS_SUPPORT_ZEROCONFIG"
-        select MQTT_COMM_ENABLED
-        select AWSS_SUPPORT_DISCOVER
+    config AWSS_SUPPORT_DEV_AP
+        bool "FEATURE_AWSS_SUPPORT_DEV_AP"
         default n
         help
-            Switching on a wifi provision method based on zero-config, which shares ssid/passwd between devices
+            Switching on a wifi provision method based on device-ap, which receives the ssid/passwd from the phones connected to it
 
     config AWSS_SUPPORT_AHA
         bool "FEATURE_AWSS_SUPPORT_AHA"
@@ -69,11 +67,13 @@ menu "Wifi Provision Configurations"
         help
             Switching on a wifi provision method based on phone-ap, which tells the ssid/passwd to the devices connected to it
 
-    config AWSS_SUPPORT_DEV_AP
-        bool "FEATURE_AWSS_SUPPORT_DEV_AP"
+    config AWSS_SUPPORT_ZEROCONFIG
+        bool "FEATURE_AWSS_SUPPORT_ZEROCONFIG"
+        select MQTT_COMM_ENABLED
+        select AWSS_SUPPORT_DISCOVER
         default n
         help
-            Switching on a wifi provision method based on device-ap, which receives the ssid/passwd from the phones connected to it
+            Switching on a wifi provision method based on zero-config, which shares ssid/passwd between devices
 
 endmenu
 
