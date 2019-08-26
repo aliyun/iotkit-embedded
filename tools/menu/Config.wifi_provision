@@ -49,7 +49,6 @@ menu "Wifi Provision Configurations"
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG"
         select AWSS_SUPPORT_SMARTCONFIG_WPS
         select AWSS_SUPPORT_SMARTCONFIG_MCAST
-        select AWSS_SUPPORT_DISCOVER
         default y
         help
             Switching on a wifi provision method based on length-encoding

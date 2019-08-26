@@ -342,7 +342,7 @@ do
         continue
     fi
 
-    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | ${XARGS} -i cat {})
+    FUNC_DEC=$(${FIND} ./wrappers -name wrappers_*.h | ${XARGS} -i cat {})
     FUNC_DEC=$(echo "${FUNC_DEC}" | ${SED} -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
 
     DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}')
@@ -392,7 +392,7 @@ do
         continue
     fi
 
-    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | ${XARGS} -i cat {})
+    FUNC_DEC=$(${FIND} ./wrappers -name wrappers_*.h | ${XARGS} -i cat {})
     FUNC_DEC=$(echo "${FUNC_DEC}" | ${SED} -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
     
     DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | ${SED} s/[[:space:]]//g)
