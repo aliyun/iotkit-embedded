@@ -207,6 +207,12 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, ui
                     if (++node->rcv_hd_cnt == 2) {
                         HAL_SemaphorePost(node->semaphore);
                     }
+                } else if (strncmp((char *)name, ":status", (int)namelen) == 0) {
+                    if (memcmp("200", value, strlen("200"))) {
+                        strncpy(node->status_code, (char *)value, sizeof(node->status_code) - 1);
+                        /* just post semaphore if ":status != 200" received */
+                        HAL_SemaphorePost(node->semaphore);
+                    }
                 }
 #else
                 else if (strncmp((char *)name, ":status", (int)namelen) == 0) {
