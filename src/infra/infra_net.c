@@ -77,6 +77,7 @@ static int connect_ssl(utils_network_pt pNetwork)
     #include "infra_mem_stats.h"
     #define NET_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "infra_net")
     #define NET_FREE(ptr)    LITE_free(ptr)
+    extern int ssl_hooks_set(ssl_hooks_t *hooks);
 #else
     #define NET_MALLOC(size) HAL_Malloc(size)
     #define NET_FREE(ptr)    HAL_Free(ptr)

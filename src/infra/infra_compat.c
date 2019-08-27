@@ -30,6 +30,10 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
     #define sdk_info(...)
 #endif
 
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+#endif
+
 sdk_impl_ctx_t g_sdk_impl_ctx = {0};
 /* global variable for mqtt construction */
 static iotx_conn_info_t g_iotx_conn_info = {0};
