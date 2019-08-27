@@ -159,7 +159,7 @@ static int decrypt_ssid_passwd(
 #define REGISTRAR_IE_HDR    (6)
     ie += REGISTRAR_IE_HDR;
     if (ie[0] != DEVICE_TYPE_VERSION) {
-        awss_debug("registrar(devtype/ver=%d not supported!", ie[0]);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "registrar(devtype/ver=%d not supported!", ie[0]);
         return -1;
     }
 
@@ -168,33 +168,33 @@ static int decrypt_ssid_passwd(
 
     if (!g_dev_sign || memcmp(g_dev_sign, p_dev_name_sign + 1, p_dev_name_sign[0])) {
         p_dev_name_sign[p_dev_name_sign[0]] = '\0';
-        awss_debug("dev_name not match, expect:");
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "dev_name not match, expect:");
         if (g_dev_sign) dump_hex(g_dev_sign, p_dev_name_sign[0], 16);
-        awss_debug("\r\nbut recv:");
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "but recv:");
         dump_hex(p_dev_name_sign + 1, p_dev_name_sign[0], 16);
         return -2;
     }
     ie += ie[0] + 1; /* eating device name sign length & device name sign[n] */
 
     if (ie[0] != REGISTRAR_FRAME_TYPE) {
-        awss_debug("registrar(frametype=%d not supported!", ie[0]);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "registrar(frametype=%d not supported!", ie[0]);
         return -1;
     }
 
     ie ++;  /* eating frame type */
     p_ssid = ie;
     if (ie[0] >= OS_MAX_SSID_LEN) {
-        awss_debug("registrar(ssidlen=%d invalid!", ie[0]);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "registrar(ssidlen=%d invalid!", ie[0]);
         return -1;
     }
     memcpy(tmp_ssid, &p_ssid[1], p_ssid[0]);
-    awss_debug("Registrar ssid:%s", tmp_ssid);
+    dump_awss_status(STATE_WIFI_ZCONFIG_ENROLLEE_DEBUG_INFO, "Registrar ssid:%s", tmp_ssid);
 
     ie += ie[0] + 1; /* eating ssid_len & ssid[n] */
 
     p_passwd = ie;
     if (p_passwd[0] >= OS_MAX_PASSWD_LEN) {
-        awss_debug("registrar(passwdlen=%d invalid!", p_passwd[0]);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "registrar(passwdlen=%d invalid!", p_passwd[0]);
         return -1;
     }
 
@@ -208,11 +208,11 @@ static int decrypt_ssid_passwd(
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
             1, awss_get_encrypt_type(), 0, (const char *)aes_random); /* aes128 cfb */
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
-        awss_debug("registrar(passwd invalid!");
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "registrar(passwd invalid!");
         AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         return -1;
     }
-    awss_debug("ssid:%s\r\n", tmp_ssid);
+    dump_awss_status(STATE_WIFI_ZCONFIG_ENROLLEE_DEBUG_INFO, "ssid:%s\r\n", tmp_ssid);
 
     strncpy((char *)out_passwd, (const char *)tmp_passwd, OS_MAX_PASSWD_LEN - 1);
     strncpy((char *)out_ssid, (const char *)tmp_ssid, OS_MAX_SSID_LEN - 1);

@@ -325,9 +325,18 @@ extern "C" {
 /* WiFi provision debug info during broad-cast wifi-provision */
 /* WiFi包长编码的一键配网中的调试信息 */
 #define STATE_WIFI_BCAST_DEBUG_INFO                 (STATE_WIFI_BASE - 0x0011)
+/* WiFi provision enrollee debug info during zero-config wifi-provision */
+/* WiFi零配过程中的待配方调试信息 */
+#define STATE_WIFI_ZCONFIG_ENROLLEE_DEBUG_INFO      (STATE_WIFI_BASE - 0x0012)
+/* The params from registar in zeroconfig Wifi Configuration is invalid */
+/* WiFi零配过程中的主配方发来的参数有误 */
+#define STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR    (STATE_WIFI_BASE - 0x0013)
+/* WiFi provision registar debug info during zero-config wifi-provision */
+/* WiFi零配过程中的主配方调试信息 */
+#define STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO      (STATE_WIFI_BASE - 0x0014)
 /* WiFi provision claiming other information */
 /* WiFi配网中的其它过程信息 */
-#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0012)
+#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0015)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 /* COAP: 0x0500 ~ 0x05FF */
