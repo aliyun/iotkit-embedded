@@ -65,14 +65,15 @@ typedef struct {
 
 /* config authentication mode */
 #ifndef TLS_AUTH_MODE
-#define TLS_AUTH_MODE           TLS_AUTH_MODE_CA
+    #define TLS_AUTH_MODE           TLS_AUTH_MODE_CA
 #endif
 
 /* define TLS_SAVE_TICKET to enable support for RFC 5077 session tickets in SSL */
 #if defined(TLS_SAVE_TICKET)
 
-#define TLS_MAX_SESSION_BUF 384
-#define KV_SESSION_KEY  "TLS_SESSION"
+#define KEY_MAX_LEN          64
+#define TLS_MAX_SESSION_BUF  384
+#define KV_SESSION_KEY_FMT   "TLS_%s"
 
 extern int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 
@@ -675,7 +676,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 
         utils_hmac_sha256(string_to_sign, strlen(string_to_sign), sign_string, device_secret, strlen(device_secret));
 
-        for (i=0; i<strlen(sign_string); i++) {
+        for (i = 0; i < strlen(sign_string); i++) {
             if (sign_string[i] >= 'a' && sign_string[i] <= 'z') {
                 sign_string[i] -= 'a' - 'A';
             }
@@ -717,11 +718,12 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 #endif
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
-/* setup sessoin if sessoin ticket enabled */
+    /* setup sessoin if sessoin ticket enabled */
 #if defined(TLS_SAVE_TICKET)
     if (NULL == saved_session) {
         do {
             int len = TLS_MAX_SESSION_BUF;
+            char key_buf[KEY_MAX_LEN] = {0};
             unsigned char *save_buf = HAL_Malloc(TLS_MAX_SESSION_BUF);
             if (save_buf ==  NULL) {
                 printf(" malloc failed\r\n");
@@ -740,7 +742,8 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
             memset(save_buf, 0x00, TLS_MAX_SESSION_BUF);
             memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
 
-            ret = HAL_Kv_Get(KV_SESSION_KEY, save_buf, &len);
+            HAL_Snprintf(key_buf, KEY_MAX_LEN - 1, KV_SESSION_KEY_FMT, addr);
+            ret = HAL_Kv_Get(key_buf, save_buf, &len);
 
             if (ret != 0 || len == 0) {
                 printf(" kv get failed len=%d,ret = %d\r\n", len, ret);
@@ -827,7 +830,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
             ret = ssl_serialize_session(new_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
             printf("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, (int)real_session_len);
             if (ret == 0) {
-                ret = HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
+                char key_buf[KEY_MAX_LEN] = {0};
+                HAL_Snprintf(key_buf, KEY_MAX_LEN - 1, KV_SESSION_KEY_FMT, addr);
+                ret = HAL_Kv_Set(key_buf, (void *)save_buf, real_session_len, 1);
                 if (ret < 0) {
                     printf("save ticket to kv failed ret =%d ,len = %d\r\n", ret, (int)real_session_len);
                 }
