@@ -187,7 +187,7 @@ static code_desc_t dev_model_desc[] = {
     {STATE_DEV_MODEL_IN_RAWDATA_SOLO, "Configured rawdata+solo mode, will not proceed JSON messages"},
     {STATE_DEV_MODEL_DUP_UPSTREAM_MSG, "Duplicated upstream device model messages"},
     {STATE_DEV_MODEL_UPSTREAM_REC_NOT_FOUND, "Corresponding upstream record not found for downstream messages"},
-    {STATE_DEV_MODEL_REFUSED_BY_CLOUD, "Got negative respond from clound in device model"},
+    {STATE_DEV_MODEL_REFUSED_BY_CLOUD, "Got negative respond from cloud in device model"},
     {STATE_DEV_MODEL_INVALID_DM_OPTION, "Encount unexpected option when invoke dm_opt_get()"},
     {STATE_DEV_MODEL_URL_SPLIT_FAILED, "Encount parsing failure when process URL in respond from cloud"},
     {STATE_DEV_MODEL_ALINK_MSG_PARSE_FAILED, "Failed to parse Alink request or respond messages"},
@@ -213,6 +213,9 @@ static code_desc_t dev_model_desc[] = {
     {STATE_DEV_MODEL_ALINK_PROT_EVENT, "Event of alink protocol processing is happenning"},
     {STATE_DEV_MODEL_ALCS_SEND_FAILED, "Failed to transimit alcs packets into local network"},
     {STATE_DEV_MODEL_INVALID_ALINK_PAYLOAD, "Got invalid alink protocol mqtt packet"},
+    {STATE_DEV_MODEL_INVALID_ALINK_TOPIC, "Got invalid requested alink protocol mqtt topic"},
+    {STATE_DEV_MODEL_YIELD_STOPPED, "IOT_Linkkit_Yield already stopped"},
+    {STATE_DEV_MODEL_YIELD_RUNNING, "IOT_Linkkit_Yield still running"},
     {0, "Should not reach"}
 };
 
@@ -252,4 +255,3 @@ const char *IOT_Extension_StateDesc(const int code)
 
     return "N/A - Description not found";
 }
-

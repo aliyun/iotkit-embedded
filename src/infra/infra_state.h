@@ -515,7 +515,7 @@ extern "C" {
 /* Corresponding upstream record not found for downstream messages */
 /* 物模型模块处理下行报文时, 未找到与之对应的上行报文记录 */
 #define STATE_DEV_MODEL_UPSTREAM_REC_NOT_FOUND      (STATE_DEV_MODEL_BASE - 0x0020)
-/* Got negative respond from clound in device model */
+/* Got negative respond from cloud in device model */
 /* 物模型/子设备管理模块中得到来自云端对请求的拒绝报文 */
 #define STATE_DEV_MODEL_REFUSED_BY_CLOUD            (STATE_DEV_MODEL_BASE - 0x0021)
 /* Encount unexpected option when invoke dm_opt_get() */
