@@ -509,7 +509,12 @@ int linkkit_main(void *paras)
     }
 
     user_example_ctx->g_user_dispatch_thread_running = 0;
-    IOT_Linkkit_Close(user_example_ctx->master_devid);
+    
+    do {
+        HAL_SleepMs(1000);
+        res = IOT_Linkkit_Close(user_example_ctx->master_devid);
+    }while(res < 0);
+
     HAL_ThreadDelete(user_example_ctx->g_user_dispatch_thread);
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
