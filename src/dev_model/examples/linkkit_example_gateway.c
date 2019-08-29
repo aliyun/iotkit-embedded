@@ -16,8 +16,6 @@
 #include "infra_defs.h"
 #include "infra_compat.h"
 #include "infra_log.h"
-#include "infra_compat.h"
-#include "infra_log.h"
 #include "dev_model_api.h"
 #include "wrappers.h"
 
@@ -372,6 +370,12 @@ void *user_dispatch_yield(void *args)
     return NULL;
 }
 
+static int user_sdk_state_dump(int ev, const char *msg)
+{
+    printf("received state: -0x%04X(%s)\n", -ev, msg);
+    return 0;
+}
+
 static int max_running_seconds = 0;
 int main(int argc, char **argv)
 {
@@ -413,6 +417,7 @@ int main(int argc, char **argv)
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     /* Register Callback */
+    IOT_RegisterCallback(ITE_STATE_EVERYTHING, user_sdk_state_dump);
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
     IOT_RegisterCallback(ITE_DISCONNECTED, user_disconnected_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);

@@ -16,7 +16,6 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
-#include "infra_compat.h"
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
 #endif
