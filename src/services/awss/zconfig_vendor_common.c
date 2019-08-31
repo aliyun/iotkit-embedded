@@ -411,7 +411,9 @@ rescanning:
         if (aws_state == AWS_SCANNING) {
             awss_debug("channel rescanning...\n");
             if (zconfig_data != NULL) {
+                void *temp_mutex = zc_mutex;
                 memset(zconfig_data, 0, sizeof(struct zconfig_data));
+                zc_mutex = temp_mutex;
             }
             goto rescanning;
         }
