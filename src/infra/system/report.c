@@ -33,9 +33,8 @@ int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name)
     /* requestId = pk+devicename+mid */
     ret = HAL_Snprintf(requestId,
                        MIDREPORT_REQID_LEN,
-                       "%s_%s_mid",
-                       product_key,
-                       device_name);
+                       "%d",
+                       iotx_report_id());
     return ret;
 }
 
