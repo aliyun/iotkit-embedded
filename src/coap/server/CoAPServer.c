@@ -74,20 +74,27 @@ void CoAPServer_thread_leave()
 }
 
 void *coap_yield_mutex = NULL;
-
+#define COAP_CYCLE_DURATION  100
 static void *CoAPServer_yield(void *param)
 {
     CoAPContext *context = (CoAPContext *)param;
+    uint32_t exp_time, after_time;
+
 #ifndef AWSS_DISABLE_REGISTRAR
     extern int registar_yield();
 #endif
     COAP_DEBUG("Enter to CoAP daemon task");
 
     while (g_coap_running) {
+        exp_time = (uint32_t)HAL_UptimeMs() + COAP_CYCLE_DURATION;
         CoAPMessage_cycle(context);
 #if defined(WIFI_PROVISION_ENABLED) && !defined(AWSS_DISABLE_REGISTRAR)
         registar_yield();
 #endif
+        after_time = (uint32_t)HAL_UptimeMs();
+        if ((exp_time - after_time) <= COAP_CYCLE_DURATION) {
+            HAL_SleepMs(exp_time - after_time);
+        }
     }
 
 #ifdef COAP_SERV_MULTITHREAD
