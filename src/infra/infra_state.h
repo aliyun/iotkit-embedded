@@ -334,9 +334,15 @@ extern "C" {
 /* WiFi provision registar debug info during zero-config wifi-provision */
 /* WiFi零配过程中的主配方调试信息 */
 #define STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO      (STATE_WIFI_BASE - 0x0014)
+/* WiFi provision debug info p2p smartconfig */
+/* WiFi p2p配网过程中的调试信息 */
+#define STATE_WIFI_P2P_DEBUG_INFO                   (STATE_WIFI_BASE - 0x0015)
+/* WiFi provision debug info of dev_ap wifi-provision */
+/* WiFi 设备热点配网过程中的调试信息 */
+#define STATE_WIFI_DEV_AP_DEBUG_INFO                (STATE_WIFI_BASE - 0x0016)
 /* WiFi provision claiming other information */
 /* WiFi配网中的其它过程信息 */
-#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0015)
+#define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0017)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 /* COAP: 0x0500 ~ 0x05FF */
