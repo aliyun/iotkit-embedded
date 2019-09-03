@@ -223,6 +223,9 @@ echo ""
 FUNC_NAME_LIST="$(echo ${FUNC_NAME_LIST}|tr ' ' '\n')\n"
 HEADER_FILE_LIST="$(echo ${HEADER_FILE_LIST}|tr ' ' '\n')\n"
 
+FUNC_NAME_LIST=""
+HEADER_FILE_LIST=""
+
 echo ""
 # Read xtrc_file_rules
 TOTAL_ITERATION=$(wc -l ${TEMP_FILE_RULS}|gawk '{ print $1 }')
