@@ -1,8 +1,6 @@
-f/*
+/*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
 
 #include <stddef.h>
 #include <string.h>
