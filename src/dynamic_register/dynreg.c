@@ -506,7 +506,7 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     }
 
     if (strlen(device_secret) > 0) {
-        res = STATE_RETURN;
+        res = STATE_SUCCESS;
     } else {
         res = STATE_HTTP_DYNREG_INVALID_DS;
     }
