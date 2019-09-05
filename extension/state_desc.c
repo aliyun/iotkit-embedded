@@ -140,17 +140,21 @@ static code_desc_t ota_desc[] = {
 
 static code_desc_t bind_desc[] = {
     {STATE_BIND_SET_APP_TOKEN, "Got external token configuration"},
-    {STATE_BIND_ALREADY_RESET, "Skip current reset report since last reset already success"},
-    {STATE_BIND_REPORT_TOKEN, "Sending bind token to cloud"},
-    {STATE_BIND_REPORT_TOKEN_TIMEOUT, "Sent bind token to cloud does not get response before timeout"},
-    {STATE_BIND_REPORT_TOKEN_SUCCESS, "Sent bind token to cloud gets success response"},
     {STATE_BIND_COAP_INIT_FAIL, "Failed to initialize CoAP server in LAN"},
+    {STATE_BIND_REPORT_TOKEN, "Sending bind token to cloud"},
+    {STATE_BIND_REPORT_TOKEN_SUCCESS, "Sent bind token to cloud gets success response"},
     {STATE_BIND_NOTIFY_TOKEN_SENT, "Sending bind token in LAN"},
     {STATE_BIND_RECV_TOKEN_QUERY, "Got token query request from external devices in same LAN"},
     {STATE_BIND_SENT_TOKEN_RESP, "Responding bind token in LAN"},
-    {STATE_BIND_RST_IN_PROGRESS, "Skip current bind action since offline reset in progress"},
     {STATE_BIND_MQTT_RSP_INVALID, "Got invalid MQTT respond from server after token report"},
+    {STATE_BIND_MQTT_MSGID_INVALID, "Got invalid MQTT msgid from server after token report"},
+    {STATE_BIND_COAP_RSP_INVALID, "Got invalid CoAP respond from client after token notify"},
     {STATE_BIND_COAP_REQ_INVALID, "Got invalid CoAP request from external devices in same LAN"},
+    {STATE_BIND_ASSEMBLE_APP_TOKEN_FAILED, "Assemble external token failed"},
+    {STATE_BIND_COAP_REGISTER_FAILED, "Register coap topic failed"},
+    {STATE_BIND_TOKEN_EXPIRED, "Token is expired, need update"},
+    {STATE_BIND_REPORT_RESET_SUCCESS, "Sent unbind msg to cloud gets success response"},
+    {STATE_BIND_GET_EVENT, "Got notify msg from server"},
     {0, "Should not reach"}
 };
 

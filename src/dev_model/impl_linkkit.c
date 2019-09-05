@@ -21,9 +21,8 @@
     #define IMPL_LINKKIT_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-#ifdef DEV_BIND_ENABLED
-    #include "dev_bind_api.h"
-    static int _awss_reported = 0;
+#ifdef BIND_ENABLED
+    #include "bind_api.h"
 #endif
 
 #define IOTX_LINKKIT_KEY_ID          "id"
@@ -1236,11 +1235,8 @@ static int _iotx_linkkit_master_connect(void)
 
     type = IOTX_DM_EVENT_INITIALIZED;
     _iotx_linkkit_event_callback(type, "{\"devid\":0}");
-#ifdef DEV_BIND_ENABLED
-    if (_awss_reported == 0) {
-        awss_report_cloud();
-        _awss_reported = 1;
-    }
+#ifdef BIND_ENABLED
+    IOT_Bind_Start(NULL, NULL);
 #endif
     ctx->yield_running = 1;
     return SUCCESS_RETURN;
@@ -1446,8 +1442,8 @@ static int _iotx_linkkit_master_close(void)
 #endif
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
 
-#ifdef DEV_BIND_ENABLED
-    _awss_reported = 0;
+#ifdef BIND_ENABLED
+    IOT_Bind_Stop();
 #endif
     return SUCCESS_RETURN;
 }
@@ -1558,6 +1554,10 @@ int IOT_Linkkit_Yield(int timeout_ms)
     res = iotx_dm_yield(timeout_ms);
     iotx_dm_dispatch();
 
+#ifdef BIND_ENABLED
+    IOT_Bind_Yield();
+#endif
+
 #ifdef DEVICE_MODEL_GATEWAY
     HAL_SleepMs(timeout_ms);
 #endif
@@ -1576,9 +1576,6 @@ int IOT_Linkkit_Close(int devid)
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_close();
-#ifdef DEV_BIND_ENABLED
-        awss_bind_deinit();
-#endif
     } else {
 #ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_close(devid);

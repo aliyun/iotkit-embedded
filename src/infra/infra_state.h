@@ -386,41 +386,52 @@ extern "C" {
 /* Got external token configuration */
 /* 绑定功能模块接收到来自外部的Token传入 */
 #define STATE_BIND_SET_APP_TOKEN                    (STATE_BIND_BASE - 0x0001)
-/* Skip current reset report since last reset already success */
-/* 跳过当前的复位请求发送, 因为上次的复位请求已被服务端接受, 并处理成功 */
-#define STATE_BIND_ALREADY_RESET                    (STATE_BIND_BASE - 0x0002)
+/* Failed to initialize CoAP server in LAN */
+/* 绑定功能模块未能成功开启CoAP服务, 该服务用于局域网内的token传递 */
+#define STATE_BIND_COAP_INIT_FAIL                   (STATE_BIND_BASE - 0x0002)
 /* Sending bind token to cloud */
 /* 正在将绑定token发送给服务端 */
 #define STATE_BIND_REPORT_TOKEN                     (STATE_BIND_BASE - 0x0003)
-/* Sent bind token to cloud does not get response before timeout */
-/* 绑定token发送给服务端后, 已超过限定的时长, 仍未得到回应 */
-#define STATE_BIND_REPORT_TOKEN_TIMEOUT             (STATE_BIND_BASE - 0x0004)
 /* Sent bind token to cloud gets success response */
 /* 绑定token发送给服务端后, 已得到服务端成功接收的回应 */
-#define STATE_BIND_REPORT_TOKEN_SUCCESS             (STATE_BIND_BASE - 0x0005)
-/* Failed to initialize CoAP server in LAN */
-/* 绑定功能模块未能成功开启CoAP服务, 该服务用于局域网内的token传递 */
-#define STATE_BIND_COAP_INIT_FAIL                   (STATE_BIND_BASE - 0x0006)
+#define STATE_BIND_REPORT_TOKEN_SUCCESS             (STATE_BIND_BASE - 0x0004)
 /* Sending bind token in LAN */
 /* 正在主动将绑定token在局域网内广播 */
-#define STATE_BIND_NOTIFY_TOKEN_SENT                (STATE_BIND_BASE - 0x0007)
+#define STATE_BIND_NOTIFY_TOKEN_SENT                (STATE_BIND_BASE - 0x0005)
 /* Got token query request from external devices in same LAN */
 /* 正在接收到同一局域网内来自其它电子设备的token查询请求 */
-#define STATE_BIND_RECV_TOKEN_QUERY                 (STATE_BIND_BASE - 0x0008)
+#define STATE_BIND_RECV_TOKEN_QUERY                 (STATE_BIND_BASE - 0x0006)
 /* Responding bind token in LAN */
 /* 正在响应局域网内的token查询请求, 将token发送给其它电子设备 */
-#define STATE_BIND_SENT_TOKEN_RESP                  (STATE_BIND_BASE - 0x0009)
-/* Skip current bind action since offline reset in progress */
-/* 暂不进行当前的token上云, 因为尚有一次未完成的离线reset正在进行中 */
-#define STATE_BIND_RST_IN_PROGRESS                  (STATE_BIND_BASE - 0x000A)
-/* Got invalid MQTT respond from server after token report */
-/* 将绑定token上报给服务端后, 接收到的回应报文不合法 */
-#define STATE_BIND_MQTT_RSP_INVALID                 (STATE_BIND_BASE - 0x000B)
+#define STATE_BIND_SENT_TOKEN_RESP                  (STATE_BIND_BASE - 0x0007)
+/* Got invalid MQTT respond from server after msg report */
+/* mqtt信息上报给服务端后, 接收到的回应报文不合法 */
+#define STATE_BIND_MQTT_RSP_INVALID                 (STATE_BIND_BASE - 0x0008)
+/* Got invalid MQTT msgid from server after token report */
+/* 将绑定token上报给服务端后, 接收到的回应报文msgid不是最新的*/
+#define STATE_BIND_MQTT_MSGID_INVALID               (STATE_BIND_BASE - 0x0009)
+/* Got invalid CoAP respond from client after token notify */
+/* 将绑定token上报给手机后, 接收到的回应报文不合法 */
+#define STATE_BIND_COAP_RSP_INVALID                 (STATE_BIND_BASE - 0x000A)
 /* Got invalid CoAP request from external devices in same LAN */
 /* 接收到来自同一局域网内其它电子设备的token查询请求, 但请求报文不合法 */
-#define STATE_BIND_COAP_REQ_INVALID                 (STATE_BIND_BASE - 0x000C)
+#define STATE_BIND_COAP_REQ_INVALID                 (STATE_BIND_BASE - 0x000B)
+/* Assemble external token failed*/
+/* app token 组装失败 */
+#define STATE_BIND_ASSEMBLE_APP_TOKEN_FAILED        (STATE_BIND_BASE - 0x000C)
+/* Register coap topic failed*/
+/* 注册coap topic失败 */
+#define STATE_BIND_COAP_REGISTER_FAILED             (STATE_BIND_BASE - 0x000D)
+/* Token is expired, need update*/
+/* token过期，需要更新 */
+#define STATE_BIND_TOKEN_EXPIRED                    (STATE_BIND_BASE - 0x000E)
+/* Sent unbind msg to cloud gets success response */
+/* 解绑信息发送给服务端后, 已得到服务端成功接收的回应 */
+#define STATE_BIND_REPORT_RESET_SUCCESS             (STATE_BIND_BASE - 0x000F)
+/* Got notify msg from server */
+/* 收到云端推送的事件，如绑定与解绑 */
+#define STATE_BIND_GET_EVENT                        (STATE_BIND_BASE - 0x0010)
 
-/* Bind: 0x0800 ~ 0x08FF */
 
 /* Device Model: 0x0900 ~ 0x09FF */
 #define STATE_DEV_MODEL_BASE                        (-0x0900)

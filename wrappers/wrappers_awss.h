@@ -140,15 +140,15 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
 int HAL_Awss_Close_Ap();
 
 #endif
-#ifdef DEV_BIND_ENABLED
 
-    /**
-    * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
-    *
-    * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
-    * @return  指向缓冲区数组起始位置的字符指针
-    */
-    char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
+#if defined(DEV_BIND_ENABLED) || defined(BIND_ENABLED)
+/**
+* @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
+*
+* @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
+* @return  指向缓冲区数组起始位置的字符指针
+*/
+char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
 
 #endif
 #endif
