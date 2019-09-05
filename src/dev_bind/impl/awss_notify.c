@@ -12,6 +12,8 @@ extern "C" {
 #define AWSS_NOTIFY_HOST     "255.255.255.255"
 #define AWSS_DEV_NOTIFY_FMT  "{\"id\":\"%u\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":{%s}}"
 
+#define AWSS_NOTIFY_CNT_MAX (30)
+
 struct notify_map_t {
     uint8_t notify_type;
     char *notify_method;
@@ -145,12 +147,36 @@ static int awss_notify_response(int type, int result, void *message)
     return awss_notify_resp[type];
 }
 
+#ifndef DEV_BIND_DISABLE_NOTIFY
+/*
+ * {
+ *  "id": "123",
+ *  "code": 200,
+ *  "data": {}
+ * }
+ */
+static int awss_dev_bind_notify_resp(void *context, int result,
+                                     void *userdata, void *remote,
+                                     void *message)
+{
+    int res = awss_notify_response(AWSS_NOTIFY_DEV_BIND_TOKEN, result, message);
+    if (res == 1) {
+        awss_update_token();
+#ifdef DEV_BIND_TEST
+        HAL_Reboot();
+#endif
+    }
+    return res;
+}
+
 /**
  * @brief alternate bcast addr
  *
  * @param bcast_addr[out] bcast addr output
  * @param mask_level 0 ~ 4(255), 1 ~ 3(255), 2 ~ 2(255), 3 ~ 1(255), others ~ invalid,
  */
+
+
 static int awss_get_broadcast_addr(platform_netaddr_t *bcast_addr)
 {
     static uint8_t mask_level = 3;
@@ -174,7 +200,7 @@ static int awss_get_broadcast_addr(platform_netaddr_t *bcast_addr)
 
     if (ip[0] != '\0' && mask_level != 0) {
         uint8_t i = 0;
-        for (i=0; i<strlen(ip); i++) {
+        for (i = 0; i < strlen(ip); i++) {
             bcast_addr->host[i] = ip[i];
             if (ip[i] == '.') {
                 if (++level == mask_level) {
@@ -188,14 +214,12 @@ static int awss_get_broadcast_addr(platform_netaddr_t *bcast_addr)
                 memcpy(bcast_addr->host + strlen(bcast_addr->host), "255.255.255", strlen("255.255.255"));
                 return 0;
             }
-        }
-        else if (mask_level == 2) {
+        } else if (mask_level == 2) {
             if (i + strlen("255.255") < 16) {
                 memcpy(bcast_addr->host + strlen(bcast_addr->host), "255.255", strlen("255.255"));
                 return 0;
             }
-        }
-        else if (mask_level == 3) {
+        } else if (mask_level == 3) {
             if (i + strlen("255") < 16) {
                 memcpy(bcast_addr->host + strlen(bcast_addr->host), "255", strlen("255"));
                 return 0;
@@ -274,7 +298,7 @@ int awss_notify_dev_info(int type, int count)
     return awss_notify_resp[type];
 }
 
-#define AWSS_NOTIFY_CNT_MAX (30)
+
 
 static void *coap_session_ctx = NULL;
 
@@ -319,7 +343,7 @@ static int awss_process_get_devinfo()
         id = json_get_value_by_name(msg, len, "id", &id_len, 0);
         memset(req_msg_id, 0, sizeof(req_msg_id));
 
-        if(id_len > MSG_REQ_ID_LEN) {
+        if (id_len > MSG_REQ_ID_LEN) {
             goto GET_DEV_INFO_ERR;
         }
         memcpy(req_msg_id, id, id_len);
@@ -369,6 +393,7 @@ GET_DEV_INFO_ERR:
     return -1;
 }
 
+#if 0
 static int online_get_device_info(void *ctx, void *resource, void *remote,
                                   void *request, char is_mcast)
 {
@@ -380,7 +405,7 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
         return -1;
     }
 
-    if(awss_check_reset()) {
+    if (awss_check_reset()) {
         return -1;
     }
     /*
@@ -423,31 +448,11 @@ int online_ucast_get_device_info(void *ctx, void *resource, void *remote, void *
 {
     return online_get_device_info(ctx, resource, remote, request, 0);
 }
+#endif
 
 static int dev_bind_interval = 0;
 static char dev_bind_cnt = 0;
 
-#ifndef DEV_BIND_DISABLE_NOTIFY
-/*
- * {
- *  "id": "123",
- *  "code": 200,
- *  "data": {}
- * }
- */
-static int awss_dev_bind_notify_resp(void *context, int result,
-                                     void *userdata, void *remote,
-                                     void *message)
-{
-    int res = awss_notify_response(AWSS_NOTIFY_DEV_BIND_TOKEN, result, message);
-    if (res == 1) {
-        awss_update_token();
-#ifdef DEV_BIND_TEST
-        HAL_Reboot();
-#endif
-    }
-    return res;
-}
 
 static int __awss_dev_bind_notify()
 {
@@ -568,6 +573,7 @@ int awss_dev_bind_notify_stop()
     }
     return 0;
 }
+
 #endif
 
 #ifdef WIFI_PROVISION_ENABLED

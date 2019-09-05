@@ -1,11 +1,12 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#if 0
 #include "dev_bind_internal.h"
 #ifdef WIFI_PROVISION_ENABLED
-#ifndef AWSS_DISABLE_REGISTRAR
-#include "awss_enrollee.h"
-#endif
+    #ifndef AWSS_DISABLE_REGISTRAR
+        #include "awss_enrollee.h"
+    #endif
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -28,7 +29,7 @@ int awss_report_cloud()
     awss_cmp_online_init();
     HAL_MutexUnlock(awss_bind_mutex);
 #ifdef DEVICE_MODEL_ENABLED
-    if(awss_check_reset()) {
+    if (awss_check_reset()) {
         return awss_report_reset_to_cloud();
     }
 #endif
@@ -42,12 +43,13 @@ int awss_start_bind()
 
     if (awss_bind_mutex == NULL) {
         awss_bind_mutex = HAL_MutexCreate();
-        if (awss_bind_mutex == NULL)
+        if (awss_bind_mutex == NULL) {
             return -1;
+        }
     }
 
     HAL_MutexLock(awss_bind_mutex);
-    if(awss_bind_inited == 1) {
+    if (awss_bind_inited == 1) {
         HAL_MutexUnlock(awss_bind_mutex);
         return 0;
     }
@@ -108,4 +110,6 @@ int awss_bind_deinit()
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
+#endif
+
 #endif

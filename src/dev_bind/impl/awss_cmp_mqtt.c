@@ -32,7 +32,9 @@ int awss_cmp_mqtt_send(char *topic, void *data, int len, int qos)
 }
 
 const struct awss_cmp_couple awss_online_couple[] = {
+#if 0
     {-1, TOPIC_MATCH_REPORT_REPLY, awss_report_token_reply},
+#endif
 #ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     {-1, TOPIC_ZC_CHECKIN,         awss_enrollee_checkin},
@@ -74,7 +76,9 @@ int awss_cmp_online_deinit()
         return 0;
     }
 #ifndef DEV_BIND_DISABLE_NOTIFY
+#if 0
     awss_dev_bind_notify_stop();
+#endif
 #endif
     for (i = 0; i < sizeof(awss_online_couple) / sizeof(awss_online_couple[0]); i ++) {
         memset(topic, 0, sizeof(topic));
