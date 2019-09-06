@@ -11,7 +11,6 @@
 #include "infra_state.h"
 #include "bind_api.h"
 #include "bind_token.h"
-#include "infra_string.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -141,36 +140,12 @@ int IOT_Bind_Yield()
 
 int IOT_Bind_SetToken(uint8_t *token)
 {
-    char rand_str[(BIND_TOKEN_LEN << 1) + 1] = {0};
-
-    if (token != NULL || g_context == NULL) {
-        return STATE_USER_INPUT_NULL_POINTER;
-    }
-    memcpy(g_context->token, token, BIND_TOKEN_LEN);
-
-    LITE_hexbuf_convert(g_context->token,  rand_str, BIND_TOKEN_LEN,  1);
-    iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_SET_APP_TOKEN, rand_str);
-    return 0;
+    return bind_set_token(g_context, token, BIND_TOKEN_LEN, NULL, NULL, 0);
 }
 
 int IOT_Bind_SetToken_Ext(uint8_t *token, uint8_t token_len, char *passwd, uint8_t *bssid, uint8_t bssid_len)
 {
-    int ret;
-    if (token == NULL || passwd == NULL || bssid == NULL || g_context == NULL) {
-        return STATE_USER_INPUT_NULL_POINTER;
-    }
-
-    ret =  bind_complete_token(token, token_len, passwd, bssid, bssid_len, g_context->token);
-
-
-    if (ret < 0) {
-        iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_ASSEMBLE_APP_TOKEN_FAILED, NULL);
-    } else {
-        char rand_str[(BIND_TOKEN_LEN << 1) + 1] = {0};
-        LITE_hexbuf_convert(g_context->token,  rand_str, BIND_TOKEN_LEN,  1);
-        iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_SET_APP_TOKEN, rand_str);
-    }
-    return ret;
+    return bind_set_token(g_context, token, token_len, passwd, bssid, bssid_len);
 }
 
 int IOT_Bind_Reset()

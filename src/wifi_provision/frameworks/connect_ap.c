@@ -3,6 +3,9 @@
  */
 #include "wifi_provision_internal.h"
 
+#ifdef BIND_ENABLED
+#include "bind_api.h"
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -53,12 +56,16 @@ int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], u
     int ret;
 
     /*need to complete the token*/
+#ifdef BIND_ENABLED
+    ret = IOT_Bind_SetToken_Ext(token, token_len, passwd, bssid, bssid_len);
+#endif
+/*
     ret = awss_complete_token(passwd, bssid, bssid_len, token, token_len, final_token);
 
     if(ret == 0) {  
         awss_set_token(final_token);
     }
-    
+*/
     /*need to complete the bssid */
     if(bssid_len > 0 && bssid_len < 6 && bssid != NULL) {
         if(zc_bssid != NULL) {
