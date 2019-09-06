@@ -470,6 +470,13 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     mqtt_params.read_buf_size = 1000;
     mqtt_params.write_buf_size = 1000;
 
+#ifdef SUPPORT_TLS
+    {
+        extern const char *iotx_ca_crt;
+        mqtt_params.pub_key = iotx_ca_crt;
+    }
+#endif
+
     pClient =  wrapper_mqtt_init(&mqtt_params);
     if (pClient == NULL) {
         return STATE_MQTT_WRAPPER_INIT_FAIL;
