@@ -169,7 +169,7 @@ EOB
 done
 
 for i in ${ALL_PROG}; do
-    j=$(grep -w -m 1 "^SRCS_${i}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
+    j=$(grep -w -m 1 "^SRCS_${i} " ${STAMP_BLD_VAR}|cut -d' ' -f3-)
     k=$(grep -w -m 1 "TARGET_.* = .*${i}" ${STAMP_BLD_VAR}|cut -d' ' -f1|${SED} 's:TARGET_::1')
     q=${k}
     if [ "$(grep -w -m 1 "^TARGET_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-|awk '{ print NF }')" = "1" ]; then
@@ -203,5 +203,6 @@ done)
         ${LFLAGS} $( if [ "${i}" = "sdk-testsuites" ] && ! uname -a|grep -qw Ubuntu; then echo "-lcurl"; fi )
 
 EOB
+
 done
 
