@@ -313,33 +313,33 @@ extern "C" {
 /* WiFi provision decrypt WiFi password successfully */
 /* WiFi配网中解密WiFi热点的密码成功 */
 #define STATE_WIFI_PASSWD_DECODE_SUCCESS            (STATE_WIFI_BASE - 0x000D)
-/* WiFi configuration statics report, including overall time, pack number, pack lens */
-/* WiFi配网中的统计信息，比如收到包的数量，配网时间，收包报文的总长度*/
+/* WiFi configuration statistics report, including overall time, pack number, pack lens */
+/* WiFi配网中的统计信息, 比如收到包的数量, 配网时间, 收包报文的总长度*/
 #define STATE_WIFI_STATISTIC                        (STATE_WIFI_BASE - 0x000E)
-/* the version info from the packet is not the expected one */
+/* Unexpected version info from cellphone when wifi-provision*/
 /* 手机端发来的配网协议的版本号不符合预期 */
 #define STATE_WIFI_UNEXP_PROT_VERSION               (STATE_WIFI_BASE - 0x000F)
-/* WiFi provision debug info during multi-cast wifi-provision */
+/* Debug info during multicast wifi-provision */
 /* WiFi组播配网中的调试信息 */
-#define STATE_WIFI_MCAST_DEBUG_INFO                 (STATE_WIFI_BASE - 0x0010)
-/* WiFi provision debug info during broad-cast wifi-provision */
+#define STATE_WIFI_MCAST_DEBUG                      (STATE_WIFI_BASE - 0x0010)
+/* Debug info during broadcast wifi-provision */
 /* WiFi包长编码的一键配网中的调试信息 */
-#define STATE_WIFI_BCAST_DEBUG_INFO                 (STATE_WIFI_BASE - 0x0011)
-/* WiFi provision enrollee debug info during zero-config wifi-provision */
+#define STATE_WIFI_BCAST_DEBUG                      (STATE_WIFI_BASE - 0x0011)
+/* Debug info during zero-config wifi-provision for enrollee */
 /* WiFi零配过程中的待配方调试信息 */
-#define STATE_WIFI_ZCONFIG_ENROLLEE_DEBUG_INFO      (STATE_WIFI_BASE - 0x0012)
+#define STATE_WIFI_ZCONFIG_ENROLLEE_DEBUG           (STATE_WIFI_BASE - 0x0012)
 /* The params from registar in zeroconfig Wifi Configuration is invalid */
 /* WiFi零配过程中的主配方发来的参数有误 */
 #define STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR    (STATE_WIFI_BASE - 0x0013)
-/* WiFi provision registar debug info during zero-config wifi-provision */
+/* Debug info during zero-config wifi-provision for registar */
 /* WiFi零配过程中的主配方调试信息 */
-#define STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO      (STATE_WIFI_BASE - 0x0014)
-/* WiFi provision debug info p2p smartconfig */
+#define STATE_WIFI_ZCONFIG_REGISTAR_DEBUG           (STATE_WIFI_BASE - 0x0014)
+/* Debug info of p2p mode smartconfig */
 /* WiFi p2p配网过程中的调试信息 */
-#define STATE_WIFI_P2P_DEBUG_INFO                   (STATE_WIFI_BASE - 0x0015)
-/* WiFi provision debug info of dev_ap wifi-provision */
+#define STATE_WIFI_P2P_DEBUG                        (STATE_WIFI_BASE - 0x0015)
+/* Debug info of dev-ap mode wifi-provision */
 /* WiFi 设备热点配网过程中的调试信息 */
-#define STATE_WIFI_DEV_AP_DEBUG_INFO                (STATE_WIFI_BASE - 0x0016)
+#define STATE_WIFI_DEV_AP_DEBUG                     (STATE_WIFI_BASE - 0x0016)
 /* WiFi provision claiming other information */
 /* WiFi配网中的其它过程信息 */
 #define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0017)
@@ -423,13 +423,13 @@ extern "C" {
 /* 注册coap topic失败 */
 #define STATE_BIND_COAP_REGISTER_FAILED             (STATE_BIND_BASE - 0x000D)
 /* Token is expired, need update*/
-/* token过期，需要更新 */
+/* token过期, 需要更新 */
 #define STATE_BIND_TOKEN_EXPIRED                    (STATE_BIND_BASE - 0x000E)
 /* Sent unbind msg to cloud gets success response */
 /* 解绑信息发送给服务端后, 已得到服务端成功接收的回应 */
 #define STATE_BIND_REPORT_RESET_SUCCESS             (STATE_BIND_BASE - 0x000F)
 /* Got notify msg from server */
-/* 收到云端推送的事件，如绑定与解绑 */
+/* 收到云端推送的事件, 如绑定与解绑 */
 #define STATE_BIND_GET_EVENT                        (STATE_BIND_BASE - 0x0010)
 
 

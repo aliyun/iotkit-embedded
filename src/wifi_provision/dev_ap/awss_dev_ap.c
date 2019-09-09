@@ -64,7 +64,8 @@ static int awss_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE l
         return -1;
     }
 
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "bssid = %02x %02x %02x %02x %02x %02x", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "bssid = %02x %02x %02x %02x %02x %02x", bssid[0], bssid[1], bssid[2],
+                     bssid[3], bssid[4], bssid[5]);
     if (memcmp(config.bssid, bssid, ETH_ALEN) != 0) {
         return -1;
     }
@@ -162,7 +163,7 @@ static int awss_dev_ap_setup()
         HAL_Snprintf(ssid, PLATFORM_MAX_SSID_LEN, "adh_%s_%s", pk, &mac_str[9]);
     } while (0);
 
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "ssid:%s", ssid);
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "ssid:%s", ssid);
     for (count = 0; count < 3; count++) {
         ret = HAL_Awss_Open_Ap(ssid, passwd, 100, 0);
         if (0 == ret) {
@@ -202,7 +203,7 @@ int awss_dev_ap_start(void)
     ap_info_t dev_ap_info = {0};
 
     if (g_awss_dev_ap_mutex || awss_dev_ap_ongoing) {
-        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "dev ap already running");
+        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "dev ap already running");
         return -1;
     }
 
@@ -210,7 +211,7 @@ int awss_dev_ap_start(void)
         g_awss_dev_ap_mutex = HAL_MutexCreate();
     }
     if (g_awss_dev_ap_mutex == NULL) {
-        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "awss dev ap start fail");
+        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "awss dev ap start fail");
         goto AWSS_DEV_AP_FAIL;
     }
 
@@ -224,7 +225,7 @@ int awss_dev_ap_start(void)
     HAL_MutexUnlock(g_awss_dev_ap_mutex);
     ret = awss_dev_ap_setup();
     if (0 != ret) {
-        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "awss dev ap setup fail");
+        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "awss dev ap setup fail");
         goto AWSS_DEV_AP_FAIL;
     }
 
@@ -273,7 +274,7 @@ int awss_dev_ap_stop(void)
 
     awss_dev_ap_ongoing = 0;
 
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "%s", __func__);
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "%s", __func__);
 
     if (g_awss_dev_ap_mutex) {
         HAL_MutexLock(g_awss_dev_ap_mutex);
@@ -293,7 +294,7 @@ int awss_dev_ap_stop(void)
     awss_dev_ap_switchap_resp_suc = 0;
     g_dev_ap_info_ptr = NULL;
 
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "%s exit", __func__);
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "%s exit", __func__);
 
     return 0;
 }
@@ -338,10 +339,10 @@ static void start_connect_ap()
     } else {
         int ret = awss_dev_ap_setup();
         if (0 != ret) {
-            dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "retry, but awss dev ap setup fail");
+            dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "retry, but awss dev ap setup fail");
         }
     }
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "connect '%s' %s", info->ssid, ret == 0 ? "success" : "fail");
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "connect '%s' %s", info->ssid, ret == 0 ? "success" : "fail");
 }
 
 int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *remote, void *request)
@@ -398,7 +399,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     buf = awss_cmp_get_coap_payload(request, &len);
     str = json_get_value_by_name(buf, len, "id", &str_len, 0);
     memcpy(req_msg_id, str, str_len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : str_len);
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "dev ap, len:%u, %s", len, buf);
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "dev ap, len:%u, %s", len, buf);
     buf = json_get_value_by_name(buf, len, "params", &len, 0);
     if (buf == NULL) {
         goto DEV_AP_SWITCHAP_END;
@@ -408,7 +409,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "ssid", &str_len, 0);
-        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "ssid, len:%u, %s", str_len, str != NULL ? str : "NULL");
+        dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "ssid, len:%u, %s", str_len, str != NULL ? str : "NULL");
         if (str && (str_len < PLATFORM_MAX_SSID_LEN)) {
             memcpy(ssid, str, str_len);
             ssid_found = 1;
@@ -475,8 +476,8 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         }
     } while (0);
 
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "Sending message to app: %s", msg);
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "switch to ap: '%s'", ssid);
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "Sending message to app: %s", msg);
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "switch to ap: '%s'", ssid);
     if (success == 1) {
         if (*token_found == 0) {
             produce_random(aes_random, sizeof(aes_random));
@@ -492,7 +493,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request, awss_dev_ap_switchap_resp,
                                      &(info->msgid), 1);
     (void)result;  /* remove complier warnings */
-    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG_INFO, "sending %s.", result == 0 ? "success" : "fail");
+    dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "sending %s.", result == 0 ? "success" : "fail");
 
 DEV_AP_SWITCHAP_END:
     dev_ap_switchap_parsed = 0;

@@ -175,7 +175,7 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
         goto CHECKIN_FAIL;
     }
 
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "checkin len:%u, payload:%s", payload_len, payload);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "checkin len:%u, payload:%s", payload_len, payload);
 
     dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_PARAM, &dev_info_len, NULL);
     if (dev_info == NULL || dev_info_len == 0) {
@@ -223,7 +223,7 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
 {
     int i;
 
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "key:%s, dev_name:%s, cipher:%s", key, dev_name, cipher);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "key:%s, dev_name:%s, cipher:%s", key, dev_name, cipher);
 
     if (strlen(key) > MAX_PK_LEN ||
         strlen(dev_name) > MAX_DEV_NAME_LEN) {
@@ -231,7 +231,7 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
     }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
-        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "enrollee[%d] state %d", i, enrollee_info[i].state);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "enrollee[%d] state %d", i, enrollee_info[i].state);
         if (enrollee_info[i].state != ENR_CHECKIN_ENABLE) {
             continue;
         }
@@ -251,8 +251,8 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
 
             HAL_Free(key_byte);
 
-            dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "enrollee[%d] state %d->%d", i, enrollee_info[i].state,
-                       ENR_CHECKIN_CIPHER);
+            dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "enrollee[%d] state %d->%d", i, enrollee_info[i].state,
+                             ENR_CHECKIN_CIPHER);
             enrollee_info[i].state = ENR_CHECKIN_CIPHER;
             enrollee_checkin();
 
@@ -268,17 +268,17 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
 {
     int i;
 
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "key:%s, dev_name:%s, timeout:%u", key, dev_name, timeout);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "key:%s, dev_name:%s, timeout:%u", key, dev_name, timeout);
     if (strlen(key) > MAX_PK_LEN ||
         strlen(dev_name) > MAX_DEV_NAME_LEN) {
         goto out;
     }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
-        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "len:%u---%lu, name:%s---%s",
-                   enrollee_info[i].dev_name_len, strlen(dev_name),
-                   enrollee_info[i].dev_name, dev_name);
-        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "enrollee[%d] state %d", i, enrollee_info[i].state);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "len:%u---%lu, name:%s---%s",
+                         enrollee_info[i].dev_name_len, strlen(dev_name),
+                         enrollee_info[i].dev_name, dev_name);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "enrollee[%d] state %d", i, enrollee_info[i].state);
         if (enrollee_info[i].state != ENR_FOUND) {
             continue;
         }
@@ -374,7 +374,7 @@ void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
         goto CIPHER_ERR;
     }
 
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "cipher len:%u, payload:%s", payload_len, payload);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "cipher len:%u, payload:%s", payload_len, payload);
 
     dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_DEV_LIST, &dev_info_len, NULL);
     if (dev_info == NULL || dev_info_len == 0) {
@@ -437,7 +437,7 @@ static int enrollee_checkin(void)
         return 0;
     }
 
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "cn:%d, ci:%d, c:%d", checkin_new, get_cipher, check);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "cn:%d, ci:%d, c:%d", checkin_new, get_cipher, check);
 
     if (get_cipher != 0xff) {
         goto checkin_ongoing;
@@ -449,8 +449,8 @@ static int enrollee_checkin(void)
 
     /* checkin_new: */
 checkin_ongoing:
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "enrollee[%d] state %d->%d", get_cipher,
-               enrollee_info[get_cipher].state, ENR_CHECKIN_ONGOING);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "enrollee[%d] state %d->%d", get_cipher,
+                     enrollee_info[get_cipher].state, ENR_CHECKIN_ONGOING);
     enrollee_info[get_cipher].state = ENR_CHECKIN_ONGOING;
     enrollee_info[get_cipher].checkin_timestamp = os_get_time_ms();
     registrar_raw_frame_init(&enrollee_info[get_cipher]);
@@ -459,14 +459,14 @@ checkin_ongoing:
     /* undergoing */
 ongoing:
     registrar_raw_frame_send();
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "registrar_raw_frame_send");
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "registrar_raw_frame_send");
     if (time_elapsed_ms_since(enrollee_info[i].checkin_timestamp) > enrollee_info[i].checkin_timeout * 1000) {
         memset(&enrollee_info[i], 0, sizeof(enrollee_info[0]));
-        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "enrollee[%d] state %d->%d", i,
-                   enrollee_info[i].state, ENR_CHECKIN_END);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "enrollee[%d] state %d->%d", i,
+                         enrollee_info[i].state, ENR_CHECKIN_END);
         enrollee_info[i].state = ENR_CHECKIN_END;/* FIXME: remove this state? */
-        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "enrollee[%d] state %d->%d", i,
-                   enrollee_info[i].state, ENR_FREE);
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "enrollee[%d] state %d->%d", i,
+                         enrollee_info[i].state, ENR_FREE);
         enrollee_info[i].state = ENR_FREE;
         registrar_raw_frame_destroy();
     }
@@ -478,7 +478,7 @@ int awss_report_set_interval(char *key, char *dev_name, int interval)
 {
     int i;
 
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "key:%s, dev_name:%s, interval:%u", key, dev_name, interval);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "key:%s, dev_name:%s, interval:%u", key, dev_name, interval);
     if (strlen(key) > MAX_PK_LEN ||
         strlen(dev_name) > MAX_DEV_NAME_LEN) {
         return -1;
@@ -566,7 +566,7 @@ void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg)
         goto REPORT_REPLY_FAIL;
     }
 
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "found reply:%s", payload);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "found reply:%s", payload);
     dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
     key = awss_zalloc(MAX_PK_LEN + 1);
 
@@ -645,7 +645,8 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
     }
 
     awss_build_topic(TOPIC_ZC_ENROLLEE, topic, TOPIC_LEN_MAX);
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "topic:%s, packet:%s, method:%s", topic, packet, METHOD_EVENT_ZC_ENROLLEE);
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "topic:%s, packet:%s, method:%s", topic, packet,
+                     METHOD_EVENT_ZC_ENROLLEE);
 
     awss_cmp_mqtt_send(topic, packet, packet_len, 1);
 
@@ -882,8 +883,8 @@ int enrollee_put(struct enrollee_info *in)
     enrollee_info[empty_slot].checkin_priority = 1; /* smaller means high pri */
     enrollee_info[empty_slot].interval = REGISTRAR_TIMEOUT;
     enrollee_info[empty_slot].checkin_timeout = REGISTRAR_TIMEOUT;
-    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "new enrollee[%d] dev_name:%s time:%x",
-               empty_slot, in->dev_name, os_get_time_ms());
+    dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "new enrollee[%d] dev_name:%s time:%x",
+                     empty_slot, in->dev_name, os_get_time_ms());
     enrollee_report();
 
     return 0;
@@ -1037,7 +1038,7 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
 
     {
         /* dump registrar info */
-        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG_INFO, "dump registrar info:");
+        dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "dump registrar info:");
         dump_hex(registrar_frame, registrar_frame_len, 16);
     }
 }
