@@ -1137,6 +1137,21 @@ static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
     return (curn == curn_end) && (*curf == '\0');
 }
 
+/* /ext/auth/identity/response, payload: {"productKey":"","deviceName":""} */
+static void iotx_mc_parse_identity_response(iotx_mqtt_topic_info_pt topic_msg)
+{
+    char *identify_topic = "/ext/auth/identity/response";
+    void *callback = NULL;
+
+    if (topic_msg->topic_len == strlen(identify_topic) &&
+        (memcmp(topic_msg->ptopic, identify_topic, strlen(identify_topic)) == 0)) {
+        callback = iotx_event_callback(ITE_IDENTITY_RESPONSE);
+            if (callback) {
+                ((int (*)(const char*, int))callback)(topic_msg->payload, topic_msg->payload_len);
+            }
+    }
+}
+
 static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
     int flag_matched = 0;
@@ -1160,6 +1175,8 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 
     topic_msg->ptopic = topicName->lenstring.data;
     topic_msg->topic_len = topicName->lenstring.len;
+
+    iotx_mc_parse_identity_response(topic_msg);
 
 #if WITH_MQTT_ZIP_TOPIC
     if (topicName->cstring) {

@@ -121,6 +121,13 @@ int everything_state_handle(const int state_code, const char *state_message)
     return 0;
 }
 
+int identity_response_handle(const char *payload, int payload_len)
+{
+    EXAMPLE_TRACE("identify: %.*s", payload_len, payload);
+
+    return 0;
+}
+
 /*
  *  NOTE: About demo topic of /${productKey}/${deviceName}/user/get
  *
@@ -145,6 +152,7 @@ int main(int argc, char *argv[])
     IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
     IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, g_device_secret);
 
+    IOT_RegisterCallback(ITE_IDENTITY_RESPONSE, identity_response_handle);
     IOT_RegisterCallback(ITE_STATE_EVERYTHING, everything_state_handle);
 
     EXAMPLE_TRACE("mqtt example");
