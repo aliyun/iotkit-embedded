@@ -408,7 +408,7 @@ DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const
 DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*callback)(const int, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_DYNREG_DEVICE_SECRET, int (*callback)(const char *))
-DEFINE_EVENT_CALLBACK(ITE_IDENTITY_RESPONSE,    int (*callback)(const char *, int))
+DEFINE_EVENT_CALLBACK(ITE_IDENTITY_RESPONSE,    int (*callback)(const char *))
 
 int iotx_register_for_ITE_STATE_EVERYTHING(state_handler_t callback)
 {

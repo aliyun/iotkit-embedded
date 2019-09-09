@@ -121,9 +121,9 @@ int everything_state_handle(const int state_code, const char *state_message)
     return 0;
 }
 
-int identity_response_handle(const char *payload, int payload_len)
+int identity_response_handle(const char *payload)
 {
-    EXAMPLE_TRACE("identify: %.*s", payload_len, payload);
+    EXAMPLE_TRACE("identify: %s", payload);
 
     return 0;
 }

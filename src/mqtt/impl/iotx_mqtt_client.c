@@ -1145,10 +1145,22 @@ static void iotx_mc_parse_identity_response(iotx_mqtt_topic_info_pt topic_msg)
 
     if (topic_msg->topic_len == strlen(identify_topic) &&
         (memcmp(topic_msg->ptopic, identify_topic, strlen(identify_topic)) == 0)) {
+        char *payload = NULL;
+
+        payload = HAL_Malloc(topic_msg->payload_len + 1);
+        if (payload == NULL) {
+            iotx_state_event(ITE_STATE_MQTT_COMM, STATE_SYS_DEPEND_MALLOC, "identify response fail");
+            return;
+        }
+        memset(payload, 0, topic_msg->payload_len + 1);
+        memcpy(payload, topic_msg->payload, topic_msg->payload_len);
+
         callback = iotx_event_callback(ITE_IDENTITY_RESPONSE);
-            if (callback) {
-                ((int (*)(const char*, int))callback)(topic_msg->payload, topic_msg->payload_len);
-            }
+        if (callback) {
+            ((int (*)(const char*))callback)(payload);
+        }
+
+        HAL_Free(payload);
     }
 }
 
