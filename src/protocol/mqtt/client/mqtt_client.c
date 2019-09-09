@@ -2534,9 +2534,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
         if (IOTX_MC_STATE_DISCONNECTED_RECONNECTING == currentState) {
             /* Reconnection is successful, Resume regularly ping packets */
             rc = iotx_mc_handle_reconnect(pClient);
-            if (SUCCESS_RETURN != rc) {
-                mqtt_debug("reconnect network fail, rc = %d", rc);
-            } else {
+            if (SUCCESS_RETURN == rc) {
                 mqtt_info("network is reconnected!");
                 iotx_mc_reconnect_callback(pClient);
                 pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
@@ -2721,7 +2719,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-    mqtt_info("Waiting to reconnect...");
+    
     if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         HAL_SleepMs(100);
