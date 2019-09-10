@@ -319,7 +319,7 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
                 max_len_to_receive = HTTPCLIENT_MIN(max_len_to_receive, client_data->retrieve_len);
 
                 ret = _http_recv(client, data, max_len_to_receive, &data_len_actually_received, iotx_time_left(&timer));
-                if (ret == ERROR_HTTP_CONN) {
+                if (ret != STATE_SUCCESS) {
                     return ret;
                 }
                 httpc_debug("Total- remaind Payload: %d Bytes; currently Read: %d Bytes", client_data->retrieve_len,
@@ -328,7 +328,7 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
                 /* TODO  add deadloop processing*/
                 ret = _utils_check_deadloop(data_len_actually_received, &timer, ret, &dead_loop_count,
                                             &extend_count);
-                if (ERROR_HTTP_CONN == ret) {
+                if (ret != STATE_SUCCESS) {
                     return ret;
                 }
             }
@@ -381,7 +381,7 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
     while (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
         /* try to read more header */
         ret = _http_recv(client, data + len, HTTPCLIENT_RAED_HEAD_SIZE, &new_trf_len, iotx_time_left(&timer));
-        if (ret == ERROR_HTTP_CONN) {
+        if (ret != STATE_SUCCESS) {
             return ret;
         }
         len += new_trf_len;
@@ -435,7 +435,7 @@ int httpclient_connect(httpclient_t *client)
 int _http_send_request(httpclient_t *client, const char *host, const char *path, HTTPCLIENT_REQUEST_TYPE method,
                        httpclient_data_t *client_data)
 {
-    int ret = ERROR_HTTP_CONN;
+    int ret = STATE_SUCCESS;
 
     if (0 == client->net.handle) {
         return STATE_SYS_DEPEND_NWK_CLOSE;
@@ -458,7 +458,7 @@ int _http_send_request(httpclient_t *client, const char *host, const char *path,
 
 int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclient_data_t *client_data)
 {
-    int reclen = 0, ret = ERROR_HTTP_CONN;
+    int reclen = 0, ret = STATE_SUCCESS;
     char buf[HTTPCLIENT_READ_BUF_SIZE] = { 0 };
     iotx_time_t timer;
 
@@ -467,7 +467,7 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
 
     if (0 == client->net.handle) {
         httpc_err("not connection have been established");
-        return ret;
+        return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 
     if (client_data->is_more) {
@@ -477,7 +477,7 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
         client_data->is_more = 1;
         /* try to read header */
         ret = _http_recv(client, buf, HTTPCLIENT_RAED_HEAD_SIZE, &reclen, iotx_time_left(&timer));
-        if (ret != 0) {
+        if (ret != STATE_SUCCESS) {
             return ret;
         }
 
@@ -530,7 +530,7 @@ static int _http_send(httpclient_t *client, const char *url, int port, const cha
         }
 
         ret = _http_send_request(client, host, path, method, client_data);
-        if (0 != ret) {
+        if (ret != STATE_SUCCESS) {
             httpc_err("_http_send_request is error, ret = %d", ret);
             return ret;
         }
@@ -554,7 +554,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     if ((NULL != client_data->response_buf)
         && (0 != client_data->response_buf_len)) {
         ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
-        if (ret < 0) {
+        if (ret < STATE_SUCCESS) {
             httpc_err("httpclient_recv_response is error,ret = %d", ret);
             httpclient_close(client);
             return ret;
@@ -728,7 +728,7 @@ int wrapper_http_perform(void *handle, void *data, int length)
     utils_time_countdown_ms(&timer, http_handle->timeout);
 
     res = httpclient_recv_response(&http_handle->client, iotx_time_left(&timer), &http_handle->http_client_data);
-    if (res < 0) {
+    if (res < STATE_SUCCESS) {
         httpc_err("httpclient_recv_response is error,res = %d", res);
         HAL_Free(response_payload);
         return res;
