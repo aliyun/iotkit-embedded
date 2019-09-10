@@ -33,7 +33,7 @@ menu "Device Model Configurations"
             Switching Thing-Model related implementations provided in gateway oriented way
 
     config DEPRECATED_LINKKIT
-        bool "FEATURE_DEPRECATED_LINKKIT"
+        bool
         default n
         select INFRA_JSON_PARSER
         help
