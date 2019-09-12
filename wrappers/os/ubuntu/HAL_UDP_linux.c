@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#if defined(COAP_CLIENT) || defined(COAP_SERVER)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +20,7 @@
 #include "infra_config.h"
 #include "infra_compat.h"
 #include <sys/ioctl.h>
-
+#if defined(COAP_CLIENT) || defined(COAP_SERVER)
 #define NETWORK_ADDR_LEN    (16)
 intptr_t HAL_UDP_create(char *host, unsigned short port)
 {

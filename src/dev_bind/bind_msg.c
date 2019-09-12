@@ -5,7 +5,7 @@
 #include "mqtt_api.h"
 #include "bind_utils.h"
 #include "bind_msg.h"
-#include "infra_json_parser.c"
+#include "infra_json_parser.h"
 #include "infra_state.h"
 #include "infra_string.h"
 #include "infra_compat.h"
