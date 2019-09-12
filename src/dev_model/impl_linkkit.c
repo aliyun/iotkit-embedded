@@ -24,6 +24,10 @@
 #ifdef DEV_BIND_ENABLED
     #include "bind_api.h"
 #endif
+#if (defined(AWSS_SUPPORT_ZEROCONFIG) &&  !defined(AWSS_DISABLE_REGISTRAR))
+extern void awss_registrar_init(void);
+extern void awss_registrar_deinit(void);
+#endif
 
 #define IOTX_LINKKIT_KEY_ID          "id"
 #define IOTX_LINKKIT_KEY_CODE        "code"
@@ -1235,9 +1239,14 @@ static int _iotx_linkkit_master_connect(void)
 
     type = IOTX_DM_EVENT_INITIALIZED;
     _iotx_linkkit_event_callback(type, "{\"devid\":0}");
+
+#if (defined(AWSS_SUPPORT_ZEROCONFIG) &&  !defined(AWSS_DISABLE_REGISTRAR))
+    awss_registrar_init();
+#endif
 #ifdef DEV_BIND_ENABLED
     IOT_Bind_Start(NULL, NULL);
 #endif
+
     ctx->yield_running = 1;
     return SUCCESS_RETURN;
 }
@@ -1441,6 +1450,10 @@ static int _iotx_linkkit_master_close(void)
     HAL_MutexDestroy(ctx->service_list_mutex);
 #endif
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
+
+#if (defined(AWSS_SUPPORT_ZEROCONFIG) && !defined(AWSS_DISABLE_REGISTRAR))
+    awss_registrar_deinit();
+#endif
 
 #ifdef DEV_BIND_ENABLED
     IOT_Bind_Stop();
