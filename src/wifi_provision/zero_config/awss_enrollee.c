@@ -63,7 +63,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     len = RANDOM_MAX_LEN + dev_name_len + pk_len;
     text = awss_zalloc(len + 1); /* +1 for string print */
 
-    awss_build_sign_src(text, &len);
+    wifi_build_sign_src(text, &len);
 
     if (awss_get_encrypt_type() == 3) { /* aes-key per product */
         IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, key);
@@ -103,7 +103,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     len += pk_len;
 
     enrollee_frame[len ++] = RANDOM_MAX_LEN;
-    memcpy(&enrollee_frame[len], aes_random, RANDOM_MAX_LEN);
+    memcpy(&enrollee_frame[len], wifi_get_rand(), RANDOM_MAX_LEN);
     len += RANDOM_MAX_LEN;
 
     enrollee_frame[len ++] = awss_get_encrypt_type();  /*encrypt type */
@@ -206,13 +206,12 @@ static int decrypt_ssid_passwd(
     p_bssid = ie;
     ie += ETH_ALEN; /* eating bssid len */
 
-    AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_START);
 
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
-                       1, awss_get_encrypt_type(), 0, (const char *)aes_random); /* aes128 cfb */
+                       1, awss_get_encrypt_type(), 0, wifi_get_rand()); /* aes128 cfb */
+
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "registrar(passwd invalid!");
-        AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         return -1;
     }
     dump_awss_status(STATE_WIFI_ZCONFIG_ENROLLEE_DEBUG, "ssid:%s\r\n", tmp_ssid);
@@ -289,8 +288,6 @@ int awss_recv_callback_zconfig(struct parser_res *res)
     }
 
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
-
-    AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
 
     return PKG_END;
 }

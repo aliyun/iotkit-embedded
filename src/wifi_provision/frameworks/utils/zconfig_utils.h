@@ -5,11 +5,10 @@
 #ifndef __ZCONFIG_UTILS_H__
 #define __ZCONFIG_UTILS_H__
 
-#include "os.h"
+#include "os_misc.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 void dump_mac(uint8_t *src, uint8_t *dst);

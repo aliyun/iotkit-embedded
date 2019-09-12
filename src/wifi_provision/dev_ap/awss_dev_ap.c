@@ -35,7 +35,7 @@ struct ssid_config {
 };
 
 static struct ssid_config config;
-
+static int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *remote, void *request);
 static int awss_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type, int with_fcs,
                                     signed char rssi)
 {
@@ -182,7 +182,7 @@ static void try_to_do_connect_ap()
         return;
     }
     if (awss_dev_ap_ongoing == 0) {
-        awss_cmp_coap_cancel_packet(info->msgid);
+        wifi_coap_cancel_packet(info->msgid);
         return;
     }
     if ((strlen(info->ssid) == 0) && (strlen(info->passwd) == 0)) {
@@ -231,9 +231,9 @@ int awss_dev_ap_start(void)
 
     HAL_SleepMs(1000);  /* wait for dev ap to work well */
     HAL_MutexLock(g_awss_dev_ap_mutex);
-    if (awss_dev_ap_ongoing) {
-        awss_cmp_local_init(AWSS_LC_INIT_DEV_AP);
-    }
+    wifi_coap_init();
+    ret = wifi_coap_register(TOPIC_AWSS_DEV_AP_SWITCHAP, wifimgr_process_dev_ap_switchap_request);
+    
     while (awss_dev_ap_ongoing) {
         HAL_MutexUnlock(g_awss_dev_ap_mutex);
         HAL_SleepMs(200);
@@ -282,7 +282,7 @@ int awss_dev_ap_stop(void)
 
     HAL_Awss_Close_Ap();
 
-    awss_cmp_local_deinit(1);
+    wifi_coap_deinit();
 
     if (g_awss_dev_ap_mutex) {
         HAL_MutexUnlock(g_awss_dev_ap_mutex);
@@ -317,8 +317,10 @@ static void start_connect_ap()
     if (NULL == info) {
         return;
     }
-    awss_cmp_coap_cancel_packet(info->msgid);
+    wifi_coap_cancel_packet(info->msgid);
+    /*
     AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
+    */
     if (awss_dev_ap_ongoing == 0) {  /* interrupt by user */
         ret = -1;
         return;
@@ -333,9 +335,13 @@ static void start_connect_ap()
                        info->token_found == 1 ? info->token : NULL,
                        info->token_found == 1 ? RANDOM_MAX_LEN : 0);
     if (ret == 0) {
+        /*
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+        */
         awss_dev_ap_switchap_done = 1;
+        /*
         AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+        */
     } else {
         int ret = awss_dev_ap_setup();
         if (0 != ret) {
@@ -345,7 +351,7 @@ static void start_connect_ap()
     dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "connect '%s' %s", info->ssid, ret == 0 ? "success" : "fail");
 }
 
-int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *remote, void *request)
+static int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *remote, void *request)
 {
 #define AWSS_DEV_AP_SWITCHA_RSP_LEN (512)
     int str_len = 0, success = 1, len = 0;
@@ -384,9 +390,9 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         goto DEV_AP_SWITCHAP_END;
     }
     dev_ap_switchap_parsed = 1;
-
-    AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_START);
-
+    /*
+        AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_START);
+    */
     msg = awss_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
     if (msg == NULL) {
         goto DEV_AP_SWITCHAP_END;
@@ -396,7 +402,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         goto DEV_AP_SWITCHAP_END;
     }
 
-    buf = awss_cmp_get_coap_payload(request, &len);
+    buf = wifi_get_coap_payload(request, &len);
     str = json_get_value_by_name(buf, len, "id", &str_len, 0);
     memcpy(req_msg_id, str, str_len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : str_len);
     dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "dev ap, len:%u, %s", len, buf);
@@ -426,7 +432,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
                 memcpy(ssid, (const char *)decoded, len);
                 ssid[len] = '\0';
             } else {
-                HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -1, "\"ssid error\"");
+                HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, WIFI_ACK_FMT, req_msg_id, -1, "\"ssid error\"");
                 success = 0;
                 break;
             }
@@ -437,7 +443,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         if (str && str_len ==  RANDOM_MAX_LEN * 2) {
             utils_str_to_hex(str, str_len, (unsigned char *)random, RANDOM_MAX_LEN);
         } else {
-            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -4, "\"random len error\"");
+            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, WIFI_ACK_FMT, req_msg_id, -4, "\"random len error\"");
             success = 0;
             break;
         }
@@ -464,34 +470,35 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
             aes_decrypt_string(encoded, passwd, str_len,
                                0, awss_get_encrypt_type(), 1, random); /* 64bytes=2x32bytes */
         } else {
-            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
+            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, WIFI_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
             success = 0;
+            /*
             AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
+            */
         }
 
         if (success && is_utf8(passwd, strlen(passwd)) == 0) {
-            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd content error\"");
+            HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, WIFI_ACK_FMT, req_msg_id, -3, "\"passwd content error\"");
             success = 0;
+            /*
             AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
+            */
         }
     } while (0);
 
     dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "Sending message to app: %s", msg);
     dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "switch to ap: '%s'", ssid);
     if (success == 1) {
-        if (*token_found == 0) {
-            produce_random(aes_random, sizeof(aes_random));
-        }
         dev_info[0] = '{';
-        awss_build_dev_info(*token_found == 1 ? AWSS_NOTIFY_TYPE_MAX : AWSS_NOTIFY_DEV_BIND_TOKEN, dev_info + 1,
+        wifi_build_dev_info(*token_found == 1 ? AWSS_NOTIFY_TYPE_MAX : AWSS_NOTIFY_DEV_BIND_TOKEN, dev_info + 1,
                             AWSS_DEV_AP_SWITCHA_RSP_LEN - 1);
         dev_info[strlen(dev_info)] = '}';
         dev_info[AWSS_DEV_AP_SWITCHA_RSP_LEN - 1] = '\0';
-        HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
+        HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, WIFI_ACK_FMT, req_msg_id, 200, dev_info);
     }
-    awss_build_topic((const char *)TOPIC_AWSS_DEV_AP_SWITCHAP, topic, TOPIC_LEN_MAX);
-    result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request, awss_dev_ap_switchap_resp,
-                                     &(info->msgid), 1);
+    wifi_build_topic((const char *)TOPIC_AWSS_DEV_AP_SWITCHAP, topic, TOPIC_LEN_MAX);
+    result = wifi_coap_send_resp(msg, strlen(msg), remote, topic, request, awss_dev_ap_switchap_resp,
+                                 &(info->msgid), 1);
     (void)result;  /* remove complier warnings */
     dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "sending %s.", result == 0 ? "success" : "fail");
 

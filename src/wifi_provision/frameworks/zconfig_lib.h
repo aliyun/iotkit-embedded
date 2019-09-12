@@ -5,10 +5,10 @@
 #ifndef __ZCONFIG_LIB_H__
 #define __ZCONFIG_LIB_H__
 
-#include "os.h"
+#include "os_misc.h"
 
 #ifndef ETH_ALEN
-#define ETH_ALEN            (6)
+    #define ETH_ALEN            (6)
 #endif
 
 #define FRAME_ACTION_MASK       (1 << FRAME_ACTION)
@@ -23,8 +23,7 @@
 #define ZC_MAX_TOKEN_LEN    (16)
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 enum _ZC_AUTH_TYPE_ {
@@ -89,7 +88,7 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
  * save apinfo
  * 0 -- success, otherwise, failed.
  */
-int zconfig_set_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
+int zconfig_set_apinfo(uint8_t *ssid, uint8_t *bssid, uint8_t channel, uint8_t auth,
                        uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi);
 
 uint8_t zconfig_get_lock_chn(void);

@@ -133,7 +133,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         return GOT_NOTHING;
     }
 
-    AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_TIME_START);
+
     /* ssid_len(1B), ssid, passwd, crc(2B) */
     crc = os_get_unaligned_be16(in + 1 + ssid_len + passwd_len);
     /* restore 0xc080 to 0x00 */
@@ -146,7 +146,6 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         memset(zc_android_bssid, 0, sizeof(zconfig_data->android_bssid));
         dump_awss_status(STATE_WIFI_P2P_DEBUG, "rx illegal p2p (0x%x != 0x%x)", crc, cal_crc);
         awss_event_post(IOTX_AWSS_CS_ERR);
-        AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_CRC_ERR);
         /*
          * use zconfig_checksum_v3() because
          * java modified UTF-8, U+C080 equal U+00,
@@ -207,7 +206,6 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 
                 dump_awss_status(STATE_WIFI_P2P_DEBUG, "p2p decrypt passwd content err");
                 awss_event_post(IOTX_AWSS_PASSWD_ERR);
-                AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
                 return GOT_NOTHING;
             }
             break;
@@ -330,7 +328,7 @@ chn_locked:
     zconfig_set_state(STATE_CHN_LOCKED_BY_P2P, tods, channel);
     return PKG_START_FRAME;
 rcv_done:
-    AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
     return PKG_END;
 }

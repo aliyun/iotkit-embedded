@@ -343,7 +343,44 @@ extern "C" {
 /* WiFi provision claiming other information */
 /* WiFi配网中的其它过程信息 */
 #define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0017)
+/* MQTT init failed */
+/* MQTT 初始化失败，MQTT用于零配主配方 */
+#define STATE_WIFI_MQTT_INIT_FAILED                 (STATE_WIFI_BASE - 0x0018)
+/* CoAP init failed */
+/* CoAP 初始化失败，CoAP用于所有配网模式 */
+#define STATE_WIFI_COAP_INIT_FAILED                 (STATE_WIFI_BASE - 0x0019)
+/* CoAP is not inited*/
+/* CoAP 未初始化 */
+#define STATE_WIFI_COAP_UNINIT                      (STATE_WIFI_BASE - 0x0020)
+/* Got an invalid coap resp msg*/
+/* 收到CoAP非法应答消息 */
+#define STATE_WIFI_COAP_RSP_INVALID                 (STATE_WIFI_BASE - 0x0021)
+/* Build CoAP packet failed*/
+/* CoAP 组包失败 */
+#define STATE_WIFI_PACKET_BUILD_FAILED              (STATE_WIFI_BASE - 0x0022)
+/* Got invalid MQTT msg*/
+/* 收到非法云消息 */
+#define STATE_WIFI_GET_MQTT_MSG_INVALID             (STATE_WIFI_BASE - 0x0023)
+/* Notify devinfo for phone AP */
+/* 手机热点配网广播设备信息 */
+#define STATE_WIFI_NOTIFY_DEVINFO                   (STATE_WIFI_BASE - 0x0024)
+/* Notify connectap event */
+/* 广播通知连接ap事件 */
+#define STATE_WIFI_NOTIFY_CONNECTAP                 (STATE_WIFI_BASE - 0x0025)
+/* Recieve query connectap state msg */
+/* 收到查询连接ap状态的包 */
+#define STATE_WIFI_GET_CONNECTAP_STATE              (STATE_WIFI_BASE - 0x0026)
+/* Recieve query devinfo  msg */
+/* 收到查询设备信息的包（手机热点） */
+#define STATE_WIFI_GET_DEVINFO                      (STATE_WIFI_BASE - 0x0027)
+/* Resp Connect AP request */
+/* 回复手机查询connectap事件 */
+#define STATE_WIFI_COAP_CONNECTAP_RESP              (STATE_WIFI_BASE - 0x0028)
+/* Resp devinfo request */
+/* 回复手机查询设备信息事件 */
+#define STATE_WIFI_COAP_DEVINFO_RESP                (STATE_WIFI_BASE - 0x0029)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
+
 
 /* COAP: 0x0500 ~ 0x05FF */
 #define STATE_COAP_BASE                             (-0x0500)

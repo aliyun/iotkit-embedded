@@ -8,7 +8,7 @@
 
 #include "infra_config.h"
 
-#if defined(DEV_BIND_ENABLED) || defined(BIND_ENABLED)
+#if defined(WIFI_PROVISION_ENABLED) || defined(BIND_ENABLED)
 
 #include <string.h>
 #include <stdlib.h>

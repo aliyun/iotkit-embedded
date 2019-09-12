@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "wifi_provision_internal.h"
+#include "wifi_mqtt.h"
 #ifndef AWSS_DISABLE_REGISTRAR
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -26,7 +27,7 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
 static int awss_enrollee_get_dev_info(char *payload, int payload_len, char *product_key,
                                       char *dev_name, char *cipher, int *timeout);
 int registar_yield();
-
+int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *request);
 /* registrar send pkt interval in ms */
 #define REGISTRAR_TIMEOUT               (60)
 #define REGISTRAR_WORK_TIME             (16 * 400)
@@ -65,6 +66,7 @@ void registrar_schedule()
 }
 #endif
 
+/*excute it after mqtt connected*/
 void awss_registrar_init(void)
 {
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
@@ -74,7 +76,9 @@ void awss_registrar_init(void)
 
     memset(enrollee_info, 0, sizeof(enrollee_info));
     registrar_inited = 1;
-
+    wifi_mqtt_init(NULL);
+    wifi_coap_register(TOPIC_NOTIFY, online_dev_bind_monitor);
+    wifi_coap_register(TOPIC_AWSS_CONNECTAP_NOTIFY, online_dev_bind_monitor);
     HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                       (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
 #if (REGISTRAR_IDLE_DUTY > 0)
@@ -89,11 +93,12 @@ void awss_registrar_deinit(void)
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
     HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                       (uint8_t *)alibaba_oui, NULL);
-
+    wifi_mqtt_deinit();
     registrar_inited = 0;
     registrar_sched_cnt = 0;
 }
 
+/*finish zero config*/
 int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *request)
 {
     uint8_t i;
@@ -101,12 +106,12 @@ int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *reque
     int payload_len = 0, dev_info_len = 0;
     char *key = NULL, *dev_name = NULL, *dev_info = NULL;
 
-    payload = awss_cmp_get_coap_payload(request, &payload_len);
+    payload = wifi_get_coap_payload(request, &payload_len);
     if (payload == NULL || payload_len == 0) {
         goto CONNECTAP_MONITOR_END;
     }
 
-    dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_PARAM, &dev_info_len, NULL);
+    dev_info = json_get_value_by_name(payload, payload_len, WIFI_JSON_PARAM, &dev_info_len, NULL);
     if (dev_info == NULL || dev_info_len == 0) {
         goto CONNECTAP_MONITOR_END;
     }
@@ -157,7 +162,7 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
     int ret;
     char reply[TOPIC_LEN_MAX] = {0};
 
-    ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
+    ret = wifi_mqtt_get_payload(msg, &payload, &payload_len);
 
     if (ret != 0) {
         goto CHECKIN_FAIL;
@@ -177,7 +182,7 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
 
     dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "checkin len:%u, payload:%s", payload_len, payload);
 
-    dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_PARAM, &dev_info_len, NULL);
+    dev_info = json_get_value_by_name(payload, payload_len, WIFI_JSON_PARAM, &dev_info_len, NULL);
     if (dev_info == NULL || dev_info_len == 0) {
         goto CHECKIN_FAIL;
     }
@@ -191,13 +196,13 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
     {
         char *id = NULL;
         char id_str[MSG_REQ_ID_LEN] = {0};
-        id = json_get_value_by_name(payload, payload_len, AWSS_JSON_ID, &len, NULL);
+        id = json_get_value_by_name(payload, payload_len, WIFI_JSON_ID, &len, NULL);
         memcpy(id_str, id, len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : len);
-        awss_build_packet(AWSS_CMP_PKT_TYPE_RSP, id_str, ILOP_VER, METHOD_EVENT_ZC_CHECKIN, "{}", 200, packet, &packet_len);
+        wifi_build_packet(WIFI_CMP_PKT_TYPE_RSP, id_str, ILOP_VER, METHOD_EVENT_ZC_CHECKIN, "{}", 200, packet, &packet_len);
     }
 
-    awss_build_topic(TOPIC_ZC_CHECKIN_REPLY, reply, TOPIC_LEN_MAX);
-    awss_cmp_mqtt_send(reply, packet, packet_len, 1);
+    wifi_build_topic(TOPIC_ZC_CHECKIN_REPLY, reply, TOPIC_LEN_MAX);
+    wifi_mqtt_report(reply, packet, packet_len, 1);
 
     HAL_Free(dev_name);
     HAL_Free(packet);
@@ -326,12 +331,12 @@ static int awss_request_cipher_key(int i)
         HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%u\"", registrar_id ++);
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_DEV_CIPHER_FMT,
                      AWSS_VER, enrollee_info[i].pk, enrollee_info[i].dev_name, enrollee_info[i].security, rand_str);
-        awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_CIPHER, param, 0, packet, &packet_len);
+        wifi_build_packet(WIFI_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_CIPHER, param, 0, packet, &packet_len);
         HAL_Free(param);
     }
 
-    awss_build_topic(TOPIC_ZC_CIPHER, topic, TOPIC_LEN_MAX);
-    awss_cmp_mqtt_send(topic, packet, packet_len, 1);
+    wifi_build_topic(TOPIC_ZC_CIPHER, topic, TOPIC_LEN_MAX);
+    wifi_mqtt_report(topic, packet, packet_len, 1);
 
     HAL_Free(packet);
 
@@ -356,7 +361,7 @@ void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
     char *payload;
     int ret;
 
-    ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
+    ret = wifi_mqtt_get_payload(msg, &payload, &payload_len);
 
     if (ret != 0) {
         goto CIPHER_ERR;
@@ -556,7 +561,7 @@ void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg)
     char *str_pos, *entry;
     int entry_len, type;
 
-    ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
+    ret = wifi_mqtt_get_payload(msg, &payload, &payload_len);
 
     if (ret != 0) {
         goto REPORT_REPLY_FAIL;
@@ -640,15 +645,15 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_REPORT_PARAM_FMT,
                      AWSS_VER, ssid, bssid_str, rssi > 0 ? rssi - 256 : rssi, payload_str);
         HAL_Free(payload_str);
-        awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_ENROLLEE, param, 0, packet, &packet_len);
+        wifi_build_packet(WIFI_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_ENROLLEE, param, 0, packet, &packet_len);
         HAL_Free(param);
     }
 
-    awss_build_topic(TOPIC_ZC_ENROLLEE, topic, TOPIC_LEN_MAX);
+    wifi_build_topic(TOPIC_ZC_ENROLLEE, topic, TOPIC_LEN_MAX);
     dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_DEBUG, "topic:%s, packet:%s, method:%s", topic, packet,
                      METHOD_EVENT_ZC_ENROLLEE);
 
-    awss_cmp_mqtt_send(topic, packet, packet_len, 1);
+    wifi_mqtt_report(topic, packet, packet_len, 1);
 
     HAL_Free(packet);
     return 0;

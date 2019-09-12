@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "wifi_provision_internal.h"
-
+#include "wifi_coap.h"
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
@@ -49,16 +49,19 @@ void awss_set_channel_scan_interval_ms(uint32_t timeout_ms)
     g_channel_scan_timeout_ms = timeout_ms;
 }
 
-int awss_success_notify(void)
+
+int wifi_success_notify(void)
 {
+    int cnt = 0;
     g_user_press = 0;
     awss_press_timeout();
+    wifi_coap_init();
+    wifi_coap_common_register();
 
-    awss_cmp_local_init(AWSS_LC_INIT_SUC);
-    awss_suc_notify_stop();
-    awss_suc_notify();
-    awss_start_connectap_monitor();
-    AWSS_DISP_STATIS();
+    do {
+        wifi_notify_dev_info(AWSS_NOTIFY_SUCCESS);
+        HAL_SleepMs(300);
+    } while (cnt > WIFI_MAX_NOTIFY_CNT && !awss_stopped && !wifi_got_notify_resp(AWSS_NOTIFY_SUCCESS));
     return 0;
 }
 
@@ -70,6 +73,8 @@ static char awss_aha_connect_to_router()
     char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
     int count = AHA_MONITOR_TIMEOUT_MS / 50;
     for (iter = 0; iter < count; iter++) {
+        /*send dev info here*/
+        wifi_notify_dev_info(AWSS_NOTIFY_DEV_RAND_SIGN);
         memset(ssid, 0, sizeof(ssid));
         HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
         if (HAL_Sys_Net_Is_Ready() &&
@@ -80,6 +85,7 @@ static char awss_aha_connect_to_router()
         if (awss_stopped) {
             break;
         }
+
         HAL_SleepMs(50);
     }
     return dest_ap;
@@ -94,7 +100,6 @@ int awss_start(void)
 
     awss_stopped = 0;
     awss_event_post(IOTX_AWSS_START);
-    produce_random(aes_random, sizeof(aes_random));
 
     do {
         __awss_start();
@@ -116,12 +121,18 @@ int awss_start(void)
 
             if (HAL_Sys_Net_Is_Ready()) {
                 char dest_ap = 0;
+                /* register switchap here */
+                char topic[TOPIC_LEN_MAX] = {0};
+                wifi_coap_init();
+                wifi_build_topic(TOPIC_AWSS_SWITCHAP, topic, TOPIC_LEN_MAX);
+                wifi_coap_register(topic, wifimgr_process_switch_ap_request);
 
-                awss_cmp_local_init(AWSS_LC_INIT_PAP);
+                memset(topic, 0, TOPIC_LEN_MAX);
+                wifi_build_topic(TOPIC_AWSS_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
+                wifi_coap_register(topic, wifimgr_process_ucast_get_device_info);
+                wifi_coap_register(TOPIC_AWSS_GETDEVICEINFO_MCAST, wifimgr_process_mcast_get_device_info);
+                /*awss_cmp_local_init(AWSS_LC_INIT_PAP);*/
                 dest_ap = awss_aha_connect_to_router();
-
-                awss_cmp_local_deinit(0);
-
                 if (switch_ap_done || awss_stopped) {
                     break;
                 }
@@ -148,7 +159,7 @@ int awss_start(void)
         return STATE_WIFI_FORCE_STOPPED;
     }
 
-    awss_success_notify();
+    wifi_success_notify();
     awss_stopped = 1;
 
     return STATE_SUCCESS;
@@ -157,7 +168,7 @@ int awss_start(void)
 int awss_stop(void)
 {
     awss_stopped = 1;
-    awss_stop_connectap_monitor();
+    /*awss_stop_connectap_monitor();*/
     g_user_press = 0;
     awss_press_timeout();
 

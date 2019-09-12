@@ -6,8 +6,7 @@
 #ifdef AWSS_SUPPORT_AHA
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define AHA_SA_OFFSET           (10)
@@ -35,7 +34,6 @@ int awss_recv_callback_aha_ssid(struct parser_res *res)
     uint8_t channel = res->channel;
 
     awss_debug("found default ssid: %s\r\n", zc_default_ssid);
-    AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_START);
 
     strncpy((char *)zc_ssid, zc_default_ssid, ZC_MAX_SSID_LEN - 1);
     strncpy((char *)zc_passwd, zc_default_passwd, ZC_MAX_PASSWD_LEN - 1);
@@ -64,33 +62,39 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
      * when device try to connect current router (include aha)
      * skip the new aha and process the new aha in the next scope.
      */
-    if (mgmt_header == NULL || zconfig_finished)
+    if (mgmt_header == NULL || zconfig_finished) {
         return ALINK_INVALID;
+    }
 
     /*
      * we don't process aha until user press configure button
      */
-    if (awss_get_config_press() == 0)
+    if (awss_get_config_press() == 0) {
         return ALINK_INVALID;
+    }
 
     hdr = (struct ieee80211_hdr *)mgmt_header;
     fc = hdr->frame_control;
 
-    if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc))
+    if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc)) {
         return ALINK_INVALID;
+    }
     ret = ieee80211_get_bssid(mgmt_header, bssid);
-    if (ret < 0)
+    if (ret < 0) {
         return ALINK_INVALID;
+    }
 
     ret = ieee80211_get_ssid(mgmt_header, len, ssid);
-    if (ret < 0)
+    if (ret < 0) {
         return ALINK_INVALID;
+    }
 
     /*
      * skip ap which is not aha
      */
-    if (strcmp((const char *)ssid, zc_default_ssid))
+    if (strcmp((const char *)ssid, zc_default_ssid)) {
         return ALINK_INVALID;
+    }
     channel = cfg80211_get_bss_channel(mgmt_header, len);
     rssi = rssi > 0 ? rssi - 256 : rssi;
 
@@ -98,7 +102,7 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
                              &pairwise_cipher, &group_cipher);
     awss_save_apinfo(ssid, bssid, channel, auth,
                      pairwise_cipher, group_cipher, rssi);
-   return ALINK_DEFAULT_SSID;
+    return ALINK_DEFAULT_SSID;
 }
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

@@ -8,13 +8,12 @@
 #ifdef  AWSS_SUPPORT_HT40
 
 #include <stdint.h>
-#include "os.h"
+#include "os_misc.h"
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 struct ht40_ctrl {

@@ -141,7 +141,6 @@ int HAL_Awss_Close_Ap();
 
 #endif
 
-#if defined(DEV_BIND_ENABLED) || defined(BIND_ENABLED)
 /**
 * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
 *
@@ -149,8 +148,6 @@ int HAL_Awss_Close_Ap();
 * @return  指向缓冲区数组起始位置的字符指针
 */
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
-
-#endif
 #endif
 
 

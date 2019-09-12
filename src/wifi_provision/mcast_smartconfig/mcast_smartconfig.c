@@ -1,5 +1,7 @@
 #include "wifi_provision_internal.h"
-
+#ifdef BIND_ENABLED
+    #include "bind_api.h"
+#endif
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
@@ -47,7 +49,9 @@ int decode_passwd()
     if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
         dump_awss_status(STATE_WIFI_PASSWD_DECODE_FAILED, "mcast passwd err");
         awss_event_post(IOTX_AWSS_PASSWD_ERR);
+        /*
         AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
+        */
         return FAILURE_RETURN;
     }
     return SUCCESS_RETURN;
@@ -112,8 +116,10 @@ int set_zc_bssid()
 void gen16ByteToken()
 {
     int bssid_len = mcast_smartconfig_data.bssid_type_len & 0b11111;
-    awss_complete_token((char *)zc_passwd, mcast_smartconfig_data.bssid, bssid_len,
-                        mcast_smartconfig_data.token, mcast_smartconfig_data.token_len, zc_token);
+#ifdef BIND_ENABLED
+    IOT_Bind_SetToken_Ext(mcast_smartconfig_data.token, mcast_smartconfig_data.token_len, (char *)zc_passwd,
+                          mcast_smartconfig_data.bssid, bssid_len);
+#endif
 }
 
 int parse_result()
@@ -193,7 +199,9 @@ int parse_result()
         dump_awss_status(STATE_WIFI_PASSWD_DECODE_FAILED, "mcast: passwd error");
         return -1;
     }
+    /*
     AWSS_UPDATE_STATIS(AWSS_STATIS_MCAST_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+    */
     /* TODO: check channel info*/
     zconfig_set_state(STATE_RCV_DONE, 0, mcast_locked_channel);
     return SUCCESS_RETURN;
@@ -355,7 +363,9 @@ int lock_mcast_channel(struct parser_res *res, int encry_type)
         find_channel_from_aplist = 1;
         zconfig_set_state(STATE_CHN_LOCKED_BY_MCAST, 0, res->channel);
         mcast_locked_channel = res->channel;
+        /*
         AWSS_UPDATE_STATIS(AWSS_STATIS_MCAST_IDX, AWSS_STATIS_TYPE_TIME_START);
+        */
     } while (0);
 #endif
     return  SUCCESS_RETURN;
@@ -395,9 +405,6 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
 #endif
         return FAILURE_RETURN;
     }
-
-    /* calculate the statics info */
-    AWSS_UPDATE_PACK_INFO(AWSS_STATIS_MCAST_IDX, len);
 
     /* Filter out interference */
     /*

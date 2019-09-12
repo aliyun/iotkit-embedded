@@ -295,7 +295,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         tods = tods_tmp;
         ret = -1;
         awss_event_post(IOTX_AWSS_CS_ERR);
-        AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_CRC_ERR);
+
         goto exit;
     }
 
@@ -366,7 +366,6 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             memset(zconfig_data, 0, sizeof(*zconfig_data));
             zc_mutex = tmp_mutex;
             awss_event_post(IOTX_AWSS_PASSWD_ERR);
-            AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
             ret = -1;
             goto exit;
         }
@@ -944,7 +943,6 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         if (is_hint_frame(encry_type, len, bssid, src, channel, tods, sn)) {
             if (statis == 0) {
                 statis = 1;
-                AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_TIME_START);
             }
             dump_awss_status(STATE_WIFI_GOT_HINT_FRAME, "hint frame: offset:%d, %c, sn:%x",
                              zc_frame_offset, flag_tods(tods), sn);
@@ -1003,7 +1001,6 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         }
 
         len -= zc_frame_offset;
-        AWSS_UPDATE_PACK_INFO(AWSS_STATIS_SM_IDX, len);
 
         if (is_data_frame(len)) {
             pkg_type = PKG_DATA_FRAME;
@@ -1174,7 +1171,6 @@ is_recv_completed:
             memcpy(zc_bssid, res->bssid, ETH_ALEN);
             if (!zconfig_get_ssid_passwd(tods)) {
                 /* we got it! */
-                AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_TIME_SUC);
                 statis = 0;
                 zconfig_set_state(STATE_RCV_DONE, tods, channel);
                 return PKG_END;

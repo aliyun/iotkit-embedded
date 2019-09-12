@@ -62,7 +62,9 @@ int __awss_start(void)
 #endif
         {
             awss_event_post(IOTX_AWSS_CONNECT_ROUTER);
+            /*
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
+            */
         }
 
         ret = awss_connect(ssid, passwd, bssid, ETH_ALEN, find_token != 0 ? token : NULL,
@@ -75,21 +77,19 @@ int __awss_start(void)
 
 #if defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
-#ifndef DEV_BIND_DISABLE_NOTIFY
-                awss_dev_bind_notify_stop();
-#endif
-                awss_suc_notify_stop();
-                awss_cmp_local_init(AWSS_LC_INIT_ROUTER);
-                awss_devinfo_notify();
-                AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
-                awss_event_post(IOTX_AWSS_SETUP_NOTIFY);
-            } else
-#endif
-            {
-                AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
-                awss_devinfo_notify_stop();
-                /*produce_random(aes_random, sizeof(aes_random));*/
+                ;
+                /*
+                #ifndef DEV_BIND_DISABLE_NOTIFY
+                                awss_dev_bind_notify_stop();
+                #endif
+                                awss_suc_notify_stop();
+                                awss_cmp_local_init(AWSS_LC_INIT_ROUTER);
+                                awss_devinfo_notify();
+                                AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+                                awss_event_post(IOTX_AWSS_SETUP_NOTIFY);
+                */
             }
+#endif
         } else {
             dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "connect '%s' failed", ssid);
 #if defined(AWSS_SUPPORT_AHA)
@@ -103,7 +103,7 @@ int __awss_start(void)
         }
     } while (0);
 
-    AWSS_DISP_STATIS();
+    /*AWSS_DISP_STATIS();*/
     awss_finished = 1;
     return 0;
 }
@@ -112,19 +112,24 @@ int __awss_stop(void)
 {
     awss_stop_connecting = 1;
     aws_destroy();
-#if defined(AWSS_SUPPORT_AHA)
-    awss_devinfo_notify_stop();
-#endif
-    awss_suc_notify_stop();
+    /*
+    #if defined(AWSS_SUPPORT_AHA)
+        awss_devinfo_notify_stop();
+    #endif
+
+        awss_suc_notify_stop();
+    */
 #ifndef AWSS_DISABLE_REGISTRAR
     awss_registrar_deinit();
 #endif
-    if (awss_finished < 2) {
-        awss_cmp_local_deinit(1);
-    } else {
-        awss_cmp_local_deinit(0);
-    }
-
+    /*
+        if (awss_finished < 2) {
+            awss_cmp_local_deinit(1);
+        } else {
+            awss_cmp_local_deinit(0);
+        }
+    */
+    wifi_coap_deinit();
     while (1) {
         if (awss_finished) {
             break;

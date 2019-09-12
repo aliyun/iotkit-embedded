@@ -8,12 +8,11 @@
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
 
 #include <stdint.h>
-#include "os.h"
+#include "os_misc.h"
 #include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define WLAN_OUI_MICROSOFT              (0x0050F2)

@@ -14,31 +14,23 @@
 #include "zconfig_protocol.h"
 #include "zconfig_ieee80211.h"
 #include "awss_event.h"
-#include "awss_timer.h"
 #include "awss_main.h"
-#include "os.h"
+#include "os_misc.h"
 #include "infra_compat.h"
 #include "awss_smartconfig.h"
 #include "infra_sha1.h"
 #include "passwd.h"
 #include "awss_utils.h"
-#include "awss_statis.h"
-#include "awss_packet.h"
-#include "awss_notify.h"
-#include "awss_cmp.h"
 #include "wifi_provision_api.h"
-#include "awss_cmp.h"
 #include "awss_crypt.h"
 #include <stdlib.h>
 #include "infra_json_parser.h"
-#include "mqtt_api.h"
-#include "awss_dev_reset_internal.h"
-#include "awss_info.h"
-#include "awss_bind_statis.h"
 #include "awss_aplist.h"
 #include "connect_ap.h"
 #include "infra_aes.h"
 #include "wrappers.h"
+#include "wifi_coap.h"
+#include "wifi_msg.h"
 
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
     #include "awss_wps.h"
@@ -58,11 +50,6 @@
 
 #if defined(AWSS_SUPPORT_AHA)
     #include "awss_aha.h"
-#endif
-
-#if defined(WIFI_PROVISION_ENABLED) || defined(DEV_BIND_ENABLED)
-    #include "coap_api.h"
-    #include "iotx_coap.h"
 #endif
 
 #ifdef AWSS_SUPPORT_DISCOVER

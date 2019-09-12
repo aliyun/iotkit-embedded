@@ -13,7 +13,7 @@
     #include "wrappers_udp.h"
 #endif
 
-#if defined(WIFI_PROVISION_ENABLED) || defined(DEV_BIND_ENABLED) || defined(BIND_ENABLED)
+#if defined(WIFI_PROVISION_ENABLED) || defined(BIND_ENABLED)
     #include "wrappers_awss.h"
 #endif
 

@@ -9,12 +9,11 @@
 #include "infra_sha1.h"
 #include "infra_sha256.h"
 #include "passwd.h"
-#include "os.h"
+#include "os_misc.h"
 #include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 /* enrollee/registrar doc see following
@@ -36,8 +35,8 @@ struct ieee80211_enrollee_alibaba_ie {
     uint8_t oui[3];         /* D896E0 */
     uint8_t oui_type;       /* 0xAA, device request */
 
-    uint8_t version:4;      /* bit7 - bit4 */
-    uint8_t dev_type:4;     /* bit3 - bit0; alink=0, alink_cloud=1, yoc=8 */
+    uint8_t version: 4;     /* bit7 - bit4 */
+    uint8_t dev_type: 4;    /* bit3 - bit0; alink=0, alink_cloud=1, yoc=8 */
     uint8_t dn_len;         /* device name length*/
 #ifdef __GNUC__
     uint8_t dev_name[0];    /* device name, unique name for device */
@@ -67,8 +66,8 @@ struct ieee80211_registrar_alibaba_ie {
     uint8_t oui[3];         /* D896E0 */
     uint8_t oui_type;       /* 0xAB, device response */
 
-    uint8_t version:4;     /* bit7 - bit4 */
-    uint8_t dev_type:4;    /* bit3 - bit0; alink=0, alink_cloud=1, yoc=8 */
+    uint8_t version: 4;    /* bit7 - bit4 */
+    uint8_t dev_type: 4;   /* bit3 - bit0; alink=0, alink_cloud=1, yoc=8 */
     uint8_t sign_len;       /* signature length */
 #ifdef __GNUC__
     uint8_t sign[0];        /* sign = hmacsha1(secret, random+dev_name+product_key)*/
