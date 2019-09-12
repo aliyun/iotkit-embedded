@@ -95,18 +95,6 @@ extern "C" {
 /* SDK run into exception when invoking HAL_Kv_Del() */
 /* SDK调用的系统适配接口 HAL_Kv_Del() 返回异常, 未能成功根据Key删除KV对 */
 #define STATE_SYS_DEPEND_KV_DELETE                  (STATE_SYS_DEPEND_BASE - 0x0004)
-/* SDK run into exception when invoking HAL_Timer_Create() */
-/* SDK调用的系统适配接口 HAL_Timer_Create() 返回异常, 未能成功创建一个定时器 */
-#define STATE_SYS_DEPEND_TIMER_CREATE               (STATE_SYS_DEPEND_BASE - 0x0005)
-/* SDK run into exception when invoking HAL_Timer_Start() */
-/* SDK调用的系统适配接口 HAL_Timer_Start() 返回异常, 未能成功启动指定的定时器的计时 */
-#define STATE_SYS_DEPEND_TIMER_START                (STATE_SYS_DEPEND_BASE - 0x0006)
-/* SDK run into exception when invoking HAL_Timer_Stop() */
-/* SDK调用的系统适配接口 HAL_Timer_Stop() 返回异常, 未能成功停止指定的定时器的计时 */
-#define STATE_SYS_DEPEND_TIMER_STOP                 (STATE_SYS_DEPEND_BASE - 0x0007)
-/* SDK run into exception when invoking HAL_Timer_Delete() */
-/* SDK调用的系统适配接口 HAL_Timer_Delete() 返回异常, 未能销毁指定的定时器 */
-#define STATE_SYS_DEPEND_TIMER_DELETE               (STATE_SYS_DEPEND_BASE - 0x0008)
 /* SDK run into exception when invoking HAL_MutexCreate() */
 /* SDK调用的系统适配接口 HAL_MutexCreate() 返回异常, 未能创建一个互斥锁 */
 #define STATE_SYS_DEPEND_MUTEX_CREATE               (STATE_SYS_DEPEND_BASE - 0x0009)

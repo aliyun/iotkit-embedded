@@ -46,15 +46,7 @@ void HAL_MutexLock(void *mutex);
 
 void HAL_MutexUnlock(void *mutex);
 
-void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data);
-
 void HAL_Reboot(void);
-
-int HAL_Timer_Start(void *timer, int ms);
-
-int HAL_Timer_Stop(void *timer);
-
-int HAL_Timer_Delete(void *timer);
 
 int HAL_GetFirmwareVersion(char *version);
 
