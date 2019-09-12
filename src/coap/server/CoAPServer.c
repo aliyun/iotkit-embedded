@@ -80,16 +80,16 @@ static void *CoAPServer_yield(void *param)
     CoAPContext *context = (CoAPContext *)param;
     uint32_t exp_time, after_time;
 
-#ifndef AWSS_DISABLE_REGISTRAR
-    extern int registar_yield();
+#ifdef WIFI_PROVISION_ENABLED
+    extern int wifi_coap_yield();
 #endif
     COAP_DEBUG("Enter to CoAP daemon task");
 
     while (g_coap_running) {
         exp_time = (uint32_t)HAL_UptimeMs() + COAP_CYCLE_DURATION;
         CoAPMessage_cycle(context);
-#if defined(WIFI_PROVISION_ENABLED) && !defined(AWSS_DISABLE_REGISTRAR)
-        registar_yield();
+#if defined(WIFI_PROVISION_ENABLED)
+        wifi_coap_yield();
 #endif
         after_time = (uint32_t)HAL_UptimeMs();
         if ((exp_time - after_time) <= COAP_CYCLE_DURATION) {

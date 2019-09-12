@@ -28,10 +28,6 @@ typedef struct {
 static p_local_handle_t local_handle;
 p_local_handle_t *p_local_handle = NULL;
 
-static uint8_t g_notify_id;
-static char awss_notify_resp[AWSS_NOTIFY_TYPE_MAX] = {0};
-static uint16_t g_notify_msg_id[AWSS_NOTIFY_TYPE_MAX] = {0};
-
 static int wifi_coap_send(void *handle, uint8_t *buf, uint32_t len, void *sa, const char *uri, void *cb,
                           uint16_t *msgid);
 
@@ -59,7 +55,7 @@ uint8_t *wifi_get_rand()
 }
 int wifi_got_notify_resp(int type)
 {
-    return awss_notify_resp[type];
+    return local_handle.notify_resp[type];
 }
 
 int wifi_coap_init()
@@ -79,6 +75,7 @@ int wifi_coap_init()
     }
 
     wifi_produce_random(p_local_handle->aes_random, RANDOM_MAX_LEN);
+    wifi_coap_common_register();
     return 0;
 }
 
@@ -87,6 +84,7 @@ int wifi_coap_deinit()
     if (p_local_handle == NULL) {
         return 0;
     }
+    local_handle.connectap_notify_cnt = 0;
     p_local_handle->coap_handle = NULL;
     p_local_handle = NULL;
     return 0;
@@ -165,17 +163,17 @@ int wifi_notify_dev_info(int type)
 
         wifi_build_dev_info(type, dev_info, DEV_INFO_LEN_MAX);
 
-        HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, WIFI_DEV_NOTIFY_FMT, ++ g_notify_id, method, dev_info);
+        HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, WIFI_DEV_NOTIFY_FMT, ++ p_local_handle->notify_id, method, dev_info);
 
         awss_info("topic:%s\n", topic);
         awss_debug("payload:%s\n", buf);
 
         ret = wifi_coap_send(p_local_handle->coap_handle, (uint8_t *)buf, strlen(buf),  &notify_sa, topic, cb,
-                             &g_notify_msg_id[type]);
-        if(type == AWSS_NOTIFY_DEV_RAND_SIGN) {
-            dump_awss_status(STATE_WIFI_NOTIFY_DEVINFO, buf);   
+                             &p_local_handle->notify_msg_id[type]);
+        if (type == AWSS_NOTIFY_DEV_RAND_SIGN) {
+            dump_awss_status(STATE_WIFI_NOTIFY_DEVINFO, NULL);
         } else if (type == AWSS_NOTIFY_SUCCESS) {
-            dump_awss_status(STATE_WIFI_NOTIFY_CONNECTAP, buf);
+            dump_awss_status(STATE_WIFI_NOTIFY_CONNECTAP, NULL);
         }
         awss_info("send notify %s", ret == 0 ? "success" : "fail");
 
@@ -341,7 +339,7 @@ void *wifi_build_dev_info(int type, void *dev_info, int info_len)
             break;
         }
         case AWSS_NOTIFY_SUCCESS: {
-            len += HAL_Snprintf((char *)dev_info + len, info_len - len - 1, AWSS_SUCCESS_FMT, 0);
+            len += HAL_Snprintf((char *)dev_info + len, info_len - len - 1, WIFI_SUCCESS_FMT, 0);
             break;
         }
         case AWSS_NOTIFY_DEV_RAND_SIGN: {
@@ -363,7 +361,7 @@ void *wifi_build_dev_info(int type, void *dev_info, int info_len)
                 utils_hex_to_str(sign, DEV_SIGN_SIZE, sign_str, sizeof(sign_str));
             }
             utils_hex_to_str(p_local_handle->aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
-            len += HAL_Snprintf((char *)dev_info + len, info_len - len - 1, AWSS_DEV_RAND_SIGN_FMT, rand_str, 0, sign_str);
+            len += HAL_Snprintf((char *)dev_info + len, info_len - len - 1, WIFI_DEV_RAND_SIGN_FMT, rand_str, 0, sign_str);
             break;
         }
         default:
@@ -447,10 +445,10 @@ static int process_get_device_info(void *ctx, void *resource, void *remote, void
     }
 
     if (type == AWSS_NOTIFY_DEV_RAND_SIGN) {
-        dump_awss_status(STATE_WIFI_GET_DEVINFO, NULL);  
+        dump_awss_status(STATE_WIFI_GET_DEVINFO, NULL);
         topic_fmt = is_mcast ? TOPIC_AWSS_GETDEVICEINFO_MCAST : TOPIC_AWSS_GETDEVICEINFO_UCAST;
     } else if (type == AWSS_NOTIFY_SUCCESS) {
-        dump_awss_status(STATE_WIFI_GET_CONNECTAP_STATE, NULL);  
+        dump_awss_status(STATE_WIFI_GET_CONNECTAP_STATE, NULL);
         topic_fmt = is_mcast ? TOPIC_AWSS_GET_CONNECTAP_INFO_MCAST : TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST;
     } else {
         goto DEV_INFO_ERR;
@@ -473,11 +471,11 @@ static int process_get_device_info(void *ctx, void *resource, void *remote, void
         awss_err("tx dev info rsp fail.");
     } else {
         if (type == AWSS_NOTIFY_DEV_RAND_SIGN) {
-            dump_awss_status(STATE_WIFI_COAP_DEVINFO_RESP, buf);  
+            dump_awss_status(STATE_WIFI_COAP_DEVINFO_RESP, NULL);
 
         } else if (type == AWSS_NOTIFY_SUCCESS) {
-            dump_awss_status(STATE_WIFI_COAP_CONNECTAP_RESP, buf);  
-        } 
+            dump_awss_status(STATE_WIFI_COAP_CONNECTAP_RESP, NULL);
+        }
     }
 
     HAL_Free(buf);
@@ -588,11 +586,11 @@ static int wifi_notify_response(int type, int result, void *message)
             continue;
         }
 
-        awss_notify_resp[type] = 1;
+        p_local_handle->notify_resp[type] = 1;
         break;
     }
 
-    return awss_notify_resp[type];
+    return p_local_handle->notify_resp[type];
 }
 
 static uint8_t wifi_get_coap_code(void *request)
@@ -652,6 +650,46 @@ int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remot
     return process_get_device_info(ctx, resource, remote, request, 0, AWSS_NOTIFY_DEV_RAND_SIGN);
 }
 
+int wifi_connectap_notify()
+{
+
+    if (local_handle.connectap_notify_cnt > 0) {
+        uint32_t cur_time;
+        if (wifi_got_notify_resp(AWSS_NOTIFY_SUCCESS)) {
+            local_handle.connectap_notify_cnt = 0;
+            return 0;
+        }
+        cur_time = HAL_UptimeMs();
+        if ((cur_time - local_handle.notify_start_time) > (UINT32_MAX / 2)) {
+            return 0;
+        }
+
+        wifi_notify_dev_info(AWSS_NOTIFY_SUCCESS);
+        local_handle.connectap_notify_cnt--;
+        local_handle.notify_start_time = cur_time + WIFI_CONNECTAP_NOTIFY_DURATION;
+    }
+    return 0;
+}
+
+int wifi_start_connectap_notify()
+{
+    local_handle.connectap_notify_cnt = WIFI_CONNECTAP_NOTIFY_CNT_MAX;
+    local_handle.notify_start_time = HAL_UptimeMs();
+    return 0;
+}
+
+#ifndef AWSS_DISABLE_REGISTRAR
+extern int registar_yield();
+#endif
+
+int wifi_coap_yield()
+{
+    wifi_connectap_notify();
+#ifndef AWSS_DISABLE_REGISTRAR
+    registar_yield();
+#endif
+    return 0;
+}
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

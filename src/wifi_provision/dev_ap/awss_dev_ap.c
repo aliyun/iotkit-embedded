@@ -14,7 +14,7 @@ extern "C" {
 static void *g_awss_dev_ap_mutex = NULL;
 static char awss_dev_ap_switchap_done = 0;
 static char awss_dev_ap_switchap_resp_suc = 0;
-static char awss_dev_ap_ongoing = 0;
+static uint8_t awss_dev_ap_stoped = 1;
 static void start_connect_ap();
 
 typedef struct {
@@ -181,7 +181,7 @@ static void try_to_do_connect_ap()
     if (NULL == info) {
         return;
     }
-    if (awss_dev_ap_ongoing == 0) {
+    if (awss_dev_ap_stoped == 1) {
         wifi_coap_cancel_packet(info->msgid);
         return;
     }
@@ -196,13 +196,12 @@ static void try_to_do_connect_ap()
     }
 }
 
-extern int awss_success_notify(void);
 int awss_dev_ap_start(void)
 {
     int ret = -1;
     ap_info_t dev_ap_info = {0};
 
-    if (g_awss_dev_ap_mutex || awss_dev_ap_ongoing) {
+    if (g_awss_dev_ap_mutex || !awss_dev_ap_stoped) {
         dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "dev ap already running");
         return -1;
     }
@@ -217,7 +216,7 @@ int awss_dev_ap_start(void)
 
     HAL_MutexLock(g_awss_dev_ap_mutex);
 
-    awss_dev_ap_ongoing = 1;
+    awss_dev_ap_stoped = 0;
     awss_dev_ap_switchap_done = 0;
     awss_dev_ap_switchap_resp_suc = 0;
     g_dev_ap_info_ptr = &dev_ap_info;
@@ -233,8 +232,8 @@ int awss_dev_ap_start(void)
     HAL_MutexLock(g_awss_dev_ap_mutex);
     wifi_coap_init();
     ret = wifi_coap_register(TOPIC_AWSS_DEV_AP_SWITCHAP, wifimgr_process_dev_ap_switchap_request);
-    
-    while (awss_dev_ap_ongoing) {
+
+    while (!awss_dev_ap_stoped) {
         HAL_MutexUnlock(g_awss_dev_ap_mutex);
         HAL_SleepMs(200);
         HAL_MutexLock(g_awss_dev_ap_mutex);
@@ -248,13 +247,13 @@ int awss_dev_ap_start(void)
 
     ret = awss_dev_ap_switchap_done == 0 ? -1 : 0;
 
-    if (awss_dev_ap_ongoing == 0) {  /* interrupt by user */
+    if (awss_dev_ap_stoped == 1) {  /* interrupt by user */
         HAL_SleepMs(1000);
         return -1;
     }
 
-    awss_dev_ap_ongoing = 0;
-    awss_success_notify();
+    wifi_start_connectap_notify();
+    awss_dev_ap_stoped = 1;
 
 AWSS_DEV_AP_FAIL:
     if (g_awss_dev_ap_mutex) {
@@ -268,11 +267,11 @@ AWSS_DEV_AP_FAIL:
 
 int awss_dev_ap_stop(void)
 {
-    if (awss_dev_ap_ongoing == 0) {
+    if (awss_dev_ap_stoped == 1) {
         return 0;
     }
 
-    awss_dev_ap_ongoing = 0;
+    awss_dev_ap_stoped = 1;
 
     dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "%s", __func__);
 
@@ -321,7 +320,7 @@ static void start_connect_ap()
     /*
     AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
     */
-    if (awss_dev_ap_ongoing == 0) {  /* interrupt by user */
+    if (awss_dev_ap_stoped == 1) {  /* interrupt by user */
         ret = -1;
         return;
     }

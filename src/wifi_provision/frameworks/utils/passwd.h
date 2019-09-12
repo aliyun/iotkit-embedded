@@ -8,8 +8,6 @@
 
 #define KEY_MAX_LEN     (40)
 #define AES128_KEY_LEN  (16)
-#define RANDOM_MAX_LEN  (16)
-
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

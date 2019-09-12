@@ -49,32 +49,18 @@ void awss_set_channel_scan_interval_ms(uint32_t timeout_ms)
     g_channel_scan_timeout_ms = timeout_ms;
 }
 
-
-int wifi_success_notify(void)
-{
-    int cnt = 0;
-    g_user_press = 0;
-    awss_press_timeout();
-    wifi_coap_init();
-    wifi_coap_common_register();
-
-    do {
-        wifi_notify_dev_info(AWSS_NOTIFY_SUCCESS);
-        HAL_SleepMs(300);
-    } while (cnt > WIFI_MAX_NOTIFY_CNT && !awss_stopped && !wifi_got_notify_resp(AWSS_NOTIFY_SUCCESS));
-    return 0;
-}
-
 #if defined(AWSS_SUPPORT_AHA)
 static char awss_aha_connect_to_router()
 {
     int iter = 0;
     char dest_ap = 0;
     char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
-    int count = AHA_MONITOR_TIMEOUT_MS / 50;
+    int count = AHA_MONITOR_TIMEOUT_MS / 200;
     for (iter = 0; iter < count; iter++) {
         /*send dev info here*/
-        wifi_notify_dev_info(AWSS_NOTIFY_DEV_RAND_SIGN);
+        if (!wifi_got_notify_resp(AWSS_NOTIFY_DEV_RAND_SIGN)) {
+            wifi_notify_dev_info(AWSS_NOTIFY_DEV_RAND_SIGN);
+        }
         memset(ssid, 0, sizeof(ssid));
         HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
         if (HAL_Sys_Net_Is_Ready() &&
@@ -86,7 +72,7 @@ static char awss_aha_connect_to_router()
             break;
         }
 
-        HAL_SleepMs(50);
+        HAL_SleepMs(200);
     }
     return dest_ap;
 }
@@ -159,7 +145,10 @@ int awss_start(void)
         return STATE_WIFI_FORCE_STOPPED;
     }
 
-    wifi_success_notify();
+    g_user_press = 0;
+    awss_press_timeout();
+    wifi_coap_init();
+    wifi_start_connectap_notify();
     awss_stopped = 1;
 
     return STATE_SUCCESS;
