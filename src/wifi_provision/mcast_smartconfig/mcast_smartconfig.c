@@ -1,5 +1,5 @@
 #include "wifi_provision_internal.h"
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     #include "bind_api.h"
 #endif
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -116,7 +116,7 @@ int set_zc_bssid()
 void gen16ByteToken()
 {
     int bssid_len = mcast_smartconfig_data.bssid_type_len & 0b11111;
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     IOT_Bind_SetToken_Ext(mcast_smartconfig_data.token, mcast_smartconfig_data.token_len, (char *)zc_passwd,
                           mcast_smartconfig_data.bssid, bssid_len);
 #endif

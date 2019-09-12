@@ -47,9 +47,6 @@ static int wifi_suc_notify_resp(void *context, int result, void *userdata, void 
 static int wifi_notify_response(int type, int result, void *message);
 static int wifi_get_broadcast_addr(platform_netaddr_t *bcast_addr);
 static char *wifi_get_mac_str(char mac_str[HAL_MAC_LEN]);
-static int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request);
-
-static int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 
 static const struct notify_map_t notify_map[] = {
     {AWSS_NOTIFY_DEV_RAND_SIGN,  METHOD_AWSS_DEV_INFO_NOTIFY,  TOPIC_AWSS_NOTIFY,           wifi_devinfo_notify_resp},
@@ -645,12 +642,12 @@ static void wifi_produce_random(uint8_t *random, uint32_t len)
     }
 }
 
-static int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request)
+int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request)
 {
     return process_get_device_info(ctx, resource, remote, request, 1, AWSS_NOTIFY_DEV_RAND_SIGN);
 }
 
-static int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request)
+int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request)
 {
     return process_get_device_info(ctx, resource, remote, request, 0, AWSS_NOTIFY_DEV_RAND_SIGN);
 }

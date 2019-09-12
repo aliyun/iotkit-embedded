@@ -121,6 +121,18 @@ static code_desc_t wifi_desc[] = {
     {STATE_WIFI_P2P_DEBUG, "Debug info of p2p mode smartconfig"},
     {STATE_WIFI_DEV_AP_DEBUG, "Debug info of dev-ap mode wifi-provision"},
     {STATE_WIFI_OTHERS, "WiFi provision claiming other information"},
+    {STATE_WIFI_MQTT_INIT_FAILED, "MQTT init failed"},
+    {STATE_WIFI_COAP_INIT_FAILED, "CoAP init failed "},
+    {STATE_WIFI_COAP_UNINIT, "CoAP is not inited"},
+    {STATE_WIFI_COAP_RSP_INVALID, "Got an invalid coap resp msg"},
+    {STATE_WIFI_PACKET_BUILD_FAILED, "Build CoAP packet failed"},
+    {STATE_WIFI_GET_MQTT_MSG_INVALID, "Got invalid MQTT msg"},
+    {STATE_WIFI_NOTIFY_DEVINFO, "Notify devinfo for phone AP"},
+    {STATE_WIFI_NOTIFY_CONNECTAP, "Notify connectap event"}, 
+    {STATE_WIFI_GET_CONNECTAP_STATE, "Recieve connectap query msg"},
+    {STATE_WIFI_GET_DEVINFO, "Recieve devinfo query msg"},
+    {STATE_WIFI_COAP_CONNECTAP_RESP, "Resp Connect AP request"},
+    {STATE_WIFI_COAP_DEVINFO_RESP, "Resp devinfo request"},
     {0, "Should not reach"}
 };
 

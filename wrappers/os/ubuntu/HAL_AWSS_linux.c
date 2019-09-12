@@ -8,7 +8,7 @@
 
 #include "infra_config.h"
 
-#if defined(WIFI_PROVISION_ENABLED) || defined(BIND_ENABLED)
+#if defined(WIFI_PROVISION_ENABLED) || defined(DEV_BIND_ENABLED)
 
 #include <string.h>
 #include <stdlib.h>
@@ -39,7 +39,7 @@
 #include "wrappers_defs.h"
 
 /* please use ifconfig to get your wireless card's name, and replace g_ifname */
-char *g_ifname = "wlx00259cf84f36";
+char *g_ifname = "wlx00259ce04ceb";
 
 char g_opened_ap[36] = {0};
 

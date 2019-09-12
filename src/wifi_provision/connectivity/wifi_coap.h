@@ -45,4 +45,6 @@ int wifi_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void
 int wifi_get_encrypt_type();
 int wifi_coap_cancel_packet(uint16_t msgid);
 void *wifi_build_dev_info(int type, void *dev_info, int info_len);
+int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request);
+int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 #endif

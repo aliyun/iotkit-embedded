@@ -21,7 +21,7 @@
     #define IMPL_LINKKIT_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     #include "bind_api.h"
 #endif
 
@@ -1235,7 +1235,7 @@ static int _iotx_linkkit_master_connect(void)
 
     type = IOTX_DM_EVENT_INITIALIZED;
     _iotx_linkkit_event_callback(type, "{\"devid\":0}");
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     IOT_Bind_Start(NULL, NULL);
 #endif
     ctx->yield_running = 1;
@@ -1442,7 +1442,7 @@ static int _iotx_linkkit_master_close(void)
 #endif
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
 
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     IOT_Bind_Stop();
 #endif
     return SUCCESS_RETURN;
@@ -1554,7 +1554,7 @@ int IOT_Linkkit_Yield(int timeout_ms)
     res = iotx_dm_yield(timeout_ms);
     iotx_dm_dispatch();
 
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     IOT_Bind_Yield();
 #endif
 

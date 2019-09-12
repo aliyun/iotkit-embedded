@@ -3,7 +3,7 @@
  */
 #include "wifi_provision_internal.h"
 
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     #include "bind_api.h"
 #endif
 
@@ -22,7 +22,7 @@ int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], u
     int ret;
 
     /*need to complete the token*/
-#ifdef BIND_ENABLED
+#ifdef DEV_BIND_ENABLED
     ret = IOT_Bind_SetToken_Ext(token, token_len, passwd, bssid, bssid_len);
 #endif
     /*

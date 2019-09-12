@@ -208,7 +208,7 @@ static int decrypt_ssid_passwd(
 
 
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
-                       1, awss_get_encrypt_type(), 0, wifi_get_rand()); /* aes128 cfb */
+                       1, awss_get_encrypt_type(), 0, (const char *)wifi_get_rand()); /* aes128 cfb */
 
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         dump_awss_status(STATE_WIFI_ZCONFIG_REGISTAR_PARAMS_ERROR, "registrar(passwd invalid!");
