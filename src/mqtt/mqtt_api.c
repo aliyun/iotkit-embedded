@@ -161,11 +161,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, meta_info.product_key);
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, meta_info.device_name);
 
-    if (meta_info.product_key[0] == '\0' || meta_info.product_key[IOTX_PRODUCT_KEY_LEN] != '\0') {
+    if (meta_info.product_key[IOTX_PRODUCT_KEY_LEN] != '\0') {
         iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_PK, "invalid product key");
         return NULL;
     }
-    if (meta_info.device_name[0] == '\0' || meta_info.device_name[IOTX_DEVICE_NAME_LEN] != '\0') {
+    if (meta_info.device_name[IOTX_DEVICE_NAME_LEN] != '\0') {
         iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_DN, "invalid device name");
         return NULL;
     }
@@ -192,7 +192,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 #else /* get device secret from hal */
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, meta_info.device_secret);
-    if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
+    if (meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
         iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_DS, "invalid device secret");
         return NULL;
     }

@@ -931,6 +931,49 @@ int ssl_hooks_set(ssl_hooks_t *hooks)
     return 0;
 }
 
+const char *g_cli_crt = \
+{
+    \
+    "-----BEGIN CERTIFICATE-----\r\n"
+    "MIIC/DCCAeQCCQDbldfMr8vTqzANBgkqhkiG9w0BAQsFADB5MQswCQYDVQQGEwJD\r\n"
+    "TjERMA8GA1UECAwIWmhlSmlhbmcxETAPBgNVBAcMCEhhbmdaaG91MRgwFgYDVQQK\r\n"
+    "DA94aWJvbGVzaS4sIEx0ZC4xKjAoBgNVBAMMIXhpYm9sZXNpLmlvdC1hcy1odHRw\r\n"
+    "LmFsaXl1bmNzLmNvbTAeFw0xOTA5MTEwMzE4NDdaFw0yOTA5MDgwMzE4NDdaMIGK\r\n"
+    "MQswCQYDVQQGEwJDTjELMAkGA1UECAwCR0QxCzAJBgNVBAcMAlNaMRgwFgYDVQQK\r\n"
+    "DA94aWJvbGVzaSBjbGllbnQxDDAKBgNVBAsMA2RldjERMA8GA1UEAwwIdml2by5j\r\n"
+    "b20xJjAkBgkqhkiG9w0BCQEWF3hpYm9sZXNpLWNsaWVudEAxNjMuY29tMIGfMA0G\r\n"
+    "CSqGSIb3DQEBAQUAA4GNADCBiQKBgQDWIoZbnAjanRDKESFA9Rje9ItxEGFl4rzV\r\n"
+    "QZaCQKyDiX87SMonqZvTn6KCvu/kHYysu/z8DBkqjJUNcoZccl9TX9kd82e6cO2z\r\n"
+    "MmHbWRH5os04SS9UeOC0NJqUlBSmxzYZJ8D9r94Mv9doquTEn9FovskssFUybfua\r\n"
+    "2h3r06aHVwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQCb+tPHJduI/SarPGFk3+n8\r\n"
+    "oA2z4CP788Q+2AzOG9D91H3BmHuM3L/8LIhgir+aMTqN3vRR8FHIXvchM1bo8Oq5\r\n"
+    "TrJ2H+0rWsFZhaWK2VKMYx3DLVqyA1pQW7MJyG1S4ZZhyQzAh6ThL+yzESDNptit\r\n"
+    "0PfnVLF5SUcs19GKLl1piD2DqjNSPCwsB5oNXiLI5j52z5Wwrrz81rjMqd0GphlV\r\n"
+    "yWXebXNQ+PswuZAH4Y+sCz8Ay1IFY0f2I5RD1CSck4LdC9JMGSFBq8E5/ulMgYMv\r\n"
+    "7xutDrjaSZoGADkBhduD079WIwJCSSp3LfkvIDKNOrjQBpITtVtSUdIPsuT3LRzp\r\n"
+    "-----END CERTIFICATE-----"
+};
+
+const char *g_cli_key = \
+{
+    \
+    "-----BEGIN RSA PRIVATE KEY-----\r\n"
+    "MIICXQIBAAKBgQDWIoZbnAjanRDKESFA9Rje9ItxEGFl4rzVQZaCQKyDiX87SMon\r\n"
+    "qZvTn6KCvu/kHYysu/z8DBkqjJUNcoZccl9TX9kd82e6cO2zMmHbWRH5os04SS9U\r\n"
+    "eOC0NJqUlBSmxzYZJ8D9r94Mv9doquTEn9FovskssFUybfua2h3r06aHVwIDAQAB\r\n"
+    "AoGBANVWbj+k1BlhdFGtAVFjHtU6FBaf+Dl2zSU2BApe/sDJ4u2glm8vhqUvHMxg\r\n"
+    "CEZfvkB1xhUixIvkpbdRC1XdSOPG2Sg5KNEaKaU/nhG+h1RQX1IgqcX4Ysa+II8Q\r\n"
+    "D5+yvUfA5I7vD9yT/xIhoaYTfg5BoLa2j94i4ed/VfgIlsvBAkEA/UHdHUiRtetd\r\n"
+    "m0Uk5fbdSuZ4T3pk47qW8JPoYQLyxX3hKZxZhToYitmeq+HVk4lriZfSEhzkuxtu\r\n"
+    "gNnelp/CdwJBANh0Mn0vsytwTpEuxDmVb5097zuUkDh4ZT1xHw14U6jm7teIrkyj\r\n"
+    "bhHOvjYfd2yXRrhJ0oC9valnJBUt9OVcuiECQHuN93cC4XuUQU2wFQlQP7P77nQv\r\n"
+    "7Sqg7GSgdD1n99Lbz87CJXZ22mRbOSr3+X+KCnnNJMKLcBfMkUOxhwOLG48CQQDT\r\n"
+    "AsvpkGO5WB2vmQjAHjcV8jfTPGwwMOZ5NFsSVZgxExgJ0/wfSD9YatSxjJFusjbG\r\n"
+    "F2l4CgDoMV1SrF+ObYwhAkBGfNm+mUmvyoQ6c0HcMCEgTVrKvpYz7DjiOYGccQwt\r\n"
+    "3mXih3NuiMH/bnYmn4sldS1L9TN6UuZsvdgu46H6mSPn\r\n"
+    "-----END RSA PRIVATE KEY-----"
+};
+
 uintptr_t HAL_SSL_Establish(const char *host,
                             uint16_t port,
                             const char *ca_crt,
@@ -960,7 +1003,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     mbedtls_platform_set_calloc_free(_SSLCalloc_wrapper, _SSLFree_wrapper);
 
-    if (0 != _TLSConnectNetwork(pTlsData, alter, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
+    if (0 != _TLSConnectNetwork(pTlsData, alter, port_str, ca_crt, ca_crt_len, g_cli_crt, strlen(g_cli_crt) + 1, g_cli_key, strlen(g_cli_key) + 1, NULL, 0)) {
         _network_ssl_disconnect(pTlsData);
         g_ssl_hooks.free((void *)pTlsData);
         return (uintptr_t)NULL;

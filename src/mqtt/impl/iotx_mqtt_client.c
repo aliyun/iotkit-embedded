@@ -698,6 +698,7 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
     return rc;
 }
 
+void _mqtt_cycle(void *client);
 static int _mqtt_connect(void *client)
 {
 #define RETRY_TIME_LIMIT    (8+1)
@@ -706,6 +707,8 @@ static int _mqtt_connect(void *client)
     int try_count = 1;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
     int userKeepAliveInterval = 0;
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     if (NULL == pClient) {
         return STATE_USER_INPUT_INVALID;
@@ -763,6 +766,20 @@ static int _mqtt_connect(void *client)
     utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     mqtt_info("mqtt connect success!");
+
+    try_count = 0;
+    do {
+        pClient->cycle_timeout_ms = 500;
+        _mqtt_cycle(client);
+
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
+
+        if (strlen(product_key) != 0 && strlen(device_name) != 0) {
+            break;
+        }
+    } while (++try_count < RETRY_TIME_LIMIT);
+
     return STATE_SUCCESS;
 }
 
@@ -1161,6 +1178,39 @@ static void iotx_mc_parse_identity_response(iotx_mqtt_topic_info_pt topic_msg)
         }
 
         HAL_Free(payload);
+
+        /* parse payload then set product key and device name */
+        {
+            char *product_key = NULL, *device_name = NULL, *str_product_key = NULL, *str_device_name = NULL;
+            uint32_t product_key_len = 0, device_name_len = 0;
+            if (infra_json_value(topic_msg->payload, topic_msg->payload_len, "productKey", strlen("productKey"), &product_key, &product_key_len) != STATE_SUCCESS ||
+                infra_json_value(topic_msg->payload, topic_msg->payload_len, "deviceName", strlen("deviceName"), &device_name, &device_name_len) != STATE_SUCCESS) {
+                return;
+            }
+
+            str_product_key = HAL_Malloc(product_key_len - 2 + 1);
+            if (str_product_key == NULL) {
+                iotx_state_event(ITE_STATE_MQTT_COMM, STATE_SYS_DEPEND_MALLOC, "identify response fail");
+                return;
+            }
+            memset(str_product_key, 0, product_key_len - 2 + 1);
+            memcpy(str_product_key, product_key + 1, product_key_len - 2);
+
+            str_device_name = HAL_Malloc(device_name_len - 2 + 1);
+            if (str_device_name == NULL) {
+                HAL_Free(str_product_key);
+                iotx_state_event(ITE_STATE_MQTT_COMM, STATE_SYS_DEPEND_MALLOC, "identify response fail");
+                return;
+            }
+            memset(str_device_name, 0, device_name_len - 2 + 1);
+            memcpy(str_device_name, device_name + 1, device_name_len - 2);
+
+            IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, str_product_key);
+            IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, str_device_name);
+
+            HAL_Free(str_product_key);
+            HAL_Free(str_device_name);
+        }
     }
 }
 
