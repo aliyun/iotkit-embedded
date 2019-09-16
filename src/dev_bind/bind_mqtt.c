@@ -200,7 +200,7 @@ static void bind_mqtt_deal_event(void *pcontext, void *pclient, iotx_mqtt_event_
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             int len = 0;
             char *id, *params, *identify;
-            iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_GET_EVENT, (const char *)topic_info->payload);
+            iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_RECV_CLOUD_NOTIFY, (const char *)topic_info->payload);
 
             id = json_get_value_by_name((char *)topic_info->payload, topic_info->payload_len, BIND_JSON_ID, &len, NULL);
             if (id == NULL || len <= 0 || len > BIND_UINT32_STRLEN) {

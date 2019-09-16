@@ -97,37 +97,37 @@ extern "C" {
 #define STATE_SYS_DEPEND_KV_DELETE                  (STATE_SYS_DEPEND_BASE - 0x0004)
 /* SDK run into exception when invoking HAL_MutexCreate() */
 /* SDK调用的系统适配接口 HAL_MutexCreate() 返回异常, 未能创建一个互斥锁 */
-#define STATE_SYS_DEPEND_MUTEX_CREATE               (STATE_SYS_DEPEND_BASE - 0x0009)
+#define STATE_SYS_DEPEND_MUTEX_CREATE               (STATE_SYS_DEPEND_BASE - 0x0005)
 /* SDK run into exception when invoking HAL_MutexLock() */
 /* SDK调用的系统适配接口 HAL_MutexLock() 返回异常, 未能成功申请互斥锁 */
-#define STATE_SYS_DEPEND_MUTEX_LOCK                 (STATE_SYS_DEPEND_BASE - 0x000A)
+#define STATE_SYS_DEPEND_MUTEX_LOCK                 (STATE_SYS_DEPEND_BASE - 0x0006)
 /* SDK run into exception when invoking HAL_MutexUnlock() */
 /* SDK调用的系统适配接口 HAL_MutexUnlock() 返回异常, 未能成功释放互斥锁 */
-#define STATE_SYS_DEPEND_MUTEX_UNLOCK               (STATE_SYS_DEPEND_BASE - 0x000B)
+#define STATE_SYS_DEPEND_MUTEX_UNLOCK               (STATE_SYS_DEPEND_BASE - 0x0007)
 /* SDK run into exception when TX or RX through lower network layer */
 /* SDK调用的系统适配接口 HAL_TCP_Read|Write() 或 HAL_SSL_Read|Write() 返回异常, 底层连接已关闭而未能成功进行网络收发 */
-#define STATE_SYS_DEPEND_NWK_CLOSE                  (STATE_SYS_DEPEND_BASE - 0x000C)
+#define STATE_SYS_DEPEND_NWK_CLOSE                  (STATE_SYS_DEPEND_BASE - 0x0008)
 /* SDK run into timeout when TX or RX through lower network layer */
 /* SDK调用的系统适配接口 HAL_TCP_Read() 或 HAL_SSL_Read() 未能成功在预期的时间内得到网络回应 */
-#define STATE_SYS_DEPEND_NWK_TIMEOUT                (STATE_SYS_DEPEND_BASE - 0x000D)
+#define STATE_SYS_DEPEND_NWK_TIMEOUT                (STATE_SYS_DEPEND_BASE - 0x0009)
 /* SDK run into invalid handler when lookup network lower layer connection */
 /* SDK进行底层网络收发通信时, 看到系统对TCP连接或TLS连接的标识句柄是非法的 */
-#define STATE_SYS_DEPEND_NWK_INVALID_HANDLE         (STATE_SYS_DEPEND_BASE - 0x000E)
+#define STATE_SYS_DEPEND_NWK_INVALID_HANDLE         (STATE_SYS_DEPEND_BASE - 0x000A)
 /* SDK run into exception when RX through lower network layer */
 /* SDK调用的系统适配接口 HAL_TCP_Read() 或 HAL_SSL_Read() 返回异常, 未能成功读取一段内容 */
-#define STATE_SYS_DEPEND_NWK_READ_ERROR             (STATE_SYS_DEPEND_BASE - 0x000F)
+#define STATE_SYS_DEPEND_NWK_READ_ERROR             (STATE_SYS_DEPEND_BASE - 0x000B)
 /* SDK run into exception when invoking HAL_SemaphoreCreate() */
 /* SDK调用的系统适配接口 HAL_SemaphoreCreate() 返回异常, 未能成功申请信号量 */
-#define STATE_SYS_DEPEND_SEMAPHORE_CREATE           (STATE_SYS_DEPEND_BASE - 0x0010)
+#define STATE_SYS_DEPEND_SEMAPHORE_CREATE           (STATE_SYS_DEPEND_BASE - 0x000C)
 /* SDK run into exception when invoking HAL_SemaphoreWait() */
 /* SDK调用的系统适配接口 HAL_SemaphoreWait() 返回异常, 未能成功在信号量上睡眠 */
-#define STATE_SYS_DEPEND_SEMAPHORE_WAIT             (STATE_SYS_DEPEND_BASE - 0x0011)
+#define STATE_SYS_DEPEND_SEMAPHORE_WAIT             (STATE_SYS_DEPEND_BASE - 0x000D)
 /* SDK run into exception when invoking HAL_Snprintf() */
 /* SDK调用的系统适配接口 HAL_Snprintf() 返回异常, 未能成功拼接格式化字符串 */
-#define STATE_SYS_DEPEND_SNPRINTF                   (STATE_SYS_DEPEND_BASE - 0x0012)
+#define STATE_SYS_DEPEND_SNPRINTF                   (STATE_SYS_DEPEND_BASE - 0x000E)
 /* SDK run into exception when invoking HAL_Firmware_Persistence_Write() */
 /* SDK调用的系统适配接口 HAL_Firmware_Persistence_Write() 返回异常, 未能成功将固件写入ROM */
-#define STATE_SYS_DEPEND_FIRMWAIRE_WIRTE            (STATE_SYS_DEPEND_BASE - 0x0013)
+#define STATE_SYS_DEPEND_FIRMWAIRE_WIRTE            (STATE_SYS_DEPEND_BASE - 0x000F)
 
 /* System: 0x0200 ~ 0x02FF */
 
@@ -339,34 +339,34 @@ extern "C" {
 #define STATE_WIFI_COAP_INIT_FAILED                 (STATE_WIFI_BASE - 0x0019)
 /* CoAP is not inited*/
 /* CoAP 未初始化 */
-#define STATE_WIFI_COAP_UNINIT                      (STATE_WIFI_BASE - 0x0020)
+#define STATE_WIFI_COAP_UNINIT                      (STATE_WIFI_BASE - 0x001A)
 /* Got an invalid coap resp msg*/
 /* 收到CoAP非法应答消息 */
-#define STATE_WIFI_COAP_RSP_INVALID                 (STATE_WIFI_BASE - 0x0021)
+#define STATE_WIFI_COAP_RSP_INVALID                 (STATE_WIFI_BASE - 0x001B)
 /* Build CoAP packet failed*/
 /* CoAP 组包失败 */
-#define STATE_WIFI_PACKET_BUILD_FAILED              (STATE_WIFI_BASE - 0x0022)
+#define STATE_WIFI_PACKET_BUILD_FAILED              (STATE_WIFI_BASE - 0x001C)
 /* Got invalid MQTT msg*/
 /* 收到非法云消息 */
-#define STATE_WIFI_GET_MQTT_MSG_INVALID             (STATE_WIFI_BASE - 0x0023)
+#define STATE_WIFI_GET_MQTT_MSG_INVALID             (STATE_WIFI_BASE - 0x001D)
 /* Notify devinfo for phone AP */
 /* 手机热点配网广播设备信息 */
-#define STATE_WIFI_NOTIFY_DEVINFO                   (STATE_WIFI_BASE - 0x0024)
+#define STATE_WIFI_NOTIFY_DEVINFO                   (STATE_WIFI_BASE - 0x001E)
 /* Notify connectap event */
 /* 广播通知连接ap事件 */
-#define STATE_WIFI_NOTIFY_CONNECTAP                 (STATE_WIFI_BASE - 0x0025)
+#define STATE_WIFI_NOTIFY_CONNECTAP                 (STATE_WIFI_BASE - 0x001F)
 /* Recieve query connectap state msg */
 /* 收到查询连接ap状态的包 */
-#define STATE_WIFI_GET_CONNECTAP_STATE              (STATE_WIFI_BASE - 0x0026)
+#define STATE_WIFI_GET_CONNECTAP_STATE              (STATE_WIFI_BASE - 0x0020)
 /* Recieve query devinfo  msg */
 /* 收到查询设备信息的包（手机热点） */
-#define STATE_WIFI_GET_DEVINFO                      (STATE_WIFI_BASE - 0x0027)
+#define STATE_WIFI_GET_DEVINFO                      (STATE_WIFI_BASE - 0x0021)
 /* Resp Connect AP request */
 /* 回复手机查询connectap事件 */
-#define STATE_WIFI_COAP_CONNECTAP_RESP              (STATE_WIFI_BASE - 0x0028)
+#define STATE_WIFI_COAP_CONNECTAP_RESP              (STATE_WIFI_BASE - 0x0022)
 /* Resp devinfo request */
 /* 回复手机查询设备信息事件 */
-#define STATE_WIFI_COAP_DEVINFO_RESP                (STATE_WIFI_BASE - 0x0029)
+#define STATE_WIFI_COAP_DEVINFO_RESP                (STATE_WIFI_BASE - 0x0023)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 
@@ -453,9 +453,9 @@ extern "C" {
 /* Sent unbind msg to cloud gets success response */
 /* 解绑信息发送给服务端后, 已得到服务端成功接收的回应 */
 #define STATE_BIND_REPORT_RESET_SUCCESS             (STATE_BIND_BASE - 0x000F)
-/* Got notify msg from server */
+/* Got notify msg from cloud server */
 /* 收到云端推送的事件, 如绑定与解绑 */
-#define STATE_BIND_GET_EVENT                        (STATE_BIND_BASE - 0x0010)
+#define STATE_BIND_RECV_CLOUD_NOTIFY                (STATE_BIND_BASE - 0x0010)
 
 
 /* Device Model: 0x0900 ~ 0x09FF */
