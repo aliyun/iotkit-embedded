@@ -304,7 +304,7 @@ extern "C" {
 /* WiFi configuration statistics report, including overall time, pack number, pack lens */
 /* WiFi配网中的统计信息, 比如收到包的数量, 配网时间, 收包报文的总长度*/
 #define STATE_WIFI_STATISTIC                        (STATE_WIFI_BASE - 0x000E)
-/* Unexpected version info from cellphone when wifi-provision*/
+/* Unexpected version info from cellphone when wifi-provision */
 /* 手机端发来的配网协议的版本号不符合预期 */
 #define STATE_WIFI_UNEXP_PROT_VERSION               (STATE_WIFI_BASE - 0x000F)
 /* Debug info during multicast wifi-provision */
@@ -332,41 +332,41 @@ extern "C" {
 /* WiFi配网中的其它过程信息 */
 #define STATE_WIFI_OTHERS                           (STATE_WIFI_BASE - 0x0017)
 /* MQTT init failed */
-/* MQTT 初始化失败，MQTT用于零配主配方 */
+/* WiFi配网中 MQTT初始化失败, MQTT用于零配主配方 */
 #define STATE_WIFI_MQTT_INIT_FAILED                 (STATE_WIFI_BASE - 0x0018)
 /* CoAP init failed */
-/* CoAP 初始化失败，CoAP用于所有配网模式 */
+/* WiFi配网中 CoAP 初始化失败, CoAP用于所有配网模式 */
 #define STATE_WIFI_COAP_INIT_FAILED                 (STATE_WIFI_BASE - 0x0019)
-/* CoAP is not inited*/
-/* CoAP 未初始化 */
+/* CoAP is not inited */
+/* WiFi配网中 CoAP Server 未初始化 */
 #define STATE_WIFI_COAP_UNINIT                      (STATE_WIFI_BASE - 0x001A)
-/* Got an invalid coap resp msg*/
-/* 收到CoAP非法应答消息 */
+/* Got an invalid coap resp msg */
+/* WiFi配网中 收到CoAP非法应答消息 */
 #define STATE_WIFI_COAP_RSP_INVALID                 (STATE_WIFI_BASE - 0x001B)
-/* Build CoAP packet failed*/
-/* CoAP 组包失败 */
-#define STATE_WIFI_PACKET_BUILD_FAILED              (STATE_WIFI_BASE - 0x001C)
-/* Got invalid MQTT msg*/
-/* 收到非法云消息 */
-#define STATE_WIFI_GET_MQTT_MSG_INVALID             (STATE_WIFI_BASE - 0x001D)
+/* Build CoAP packet failed in wifi-provision */
+/* WiFi配网中 CoAP 组包失败 */
+#define STATE_WIFI_COAP_PKTBLD_FAILED               (STATE_WIFI_BASE - 0x001C)
+/* Got invalid MQTT msg in wifi-provision */
+/* WiFi配网中 收到非法 MQTT 消息 */
+#define STATE_WIFI_INVALID_MQTT_EVENT               (STATE_WIFI_BASE - 0x001D)
 /* Notify devinfo for phone AP */
 /* 手机热点配网广播设备信息 */
-#define STATE_WIFI_NOTIFY_DEVINFO                   (STATE_WIFI_BASE - 0x001E)
+#define STATE_WIFI_SENT_DEVINFO_NOTIFY              (STATE_WIFI_BASE - 0x001E)
 /* Notify connectap event */
-/* 广播通知连接ap事件 */
-#define STATE_WIFI_NOTIFY_CONNECTAP                 (STATE_WIFI_BASE - 0x001F)
-/* Recieve query connectap state msg */
-/* 收到查询连接ap状态的包 */
-#define STATE_WIFI_GET_CONNECTAP_STATE              (STATE_WIFI_BASE - 0x0020)
-/* Recieve query devinfo  msg */
-/* 收到查询设备信息的包（手机热点） */
-#define STATE_WIFI_GET_DEVINFO                      (STATE_WIFI_BASE - 0x0021)
+/* WiFi配网中广播通知连接ap事件 */
+#define STATE_WIFI_SENT_CONNECTAP_NOTIFY            (STATE_WIFI_BASE - 0x001F)
+/* Recieve connectap state query msg */
+/* WiFi配网中收到查询连接ap状态的包 */
+#define STATE_WIFI_GOT_CONNECTAP_QUERY              (STATE_WIFI_BASE - 0x0020)
+/* Recieve devinfo query message */
+/* WiFi配网中收到查询设备信息的包(手机热点) */
+#define STATE_WIFI_GOT_DEVINFO_QUERY                (STATE_WIFI_BASE - 0x0021)
 /* Resp Connect AP request */
-/* 回复手机查询connectap事件 */
-#define STATE_WIFI_COAP_CONNECTAP_RESP              (STATE_WIFI_BASE - 0x0022)
+/* WiFi配网中设备回复手机查询connectap事件 */
+#define STATE_WIFI_SENT_CONNECTAP_RESP              (STATE_WIFI_BASE - 0x0022)
 /* Resp devinfo request */
-/* 回复手机查询设备信息事件 */
-#define STATE_WIFI_COAP_DEVINFO_RESP                (STATE_WIFI_BASE - 0x0023)
+/* WiFi配网中设备回复手机查询设备信息事件 */
+#define STATE_WIFI_SENT_DEVINFO_RESP                (STATE_WIFI_BASE - 0x0023)
 /* WiFi Provision: 0x0400 ~ 0x04FF */
 
 
@@ -441,13 +441,13 @@ extern "C" {
 /* Got invalid CoAP request from external devices in same LAN */
 /* 接收到来自同一局域网内其它电子设备的token查询请求, 但请求报文不合法 */
 #define STATE_BIND_COAP_REQ_INVALID                 (STATE_BIND_BASE - 0x000B)
-/* Assemble external token failed*/
+/* Assemble external token failed */
 /* app token 组装失败 */
 #define STATE_BIND_ASSEMBLE_APP_TOKEN_FAILED        (STATE_BIND_BASE - 0x000C)
-/* Register coap topic failed*/
+/* Register coap topic failed */
 /* 注册coap topic失败 */
 #define STATE_BIND_COAP_REGISTER_FAILED             (STATE_BIND_BASE - 0x000D)
-/* Token is expired, need update*/
+/* Token is expired, need update */
 /* token过期, 需要更新 */
 #define STATE_BIND_TOKEN_EXPIRED                    (STATE_BIND_BASE - 0x000E)
 /* Sent unbind msg to cloud gets success response */

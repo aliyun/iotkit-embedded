@@ -171,9 +171,9 @@ int wifi_notify_dev_info(int type)
         ret = wifi_coap_send(p_local_handle->coap_handle, (uint8_t *)buf, strlen(buf),  &notify_sa, topic, cb,
                              &p_local_handle->notify_msg_id[type]);
         if (type == AWSS_NOTIFY_DEV_RAND_SIGN) {
-            dump_awss_status(STATE_WIFI_NOTIFY_DEVINFO, NULL);
+            dump_awss_status(STATE_WIFI_SENT_DEVINFO_NOTIFY, NULL);
         } else if (type == AWSS_NOTIFY_SUCCESS) {
-            dump_awss_status(STATE_WIFI_NOTIFY_CONNECTAP, NULL);
+            dump_awss_status(STATE_WIFI_SENT_CONNECTAP_NOTIFY, NULL);
         }
         awss_info("send notify %s", ret == 0 ? "success" : "fail");
 
@@ -445,10 +445,10 @@ static int process_get_device_info(void *ctx, void *resource, void *remote, void
     }
 
     if (type == AWSS_NOTIFY_DEV_RAND_SIGN) {
-        dump_awss_status(STATE_WIFI_GET_DEVINFO, NULL);
+        dump_awss_status(STATE_WIFI_GOT_DEVINFO_QUERY, NULL);
         topic_fmt = is_mcast ? TOPIC_AWSS_GETDEVICEINFO_MCAST : TOPIC_AWSS_GETDEVICEINFO_UCAST;
     } else if (type == AWSS_NOTIFY_SUCCESS) {
-        dump_awss_status(STATE_WIFI_GET_CONNECTAP_STATE, NULL);
+        dump_awss_status(STATE_WIFI_GOT_CONNECTAP_QUERY, NULL);
         topic_fmt = is_mcast ? TOPIC_AWSS_GET_CONNECTAP_INFO_MCAST : TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST;
     } else {
         goto DEV_INFO_ERR;
@@ -471,10 +471,10 @@ static int process_get_device_info(void *ctx, void *resource, void *remote, void
         awss_err("tx dev info rsp fail.");
     } else {
         if (type == AWSS_NOTIFY_DEV_RAND_SIGN) {
-            dump_awss_status(STATE_WIFI_COAP_DEVINFO_RESP, NULL);
+            dump_awss_status(STATE_WIFI_SENT_DEVINFO_RESP, NULL);
 
         } else if (type == AWSS_NOTIFY_SUCCESS) {
-            dump_awss_status(STATE_WIFI_COAP_CONNECTAP_RESP, NULL);
+            dump_awss_status(STATE_WIFI_SENT_CONNECTAP_RESP, NULL);
         }
     }
 

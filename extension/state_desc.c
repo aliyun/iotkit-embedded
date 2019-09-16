@@ -118,17 +118,17 @@ static code_desc_t wifi_desc[] = {
     {STATE_WIFI_DEV_AP_DEBUG, "Debug info of dev-ap mode wifi-provision"},
     {STATE_WIFI_OTHERS, "WiFi provision claiming other information"},
     {STATE_WIFI_MQTT_INIT_FAILED, "MQTT init failed"},
-    {STATE_WIFI_COAP_INIT_FAILED, "CoAP init failed "},
+    {STATE_WIFI_COAP_INIT_FAILED, "CoAP init failed"},
     {STATE_WIFI_COAP_UNINIT, "CoAP is not inited"},
     {STATE_WIFI_COAP_RSP_INVALID, "Got an invalid coap resp msg"},
-    {STATE_WIFI_PACKET_BUILD_FAILED, "Build CoAP packet failed"},
-    {STATE_WIFI_GET_MQTT_MSG_INVALID, "Got invalid MQTT msg"},
-    {STATE_WIFI_NOTIFY_DEVINFO, "Notify devinfo for phone AP"},
-    {STATE_WIFI_NOTIFY_CONNECTAP, "Notify connectap event"}, 
-    {STATE_WIFI_GET_CONNECTAP_STATE, "Recieve connectap query msg"},
-    {STATE_WIFI_GET_DEVINFO, "Recieve devinfo query msg"},
-    {STATE_WIFI_COAP_CONNECTAP_RESP, "Resp Connect AP request"},
-    {STATE_WIFI_COAP_DEVINFO_RESP, "Resp devinfo request"},
+    {STATE_WIFI_COAP_PKTBLD_FAILED, "Build CoAP packet failed in wifi-provision"},
+    {STATE_WIFI_INVALID_MQTT_EVENT, "Got invalid MQTT msg in wifi-provision"},
+    {STATE_WIFI_SENT_DEVINFO_NOTIFY, "Notify devinfo for phone AP"},
+    {STATE_WIFI_SENT_CONNECTAP_NOTIFY, "Notify connectap event"},
+    {STATE_WIFI_GOT_CONNECTAP_QUERY, "Recieve connectap state query msg"},
+    {STATE_WIFI_GOT_DEVINFO_QUERY, "Recieve devinfo query message"},
+    {STATE_WIFI_SENT_CONNECTAP_RESP, "Resp Connect AP request"},
+    {STATE_WIFI_SENT_DEVINFO_RESP, "Resp devinfo request"},
     {0, "Should not reach"}
 };
 
@@ -167,7 +167,7 @@ static code_desc_t bind_desc[] = {
     {STATE_BIND_COAP_REGISTER_FAILED, "Register coap topic failed"},
     {STATE_BIND_TOKEN_EXPIRED, "Token is expired, need update"},
     {STATE_BIND_REPORT_RESET_SUCCESS, "Sent unbind msg to cloud gets success response"},
-    {STATE_BIND_GET_EVENT, "Got notify msg from server"},
+    {STATE_BIND_RECV_CLOUD_NOTIFY, "Got notify msg from cloud server"},
     {0, "Should not reach"}
 };
 

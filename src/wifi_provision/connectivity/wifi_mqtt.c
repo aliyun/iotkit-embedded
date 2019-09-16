@@ -99,7 +99,7 @@ int wifi_build_packet(int type, void *id, void *ver, void *method, void *data, i
         len = HAL_Snprintf(packet, len - 1, WIFI_ACK_FMT, (char *)id, code, (char *)data);
         return 0;
     }
-    return STATE_WIFI_PACKET_BUILD_FAILED;
+    return STATE_WIFI_COAP_PKTBLD_FAILED;
 }
 
 int wifi_mqtt_get_payload(void *mesg, char **payload, uint32_t *payload_len)
@@ -120,7 +120,7 @@ int wifi_mqtt_get_payload(void *mesg, char **payload, uint32_t *payload_len)
             *payload = (char *)ptopic_info->payload;
             break;
         default:
-            return STATE_WIFI_GET_MQTT_MSG_INVALID;
+            return STATE_WIFI_INVALID_MQTT_EVENT;
     }
     return 0;
 }
