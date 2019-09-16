@@ -698,7 +698,6 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
     return rc;
 }
 
-void _mqtt_cycle(void *client);
 static int _mqtt_connect(void *client)
 {
 #define RETRY_TIME_LIMIT    (8+1)
@@ -707,8 +706,6 @@ static int _mqtt_connect(void *client)
     int try_count = 1;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
     int userKeepAliveInterval = 0;
-    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     if (NULL == pClient) {
         return STATE_USER_INPUT_INVALID;
@@ -766,19 +763,6 @@ static int _mqtt_connect(void *client)
     utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     mqtt_info("mqtt connect success!");
-
-    try_count = 0;
-    do {
-        pClient->cycle_timeout_ms = 500;
-        _mqtt_cycle(client);
-
-        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
-        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
-
-        if (strlen(product_key) != 0 && strlen(device_name) != 0) {
-            break;
-        }
-    } while (++try_count < RETRY_TIME_LIMIT);
 
     return STATE_SUCCESS;
 }
@@ -1727,6 +1711,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
     return STATE_SUCCESS;
 }
 
+int _mqtt_nwk_connect(void *client);
 static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 {
     int rc;
@@ -1743,10 +1728,14 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
               pClient->connect_data.username.cstring);
 
     /* Ignoring return code. failures expected if network is disconnected */
-    rc = wrapper_mqtt_connect(pClient);
+    rc = _mqtt_nwk_connect(pClient);
+    if (rc < STATE_SUCCESS) {
+        mqtt_err("run _mqtt_nwk_connect() error!");
+    }
 
+    rc = _mqtt_connect(pClient);
     if (rc < STATE_SUCCESS && rc != STATE_MQTT_ASYNC_STACK_CONN_IN_PROG) {
-        mqtt_err("run iotx_mqtt_connect() error!");
+        mqtt_err("run _mqtt_connect() error!");
     }
 
     return rc;
@@ -2702,17 +2691,14 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
     return pclient;
 }
 
-int wrapper_mqtt_connect(void *client)
+int _mqtt_nwk_connect(void *client)
 {
     int rc = STATE_SUCCESS;
     int retry_max = 3;
     int retry_cnt = 1;
     int retry_interval = 1000;
-    iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
 
-    if (NULL == pClient) {
-        return STATE_USER_INPUT_INVALID;
-    }
+    iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
 
     /* Establish TCP or TLS connection */
     do {
@@ -2739,11 +2725,48 @@ int wrapper_mqtt_connect(void *client)
         }
     } while (++retry_cnt <= retry_max);
 
+    return rc;
+}
+
+int wrapper_mqtt_connect(void *client)
+{
+    int rc = STATE_SUCCESS;
+#ifndef ASYNC_PROTOCOL_STACK
+    int try_count = 0;
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+#endif
+
+    iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
+
+    if (NULL == pClient) {
+        return STATE_USER_INPUT_INVALID;
+    }
+
+    rc = _mqtt_nwk_connect(client);
+    if (rc != STATE_SUCCESS) {
+        return rc;
+    }
+
 #ifdef ASYNC_PROTOCOL_STACK
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECT_BLOCK);
     rc = STATE_MQTT_ASYNC_STACK_CONN_IN_PROG;
 #else
     rc = _mqtt_connect(pClient);
+
+    do {
+        HAL_MutexLock(pClient->lock_yield);
+        pClient->cycle_timeout_ms = 500;
+        HAL_MutexUnlock(pClient->lock_yield);
+        _mqtt_cycle(client);
+
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
+
+        if (strlen(product_key) != 0 && strlen(device_name) != 0) {
+            break;
+        }
+    } while (++try_count < RETRY_TIME_LIMIT);
 #endif
     return rc;
 }
