@@ -33,8 +33,8 @@ typedef struct {
 
 extern p_local_handle_t *p_local_handle;
 
-int wifi_coap_init();
-int wifi_coap_deinit();
+int wifi_coap_init(void);
+int wifi_coap_deinit(void);
 int wifi_coap_common_register();
 int wifi_coap_register(const char *topic, void *cb);
 int wifi_got_notify_resp(int type);
@@ -50,6 +50,6 @@ int wifi_coap_cancel_packet(uint16_t msgid);
 void *wifi_build_dev_info(int type, void *dev_info, int info_len);
 int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request);
-int wifi_start_connectap_notify();
-int wifi_coap_yield();
+int wifi_start_connectap_notify(void);
+int wifi_coap_yield(void);
 #endif

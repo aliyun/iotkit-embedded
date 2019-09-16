@@ -64,7 +64,7 @@ int wifi_mqtt_init(void *handle)
 }
 
 
-int wifi_mqtt_deinit()
+int wifi_mqtt_deinit(void)
 {
 
     wifi_mqtt_handle = NULL;

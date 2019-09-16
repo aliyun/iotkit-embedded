@@ -55,11 +55,11 @@ int IOT_Bind_Start(void *mqtt_handle, void *coap_handle)
     return 0;
 
 failed:
-    IOT_Bind_Stop(g_context);
+    IOT_Bind_Stop();
     return ret;
 }
 
-int IOT_Bind_Stop()
+int IOT_Bind_Stop(void)
 {
     if (g_context == NULL) {
         return 0;
@@ -73,7 +73,7 @@ int IOT_Bind_Stop()
     return 0;
 }
 
-int IOT_Bind_Yield()
+int IOT_Bind_Yield(void)
 {
     int ret = 0;
 
@@ -148,7 +148,7 @@ int IOT_Bind_SetToken_Ext(uint8_t *token, uint8_t token_len, char *passwd, uint8
     return bind_set_token(g_context, token, token_len, passwd, bssid, bssid_len);
 }
 
-int IOT_Bind_Reset()
+int IOT_Bind_Reset(void)
 {
     int rst = 1;
     int ret;

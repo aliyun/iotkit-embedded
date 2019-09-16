@@ -243,7 +243,6 @@ static int wifi_get_broadcast_addr(platform_netaddr_t *bcast_addr)
     return 0;
 }
 
-/*注册 topic区分 设备热点与其他即可*/
 int wifi_build_topic(const char *topic_fmt, char *topic, uint32_t tlen)
 {
     char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
@@ -650,7 +649,7 @@ int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remot
     return process_get_device_info(ctx, resource, remote, request, 0, AWSS_NOTIFY_DEV_RAND_SIGN);
 }
 
-int wifi_connectap_notify()
+int wifi_connectap_notify(void)
 {
 
     if (local_handle.connectap_notify_cnt > 0) {
@@ -671,7 +670,7 @@ int wifi_connectap_notify()
     return 0;
 }
 
-int wifi_start_connectap_notify()
+int wifi_start_connectap_notify(void)
 {
     local_handle.connectap_notify_cnt = WIFI_CONNECTAP_NOTIFY_CNT_MAX;
     local_handle.notify_start_time = HAL_UptimeMs();
@@ -682,7 +681,7 @@ int wifi_start_connectap_notify()
 extern int registar_yield();
 #endif
 
-int wifi_coap_yield()
+int wifi_coap_yield(void)
 {
     wifi_connectap_notify();
 #ifndef AWSS_DISABLE_REGISTRAR
