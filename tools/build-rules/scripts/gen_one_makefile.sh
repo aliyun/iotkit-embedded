@@ -181,7 +181,7 @@ for i in ${ALL_PROG}; do
             LFLAGS="${LFLAGS} -lgcov"
         fi
     fi
-    j=$(for n in ${j}; do p=$(echo ${n}|cut -c1); [ "${p}" = "/" ] && echo -n "${n}" || echo -n "${TOP_DIR}/${q}/${n} "; done)
+    j=$(for n in ${j}; do p=$(echo ${n}|cut -c1); [ "${p}" = "/" ] && echo -n " ${n}" || echo -n "${TOP_DIR}/${q}/${n} "; done)
 
     EXTRA_SRCS=$(grep -w -m 1 "^EXTRA_SRCS_${q}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
 
