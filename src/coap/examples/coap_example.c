@@ -17,12 +17,10 @@ char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
 char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
 char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
 
-#define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.coap.cn-shanghai.link.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI       "coap://pre.coap.cn-shanghai.link.aliyuncs.com:5683"
 #define IOTX_PRE_PSK_SERVER_URI         "coap-psk://pre.coap.cn-shanghai.link.aliyuncs.com:5683"
 
 /* online url */
-#define IOTX_ONLINE_DTLS_SERVER_URL     "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
 #define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
 
 char IOTX_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
@@ -86,9 +84,8 @@ static void show_usage()
 {
     HAL_Printf("\r\nusage: coap-example [OPTION]...\r\n");
     HAL_Printf("\t-e pre|online|daily\t\tSet the cloud environment.\r\n");
-    HAL_Printf("\t-s nosec|dtls|psk  \t\tSet the security setting.\r\n");
+    HAL_Printf("\t-s nosec|psk  \t\tSet the security setting.\r\n");
     HAL_Printf("\t-l                 \t\tSet the program run loop.\r\n");
-    HAL_Printf("\t-r                 \t\tTesting the DTLS session ticket.\r\n");
     HAL_Printf("\t-h                 \t\tShow this usage.\r\n");
 }
 
@@ -102,7 +99,7 @@ int main(int argc, char **argv)
     iotx_coap_device_info_t deviceinfo;
 
     /* set device info use HAL function */
-    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key); 
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key);
     IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, g_device_secret);
 
@@ -154,24 +151,18 @@ int main(int argc, char **argv)
     HAL_Printf("[COAP-Client]: Enter Coap Client\r\n");
     memset(&config, 0x00, sizeof(iotx_coap_config_t));
     if (0 == strncmp(env, "pre", strlen("pre"))) {
-        if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
-            config.p_url = IOTX_PRE_DTLS_SERVER_URI;
-        } else if (0 == strncmp(secur, "psk", strlen("psk"))) {
+        if (0 == strncmp(secur, "psk", strlen("psk"))) {
             config.p_url = IOTX_PRE_PSK_SERVER_URI;
         } else {
             config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
         }
     } else if (0 == strncmp(env, "online", strlen("online"))) {
-        if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
-            char url[256] = {0};
-            snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, g_product_key);
-            config.p_url = url;
-        } else if (0 == strncmp(secur, "psk", strlen("psk"))) {
+        if (0 == strncmp(secur, "psk", strlen("psk"))) {
             char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, g_product_key);
             config.p_url = url;
         } else {
-            HAL_Printf("Online environment must access with DTLS/PSK\r\n");
+            HAL_Printf("Online environment must access with PSK\r\n");
             IOT_SetLogLevel(IOT_LOG_NONE);
             return -1;
         }

@@ -21,7 +21,6 @@ PLATFORM_HAS_MBEDTLS||src/infra/infra_aes.[ch]|output/eng/infra
 DEV_SIGN||src/dev_sign|output/eng/dev_sign
 SUPPORT_TLS||certs/root_ca.c|output/eng/certs
 
-COAP_DTLS_SUPPORT||wrappers/wrappers_dtls.h|output/eng/wrappers/temp
 SUPPORT_TLS||wrappers/wrappers_tls.h|output/eng/wrappers/temp
 DYNAMIC_REGISTER||src/dynamic_register|output/eng/dynamic_register
 

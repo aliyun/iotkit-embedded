@@ -29,9 +29,6 @@ typedef struct {
     CoAPNetworkType       type;
     char                  *group;
     unsigned short        port;
-#ifdef COAP_DTLS_SUPPORT
-    /* TODO: */
-#endif
 } NetworkInit;
 
 NetworkContext *CoAPNetwork_init(const NetworkInit   *p_param);

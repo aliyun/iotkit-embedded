@@ -102,8 +102,7 @@ typedef void iotx_coap_context_t;
 
 /**
  * @brief   Initialize the CoAP client.
- *        This function initialize the data structures and network,
- *        and create the DTLS session.
+ *        This function initialize the data structures and network
  *
  * @param [in] p_config: Specify the CoAP client parameter.
  *
@@ -115,7 +114,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config);
 
 /**
  * @brief   De-initialize the CoAP client.
- *        This function release CoAP DTLS session.
+ *        This function release CoAP session.
  *        and release the related resource.
  *
  * @param [in] p_context: Pointer of contex, specify the CoAP client.
