@@ -301,6 +301,7 @@ do
         HEADER_FILE_LIST="${HEADER_FILE_LIST}""${HEADER_FILE}\n"
     fi
 done < ${TEMP_WRAPPER_RULS}
+
 rm -f ${TEMP_WRAPPER_RULS}
 
 echo -e ""
@@ -350,9 +351,9 @@ do
     # echo -e "\n${DATA_TYPE}"
     # echo -e "\n${FUNC_DEC}"
 
-    FUNC_FILE=$(grep ${func} ./wrappers/os/ubuntu/* | gawk -F':' '{print $1}' | ${SED} -n 's/.\/wrappers\///g;s/\//\\\//g;p' | ${SED} -n '1,1p')
+    FUNC_FILE=$(grep -H ${func} ./wrappers/os/ubuntu/* | gawk -F':' '{print $1}' | ${SED} -n 's/.\/wrappers\///g;s/\//\\\//g;p' | ${SED} -n '1,1p')
     if [ "${FUNC_FILE}" = "" ];then
-        FUNC_FILE=$(grep ${func} ./wrappers/tls/* | gawk -F':' '{print $1}' | ${SED} -n 's/.\/wrappers\///g;s/\//\\\//g;p' | ${SED} -n '1,1p')
+        FUNC_FILE=$(grep -H ${func} ./wrappers/tls/* | gawk -F':' '{print $1}' | ${SED} -n 's/.\/wrappers\///g;s/\//\\\//g;p' | ${SED} -n '1,1p')
     fi
     # echo -e "\n${FUNC_FILE}"
 
