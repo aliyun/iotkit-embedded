@@ -60,6 +60,7 @@ int wifi_got_notify_resp(int type)
 
 int wifi_coap_init()
 {
+
     if (p_local_handle != NULL) {
         return 0;
     }
@@ -375,7 +376,7 @@ char *wifi_build_sign_src(char *sign_src, int *sign_src_len)
     char *pk = NULL, *dev_name = NULL;
     int dev_name_len, pk_len, text_len;
 
-    if (sign_src == NULL || sign_src_len == NULL || p_local_handle == NULL) {
+    if (sign_src == NULL || sign_src_len == NULL) {
         goto build_sign_src_err;
     }
 
@@ -397,7 +398,10 @@ char *wifi_build_sign_src(char *sign_src, int *sign_src_len)
     }
 
     *sign_src_len = text_len;
-    memcpy(sign_src, p_local_handle->aes_random, RANDOM_MAX_LEN);
+    if(p_local_handle == NULL) {
+        wifi_produce_random(local_handle.aes_random, RANDOM_MAX_LEN);
+    }
+    memcpy(sign_src, local_handle.aes_random, RANDOM_MAX_LEN);
     memcpy(sign_src + RANDOM_MAX_LEN, dev_name, dev_name_len);
     memcpy(sign_src + RANDOM_MAX_LEN + dev_name_len, pk, pk_len);
 
