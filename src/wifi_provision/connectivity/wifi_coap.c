@@ -438,6 +438,10 @@ static int process_get_device_info(void *ctx, void *resource, void *remote, void
     }
 
     msg = wifi_get_coap_payload(request, &len);
+    if (!msg || len == 0) {
+        goto DEV_INFO_ERR;
+    }
+
     id = json_get_value_by_name(msg, len, "id", &id_len, 0);
     if (id && id_len < MSG_REQ_ID_LEN) {
         memcpy(req_msg_id, id, id_len);
@@ -488,7 +492,7 @@ DEV_INFO_ERR:
         HAL_Free(dev_info);
     }
 
-    return -1;
+    return STATE_WIFI_COAP_RSP_INVALID;
 }
 
 static int wifi_process_mcast_get_connectap_info(void *ctx, void *resource, void *remote, void *request)
@@ -548,7 +552,7 @@ static int wifi_notify_response(int type, int result, void *message)
     if (p_local_handle == NULL) {
         return STATE_USER_INPUT_NULL_POINTER;
     }
-    awss_info("bind_parse_notify_response");
+
     if (message == NULL) {
         return STATE_USER_INPUT_NULL_POINTER;
     }

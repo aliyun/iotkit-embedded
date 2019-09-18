@@ -101,7 +101,10 @@ int awss_start(void)
             }
 
             HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
-            if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) { /* not AHA */
+            if (strlen(ssid) == 0 ) { /* not AHA */
+                break;
+            }
+            if (strcmp(ssid, DEFAULT_SSID)) { /* not AHA */
                 break;
             }
 
@@ -117,7 +120,6 @@ int awss_start(void)
                 wifi_build_topic(TOPIC_AWSS_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
                 wifi_coap_register(topic, wifimgr_process_ucast_get_device_info);
                 wifi_coap_register(TOPIC_AWSS_GETDEVICEINFO_MCAST, wifimgr_process_mcast_get_device_info);
-                /*awss_cmp_local_init(AWSS_LC_INIT_PAP);*/
                 dest_ap = awss_aha_connect_to_router();
                 if (switch_ap_done || awss_stopped) {
                     break;
