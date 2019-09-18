@@ -74,6 +74,7 @@ static char awss_aha_connect_to_router()
 
         HAL_SleepMs(200);
     }
+
     return dest_ap;
 }
 #endif
@@ -130,7 +131,6 @@ int awss_start(void)
                 }
             }
             awss_event_post(IOTX_AWSS_ENABLE_TIMEOUT);
-            __awss_start();
         } while (1);
 #endif
         if (awss_stopped) {
@@ -140,6 +140,7 @@ int awss_start(void)
         if (HAL_Sys_Net_Is_Ready()) {
             break;
         }
+        wifi_coap_deinit();
     } while (1);
 
     if (awss_stopped) {
