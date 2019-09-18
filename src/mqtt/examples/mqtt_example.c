@@ -262,6 +262,9 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, g_product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, g_device_name);
+
     res = example_subscribe(pclient);
     if (res < 0) {
         IOT_MQTT_Destroy(&pclient);
