@@ -25,7 +25,7 @@ extern "C" {
 static int processed_packet = 0;
 static uint8_t mcast_bssid_mac[ETH_ALEN] = {0};
 static uint8_t mcast_src_mac[ETH_ALEN] = {0};
-static int mcast_locked_channel = -1;
+int mcast_locked_channel = -1;
 struct mcast_smartconfig_data_type mcast_smartconfig_data = {0};
 static uint8_t receive_record[MCAST_MAX_LEN] = {0};
 

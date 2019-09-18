@@ -327,7 +327,11 @@ chn_locked:
     zconfig_set_state(STATE_CHN_LOCKED_BY_P2P, tods, channel);
     return PKG_START_FRAME;
 rcv_done:
+#ifdef AWSS_SUPPORT_SMARTCONFIG_MCAST
+    zc_got_ssid_passwd_from_p2p = 1;
+#else
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
+#endif
     return PKG_END;
 }
 

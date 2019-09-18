@@ -144,6 +144,7 @@ struct zconfig_data {
     uint8_t android_bssid[ETH_ALEN];
     uint8_t android_src[ETH_ALEN];
     void *mutex;
+    uint8_t got_ssid_passwd_from_p2p;
 };
 
 #define zc_state                       zconfig_data->data[tods].state_machine
@@ -184,6 +185,7 @@ struct zconfig_data {
 #define zc_android_bssid               (&zconfig_data->android_bssid[0])
 #define zc_android_src                 (&zconfig_data->android_src[0])
 #define zc_mutex                       zconfig_data->mutex
+#define zc_got_ssid_passwd_from_p2p    zconfig_data->got_ssid_passwd_from_p2p
 
 void zconfig_force_destroy(void);
 void encode_chinese(uint8_t *in, uint8_t in_len, uint8_t *out, uint8_t *out_len, uint8_t bits);
