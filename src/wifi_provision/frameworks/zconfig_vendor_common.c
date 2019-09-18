@@ -33,6 +33,7 @@ struct aws_info {
 
     uint32_t chn_timestamp;/* channel start time */
     uint32_t start_timestamp;/* aws start time */
+    uint32_t p2p_received_timestamp ; /* the time p2p received */
 } *aws_info;
 
 #define aws_state                    (aws_info->state)
@@ -43,6 +44,7 @@ struct aws_info {
 #define aws_chn_timestamp            (aws_info->chn_timestamp)
 #define aws_start_timestamp          (aws_info->start_timestamp)
 #define aws_stop                     (aws_info->stop)
+#define aws_p2p_received_timestamp   (aws_info->p2p_received_timestamp)
 
 #define aws_channel_lock_timeout_ms  (8 * 1000)
 
@@ -78,6 +80,49 @@ void zconfig_force_rescan(void)
         aws_state = AWS_SCANNING;
     }
 }
+
+#ifdef AWSS_SUPPORT_SMARTCONFIG_MCAST
+int wait_for_mcast_done = 0;
+/* wait for mcast for a while after p2p is received */
+int delay_p2p()
+{
+#define MCAST_LOCK_TIMEOUT  5000
+#define MCAST_DELAY_TIMEOUT 30000
+    extern int mcast_locked_channel;
+    /* 1. if p2p does not got anything, do nothing ---- return 0 */
+    if (0 == zc_got_ssid_passwd_from_p2p) {
+        return 0;
+    }
+    /* record the 1st time p2p received */
+    if (0 == aws_p2p_received_timestamp) {
+        aws_p2p_received_timestamp = os_get_time_ms();
+    }
+    /* check if we got mcast packs in 5s afterwards */
+    if (time_elapsed_ms_since(aws_p2p_received_timestamp) < MCAST_LOCK_TIMEOUT) {
+       awss_debug("p2p received time is %u, elapsed is %u", aws_p2p_received_timestamp, time_elapsed_ms_since(aws_p2p_received_timestamp));
+        if (-1 != mcast_locked_channel) {
+            awss_debug("p2p wait for mcast");
+            wait_for_mcast_done = 1;
+        }
+        return 0;
+    }
+    /* 2.if p2p got ssid/passwd, but failed to recived mcast in 5s, connnect ap directly */
+    if (0 == wait_for_mcast_done) {
+        zconfig_set_state(STATE_RCV_DONE, 1, 1);
+        awss_debug("switch to p2p in case 2\n");
+        return 1;
+    }
+    /* 3.if p2p got ssid/passwd, and recived mcast in 5s, wait for 30s, in 30s do not triger p2p */
+    if (time_elapsed_ms_since(aws_p2p_received_timestamp) < MCAST_LOCK_TIMEOUT + MCAST_DELAY_TIMEOUT) {
+        return 0;
+    }
+    /* 4.if p2p got ssid/passwd, and recived mcast in 5s, wait for 30s, faild to to done mcast, connect directly */
+    zconfig_set_state(STATE_RCV_DONE, 1, 1);
+    awss_debug("switch to p2p in case 4\n");
+    return 1;
+}
+#endif
+
 
 void zconfig_channel_locked_callback(uint8_t primary_channel,
                                      uint8_t secondary_channel, uint8_t *bssid)
@@ -301,6 +346,12 @@ rescanning:
             goto timeout_scanning;
         }
 
+#ifdef AWSS_SUPPORT_SMARTCONFIG_MCAST
+        if (delay_p2p()) {
+            goto success;
+        }
+#endif
+
         if (aws_state != AWS_SCANNING) { /* channel is locked, don't need to tx probe req */
             break;
         }
@@ -343,6 +394,12 @@ rescanning:
         /* 80211 frame handled by callback */
         HAL_SleepMs(300);
 
+#ifdef AWSS_SUPPORT_SMARTCONFIG_MCAST
+        if (delay_p2p()) {
+            goto success;
+        }
+#endif
+
         if (aws_stop == AWS_STOPPING) {
             goto timeout_recving;
         }
@@ -373,6 +430,13 @@ timeout_scanning:
     awss_debug("aws timeout scanning!\r\n");
 timeout_recving:
     awss_debug("aws timeout recving!\r\n");
+
+#ifdef AWSS_SUPPORT_SMARTCONFIG_MCAST
+    if (delay_p2p()) {
+        goto success;
+    }
+#endif
+
     do {
         if (aws_stop == AWS_STOPPING) {
             break;
