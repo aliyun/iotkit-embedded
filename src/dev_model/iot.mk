@@ -17,11 +17,6 @@ SRCS_linkkit-example-gateway := examples/linkkit_example_gateway.c examples/cJSO
 
 $(call Append_Conditional, LIB_SRCS_PATTERN, alcs/*.c, ALCS_ENABLED)
 
-ifneq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
-$(call Append_Conditional, TARGET, linkkit-example-solo, DEVICE_MODEL_ENABLED, BUILD_AOS NO_EXECUTABLES DEVICE_MODEL_GATEWAY)
-$(call Append_Conditional, TARGET, linkkit-example-gateway, DEVICE_MODEL_ENABLED DEVICE_MODEL_GATEWAY, BUILD_AOS NO_EXECUTABLES)
-else
 $(call Append_Conditional, TARGET, linkkit-example-solo, DEVICE_MODEL_ENABLED, BUILD_AOS NO_EXECUTABLES)
 $(call Append_Conditional, TARGET, linkkit-example-gateway, DEVICE_MODEL_GATEWAY, BUILD_AOS NO_EXECUTABLES)
-endif
 
