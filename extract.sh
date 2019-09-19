@@ -219,9 +219,9 @@ HDER_PAT="$(echo ${HEADER_FILE_LIST}|${SED} 's: :\\\|:g')"
 # [ "${FUNC_PAT}" != "" ] && ${SED} -i "/${FUNC_PAT}/d" ${TEMP_WRAPPER_RULS}
 # [ "${HDER_PAT}" != "" ] && ${SED} -i "/${HDER_PAT}/d" ${TEMP_WRAPPER_RULS}
 
-if [ "${FUNC_PAT}" != "" ] && [ "${HDER_PAT}" != "" ]; then
-    ${SED} -i "/${FUNC_PAT}/{/${HDER_PAT}/d}" ${TEMP_WRAPPER_RULS}
-fi
+#if [ "${FUNC_PAT}" != "" ] && [ "${HDER_PAT}" != "" ]; then
+#    ${SED} -i "/${FUNC_PAT}/{/${HDER_PAT}/d}" ${TEMP_WRAPPER_RULS}
+#fi
 
 printf "Interpret [%03d] sources rules" $(cat ${TEMP_FILE_RULS}|wc -l|${SED} 's/[[:space:]]//g')
 printf " from [%03d] base\n" $(cat ${XTRC_FILE_RULS}|wc -l|${SED} 's/[[:space:]]//g')
