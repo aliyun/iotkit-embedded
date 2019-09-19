@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#if defined(AWSS_SUPPORT_SMARTCONFIG) || defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_SMARTCONFIG_WPS) || defined(AWSS_SUPPORT_SMARTCONFIG_MCAST) || defined(AWSS_SUPPORT_ZEROCONFIG)
+
 char awss_finished = 2;
 char awss_stop_connecting = 0;
 int __awss_start(void)
@@ -125,6 +127,7 @@ int __awss_stop(void)
     return 0;
 }
 
+#endif
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

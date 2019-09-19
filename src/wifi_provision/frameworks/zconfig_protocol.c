@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#if defined(AWSS_SUPPORT_SMARTCONFIG) || defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_SMARTCONFIG_WPS) || defined(AWSS_SUPPORT_SMARTCONFIG_MCAST) || defined(AWSS_SUPPORT_ZEROCONFIG)
+
 /* broadcast mac address */
 uint8_t br_mac[ETH_ALEN];
 /* all zero mac address */
@@ -332,6 +334,7 @@ int zconfig_is_valid_channel(int channel)
 {
     return (ZC_MIN_CHANNEL <= channel && channel <= ZC_MAX_CHANNEL);
 }
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

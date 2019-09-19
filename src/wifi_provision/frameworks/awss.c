@@ -29,6 +29,18 @@ int awss_success_notify(void)
     return 0;
 }
 
+static void awss_press_timeout(void)
+{
+    awss_stop_timer(press_timer);
+    press_timer = NULL;
+    if (g_user_press) {
+        awss_event_post(IOTX_AWSS_ENABLE_TIMEOUT);
+    }
+    g_user_press = 0;
+}
+
+#if defined(AWSS_SUPPORT_SMARTCONFIG) || defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_SMARTCONFIG_WPS) || defined(AWSS_SUPPORT_SMARTCONFIG_MCAST) || defined(AWSS_SUPPORT_ZEROCONFIG)
+
 int awss_start(void)
 {
     if (awss_stopped == 0) {
@@ -163,15 +175,6 @@ int awss_stop(void)
     return 0;
 }
 
-static void awss_press_timeout(void)
-{
-    awss_stop_timer(press_timer);
-    press_timer = NULL;
-    if (g_user_press) {
-        awss_event_post(IOTX_AWSS_ENABLE_TIMEOUT);
-    }
-    g_user_press = 0;
-}
 
 int awss_config_press(void)
 {
@@ -210,6 +213,7 @@ void awss_set_config_press(uint8_t press)
     g_user_press = press;
 }
 
+#endif
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
