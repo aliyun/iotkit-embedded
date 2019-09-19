@@ -84,10 +84,7 @@ MQTT_COMM_ENABLED|ATM_ENABLED|src/mqtt/examples/mqtt_example.c|output/examples
 MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/examples
 DEVICE_MODEL_ENABLED||src/dev_model/examples/cJSON.[ch]|output/eng/wrappers/external_libs
 DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/examples
-DEVICE_MODEL_ENABLED&DEPRECATED_LINKKIT||src/dev_model/examples/solo.c|output/examples
-DEVICE_MODEL_ENABLED&DEPRECATED_LINKKIT||src/dev_model/examples/data/solo_tsl.c|output/examples/data
-DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/examples
-DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY&DEPRECATED_LINKKIT||src/dev_model/examples/gateway.c|output/examples
+
 DEV_RESET||src/dev_reset/examples|output/examples
 HTTP_COMM_ENABLED||src/http/examples|output/examples
 HTTP2_COMM_ENABLED||src/http2/examples|output/examples
