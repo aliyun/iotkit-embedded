@@ -62,6 +62,11 @@ HTTP2_COMM_ENABLED||external_libs/nghttp2|output/eng/wrappers/external_libs/nght
 HTTP2_COMM_ENABLED||wrappers/wrappers_os.h|output/eng/wrappers/temp
 FS_ENABLED||wrappers/wrappers_fs.h|output/eng/wrappers/temp
 
+PLATFORM_HAS_MBEDTLS||external_libs/mbedtls/library/aes.[ch]|output/eng/wrappers/external_libs/mbedtls/library
+PLATFORM_HAS_MBEDTLS||external_libs/mbedtls/include/mbedtls/config.h|output/eng/wrappers/external_libs/mbedtls/include/mbedtls
+PLATFORM_HAS_MBEDTLS||external_libs/mbedtls/include/mbedtls/check_config.h|output/eng/wrappers/external_libs/mbedtls/include/mbedtls
+PLATFORM_HAS_MBEDTLS||external_libs/mbedtls/include/mbedtls/aes.h|output/eng/wrappers/external_libs/mbedtls/include/mbedtls
+
 COAP_COMM_ENABLED||src/coap/client|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap/CoAPPacket|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap|output/eng/coap_cloud
