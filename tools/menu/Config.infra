@@ -21,6 +21,14 @@ config PLATFORM_HAS_DYNMEM
         Switching to "y" leads to SDK invoking HAL_Malloc() and HAL_Free() so runtime memory is dynamic
         Switching to "n" leads to SDK use global static array instead of heap so process capability is more limited
 
+config TLS_SAVE_TICKET
+    bool "TLS_SAVE_TICKET"
+    depends on PLATFORM_HAS_MBEDTLS
+    select HAL_KV
+    default n
+    help
+        save tls ticket in kv to accelerate the connection
+
 config INFRA_STRING
     bool
     default n
