@@ -23,6 +23,7 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_FOTA,                 NULL},
     {ITE_COTA,                 NULL},
     {ITE_MQTT_CONNECT_SUCC,    NULL},
+    {ITE_CLOUD_ERROR,          NULL},
     {ITE_STATE_EVERYTHING,     NULL},
     {ITE_STATE_USER_INPUT,     NULL},
     {ITE_STATE_SYS_DEPEND,     NULL},
@@ -34,6 +35,7 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_STATE_DEV_BIND,       NULL},
     {ITE_STATE_SUB_DEVICE,     NULL},
     {ITE_STATE_DEV_MODEL,      NULL}        /* DEV_MODEL must be last entry */
+
 };
 
 void *iotx_event_callback(int evt)
@@ -66,6 +68,7 @@ DEFINE_EVENT_CALLBACK(ITE_FOTA,                 int (*callback)(const int, const
 DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *,
                       const char *, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))
+DEFINE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*callback)(const int, const char *, const char *))
 
 int iotx_register_for_ITE_STATE_EVERYTHING(state_handler_t callback)
 {
