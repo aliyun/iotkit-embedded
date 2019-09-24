@@ -349,6 +349,12 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
     return res;
 }
 
+static int user_cloud_error_handler(const int code, const char *data, const char *detail)
+{
+    EXAMPLE_TRACE("code =%d ,data=%s, detail=%s", code, data, detail);
+    return 0;
+}
+
 int user_permit_join_event_handler(const char *product_key, const int time)
 {
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
@@ -378,7 +384,7 @@ int linkkit_main(void *paras)
     uint64_t time_prev_sec = 0, time_now_sec = 0, time_begin_sec = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
-
+    
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
 #if defined(__UBUNTU_SDK_DEMO__)
@@ -418,6 +424,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
+    IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
