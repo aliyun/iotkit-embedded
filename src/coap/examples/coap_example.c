@@ -23,8 +23,6 @@ char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv
 /* online url */
 #define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
 
-char IOTX_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
-char IOTX_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 char m_coap_client_running = 0;
 char m_coap_reconnect = 0;
 
@@ -45,7 +43,7 @@ static void iotx_post_data_to_server(void *param)
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
     iotx_message_t message;
 
-    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/user/update/", g_product_key, IOTX_DEVICE_NAME);
+    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/user/update/", g_product_key, g_device_name);
 
     memset(&message, 0, sizeof(iotx_message_t));
     message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
