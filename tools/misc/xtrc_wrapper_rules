@@ -78,8 +78,9 @@ COAP_SERVER||HAL_ThreadCreate|
 COAP_SERVER||HAL_Wifi_Get_IP|
 COAP_SERVER||HAL_Snprintf|
 
-DEV_RESET||HAL_Snprintf|
+INFRA_LOG||HAL_Vsnprintf| 
 
+DEV_RESET||HAL_Snprintf|
 ATM_ENABLED||HAL_Snprintf|
 AT_TCP_ENABLED||HAL_Malloc|
 AT_TCP_ENABLED||HAL_Free|
