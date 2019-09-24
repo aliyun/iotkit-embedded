@@ -377,6 +377,10 @@ void _mqtt_dynreg_topic_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
             char *device_secret = NULL;
             uint32_t device_secret_len = 0;
 
+            if (memcmp(topic_info->ptopic, "/ext/register", strlen("/ext/register"))) {
+                return;
+            }
+
             /* parse secret */
             res = infra_json_value((char *)topic_info->payload, topic_info->payload_len, "deviceSecret", strlen("deviceSecret"),
                                    &device_secret, &device_secret_len);
@@ -469,6 +473,8 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.read_buf_size = 1000;
     mqtt_params.write_buf_size = 1000;
+    mqtt_params.handle_event.h_fp = _mqtt_dynreg_topic_handle;
+    mqtt_params.handle_event.pcontext = device_secret;
 
 #ifdef SUPPORT_TLS
     {
@@ -484,12 +490,6 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
 
     res = wrapper_mqtt_connect(pClient);
     if (res < STATE_SUCCESS) {
-        wrapper_mqtt_release(&pClient);
-        return res;
-    }
-
-    res = wrapper_mqtt_subscribe(pClient, "/ext/register", IOTX_MQTT_QOS1, _mqtt_dynreg_topic_handle, device_secret);
-    if (res < 0) {
         wrapper_mqtt_release(&pClient);
         return res;
     }
