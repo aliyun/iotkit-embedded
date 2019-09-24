@@ -321,6 +321,8 @@ fi
 ${SED} -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | ${SED} -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.c
 
 # Output Header File Into wrappers.c
+
+echo -e "#include <stdarg.h>" >> ${WRAPPERS_DIR}/wrappers.c
 echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrappers.c
 echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrappers.c
 echo -e "#include \"infra_compat.h\"" >> ${WRAPPERS_DIR}/wrappers.c
@@ -376,6 +378,7 @@ fi
 echo -e "#ifndef _WRAPPERS_H_" > ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#define _WRAPPERS_H_\n" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#if defined(__cplusplus)\nextern \"C\" {\n#endif\n" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#include <stdarg.h>" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"infra_types.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
