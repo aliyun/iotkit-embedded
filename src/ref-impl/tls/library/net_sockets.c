@@ -156,6 +156,7 @@ int mbedtls_net_connect( mbedtls_net_context *ctx, const char *host,
         }
 
         close( ctx->fd );
+        ctx->fd = -1;
         ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
     }
 
@@ -203,6 +204,7 @@ int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_ip, const char 
                         (const char *) &n, sizeof( n ) ) != 0 )
         {
             close( ctx->fd );
+            ctx->fd = -1;
             ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
             continue;
         }
@@ -210,6 +212,7 @@ int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_ip, const char 
         if( bind( ctx->fd, cur->ai_addr, MSVC_INT_CAST cur->ai_addrlen ) != 0 )
         {
             close( ctx->fd );
+            ctx->fd = -1;
             ret = MBEDTLS_ERR_NET_BIND_FAILED;
             continue;
         }
@@ -220,6 +223,7 @@ int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_ip, const char 
             if( listen( ctx->fd, MBEDTLS_NET_LISTEN_BACKLOG ) != 0 )
             {
                 close( ctx->fd );
+                ctx->fd = -1;
                 ret = MBEDTLS_ERR_NET_LISTEN_FAILED;
                 continue;
             }

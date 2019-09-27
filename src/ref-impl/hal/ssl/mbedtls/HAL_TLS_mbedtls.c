@@ -393,6 +393,7 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
         }
 
         close(ctx->fd);
+        ctx->fd = -1;
         ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
     }
 
@@ -473,6 +474,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
         }
 
         close(ctx->fd);
+        ctx->fd = -1;
         ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
     }
 
