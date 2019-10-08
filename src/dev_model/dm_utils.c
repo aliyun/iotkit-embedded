@@ -45,7 +45,7 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
     int deep = 0;
     char *bracket_pre = NULL;
     char *bracket_suf = NULL;
-    char array_index_str[10] = {0};
+    char array_index_str[11] = {0};
 
     if (input == NULL || input_len <= 1 || array_index == NULL) {
         return STATE_USER_INPUT_INVALID;
@@ -90,6 +90,9 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
         }
 
         /* Get Index */
+        if(bracket_suf - bracket_pre - 1 > 10) {
+            return FAIL_RETURN;
+        }
         memcpy(array_index_str, bracket_pre + 1, bracket_suf - bracket_pre - 1);
         *array_index = atoi(array_index_str);
         return SUCCESS_RETURN;
@@ -349,7 +352,7 @@ int dm_utils_uri_add_prefix(_IN_ const char *prefix, _IN_ char *uri, _OU_ char *
         return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*new_uri, 0, new_uri_len);
-
+    
     memcpy(*new_uri, prefix, strlen(prefix));
     memcpy(*new_uri + strlen(*new_uri), uri, strlen(uri));
 
