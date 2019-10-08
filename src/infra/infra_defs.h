@@ -45,6 +45,12 @@ extern "C" {
 #define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
 #define WLAN_CONNECTION_TIMEOUT_MS      (30 * 1000)
 
+#define DEV_SIGN_SOURCE_MAXLEN    (200)
+#define DEV_SIGN_HOSTNAME_MAXLEN  (64)
+#define DEV_SIGN_CLIENT_ID_MAXLEN (200)
+#define DEV_SIGN_USERNAME_MAXLEN  (64)
+#define DEV_SIGN_PASSWORD_MAXLEN  (65)
+
 typedef enum IOT_RETURN_CODES {
     ERROR_DEVICE_NOT_EXIST = -311,
     ERROR_NET_TIMEOUT = -310,
@@ -346,6 +352,14 @@ typedef struct {
     char device_name[IOTX_DEVICE_NAME_LEN + 1];
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 } sdk_impl_ctx_t;
+
+typedef struct {
+    char hostname[DEV_SIGN_HOSTNAME_MAXLEN];
+    uint16_t port;
+    char clientid[DEV_SIGN_CLIENT_ID_MAXLEN];
+    char username[DEV_SIGN_USERNAME_MAXLEN];
+    char password[DEV_SIGN_PASSWORD_MAXLEN];
+} iotx_sign_mqtt_t;
 
 #define IOTX_HTTP_DOMAIN_NUMBER (6)
 extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
