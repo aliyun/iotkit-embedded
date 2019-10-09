@@ -773,7 +773,10 @@ static int _mqtt_connect(void *client)
         return NULL_VALUE_ERROR;
     }
     userKeepAliveInterval = pClient->connect_data.keepAliveInterval;
-    pClient->connect_data.keepAliveInterval = CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX;
+    pClient->connect_data.keepAliveInterval = (userKeepAliveInterval * 2);
+    if(pClient->connect_data.keepAliveInterval > CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX) {
+        pClient->connect_data.keepAliveInterval = CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX;
+    }
     mqtt_info("connect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
               pClient->connect_data.MQTTVersion,
               pClient->connect_data.clientID.cstring,
