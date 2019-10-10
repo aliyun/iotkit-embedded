@@ -1815,6 +1815,16 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         break;
 #endif
 #endif
+#ifdef DEVICE_HISTORY_POST
+        case ITM_MSG_POST_HISTORY_DATA: {
+            if (payload == NULL || payload_len <= 0) {
+                _iotx_linkkit_mutex_unlock();
+                return STATE_USER_INPUT_INVALID;
+            }
+            res = iotx_dm_post_history(devid, (char *)payload, payload_len);
+        }
+        break;
+#endif /* #ifdef DEVICE_HISTORY_POST */
         default: {
             res = STATE_USER_INPUT_MSG_TYPE;
         }

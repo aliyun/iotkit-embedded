@@ -45,6 +45,10 @@ const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/mode
     #endif
     const char DM_URI_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY = "thing/event/property/post";
     const char DM_URI_THING_EVENT_PROPERTY_POST_REPLY[]   DM_READ_ONLY = "thing/event/property/post_reply";
+    #ifdef DEVICE_HISTORY_POST
+    const char DM_URI_THING_EVENT_HISTORY_POST[]          DM_READ_ONLY = "thing/event/property/history/post";
+    const char DM_URI_THING_EVENT_HISTORY_POST_REPLY[]    DM_READ_ONLY = "thing/event/property/history/post_reply";
+    #endif /* #ifdef DEVICE_HISTORY_POST */
     const char DM_URI_THING_EVENT_POST[]                  DM_READ_ONLY = "thing/event/%.*s/post";
     const char DM_URI_THING_EVENT_POST_REPLY[]            DM_READ_ONLY = "thing/event/%s/post_reply";
     const char DM_URI_THING_EVENT_POST_REPLY_WILDCARD[]   DM_READ_ONLY = "thing/event/+/post_reply";

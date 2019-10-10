@@ -186,6 +186,9 @@ int iotx_dm_subscribe_user_topic(char *topic, void *user_callback);
     int iotx_dm_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 #endif
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+#ifdef DEVICE_HISTORY_POST
+int iotx_dm_post_history(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+#endif /* #ifdef DEVICE_HISTORY_POST */
 int iotx_dm_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_property_desired_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,

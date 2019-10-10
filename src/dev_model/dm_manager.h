@@ -78,6 +78,9 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
 #ifdef LOG_REPORT_TO_CLOUD
     int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len, int force_update);
 #endif
+#ifdef DEVICE_HISTORY_POST
+int dm_mgr_upstream_thing_history_post(int devid, char *payload, int payload_len);
+#endif /* #ifdef DEVICE_HISTORY_POST */
 int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *method,
                                      _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);

@@ -67,5 +67,9 @@ menu "Device Model Configurations"
     config DEVICE_MODEL_SHADOW
         bool "FEATURE_DEVICE_MODEL_SHADOW"
         default n
+
+    config DEVICE_HISTORY_POST
+        bool "FEATURE_DEVICE_HISTORY_POST"
+        default n
 endmenu
 

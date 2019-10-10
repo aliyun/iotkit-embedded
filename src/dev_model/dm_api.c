@@ -378,6 +378,19 @@ int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_l
     return res;
 }
 
+#ifdef DEVICE_HISTORY_POST
+int iotx_dm_post_history(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    _dm_api_lock();
+    res = dm_mgr_upstream_thing_history_post(devid, payload, payload_len);
+    _dm_api_unlock();
+
+    return res;
+}
+#endif /* #ifdef DEVICE_HISTORY_POST */
+
 #ifdef LOG_REPORT_TO_CLOUD
 int iotx_dm_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {

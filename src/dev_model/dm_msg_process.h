@@ -43,6 +43,10 @@ extern const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY;
     /* From Local To Cloud Request And Response*/
     extern const char DM_URI_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY;
     extern const char DM_URI_THING_EVENT_PROPERTY_POST_REPLY[]   DM_READ_ONLY;
+    #ifdef DEVICE_HISTORY_POST
+    extern const char DM_URI_THING_EVENT_HISTORY_POST[]          DM_READ_ONLY;
+    extern const char DM_URI_THING_EVENT_HISTORY_POST_REPLY[]    DM_READ_ONLY;
+    #endif /* #ifdef DEVICE_HISTORY_POST */
     #ifdef LOG_REPORT_TO_CLOUD
         extern const char DM_URI_THING_LOG_POST[]                    DM_READ_ONLY;
     #endif

@@ -74,6 +74,9 @@ typedef enum {
     /* delete a device's desired property */
     ITM_MSG_PROPERTY_DESIRED_DELETE,
 
+    /* post historical property or event to cloud */
+    ITM_MSG_POST_HISTORY_DATA,
+
     IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 
