@@ -62,7 +62,7 @@ static int _dm_fota_send_new_config_to_user(void *ota_handle)
 int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
 {
     int res = 0, file_download = 0, retry_timeout = 0, retry_max_timeout = 0;
-    uint32_t file_size = 0, file_downloaded = 0;
+    uint64_t file_size = 0, file_downloaded = 0;
     uint32_t percent_pre = 0, percent_now = 0;
     unsigned long long report_pre = 0, report_now = 0;
     dm_fota_ctx_t *ctx = dm_fota_get_ctx();
