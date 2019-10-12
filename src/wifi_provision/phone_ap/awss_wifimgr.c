@@ -171,11 +171,13 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
     } while (0);
 #endif
-    if (0 != awss_connect(ssid, passwd, (uint8_t *)bssid, ETH_ALEN, token_found == 1 ? token : NULL,
-                          token_found == 1 ? RANDOM_MAX_LEN : 0)) {
+    i = awss_connect(ssid, passwd, (uint8_t *)bssid, ETH_ALEN, token_found == 1 ? token : NULL,
+                          token_found == 1 ? RANDOM_MAX_LEN : 0);
+    if (i < 0) {
+        dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "ret=%d, ssid=%s", i, ssid);
     } else {
         switch_ap_done = 1;
-
+        dump_awss_status(STATE_WIFI_CONNECT_AP_SUCCESS, "connect '%s' success", ssid);
         zconfig_force_destroy();
     }
     awss_debug("connect '%s' %s\r\n", ssid, switch_ap_done == 1 ? "success" : "fail");

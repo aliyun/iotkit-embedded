@@ -334,15 +334,11 @@ static void start_connect_ap()
                        info->token_found == 1 ? info->token : NULL,
                        info->token_found == 1 ? RANDOM_MAX_LEN : 0);
     if (ret == 0) {
-        /*
-        AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
-        */
         awss_dev_ap_switchap_done = 1;
-        /*
-        AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);
-        */
+        dump_awss_status(STATE_WIFI_CONNECT_AP_SUCCESS, "connect '%s' success", info->ssid);
     } else {
-        int ret = awss_dev_ap_setup();
+        dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "ret=%d, ssid=%s", ret, info->ssid);
+        ret = awss_dev_ap_setup();
         if (0 != ret) {
             dump_awss_status(STATE_WIFI_DEV_AP_DEBUG, "retry, but awss dev ap setup fail");
         }

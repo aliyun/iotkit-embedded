@@ -91,7 +91,7 @@ int __awss_start(void)
             }
 #endif
         } else {
-            dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "connect '%s' failed", ssid);
+            dump_awss_status(STATE_WIFI_CONNECT_AP_FAILED, "ret=%d, ssid=%s", ret, ssid);
 #if defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
                 awss_event_post(IOTX_AWSS_CONNECT_AHA_FAIL);
