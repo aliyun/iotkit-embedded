@@ -3,6 +3,7 @@ config COAP_COMM_ENABLED
     default n
     select COAP_CLIENT
     select INFRA_AES
+    select INFRA_COMPAT
 
     help
         Establish non-persistent connection with AliCloud via CoAP-based protocol
