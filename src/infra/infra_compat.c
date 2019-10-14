@@ -432,7 +432,9 @@ DEFINE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t callback)
 
+#if !defined(__APPLE__)
 extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+#endif
 
 #define IOTX_STATE_EVENT_MESSAGE_MAXLEN (64)
 int iotx_state_event(const int event, const int code, const char *msg_format, ...)
