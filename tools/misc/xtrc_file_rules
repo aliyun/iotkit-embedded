@@ -17,6 +17,7 @@ INFRA_PREAUTH||src/infra/infra_preauth.[ch]|output/eng/infra
 INFRA_LOG_NETWORK_PAYLOAD||src/infra/infra_prt_nwk_payload.c|output/eng/infra
 
 SUPPORT_TLS||certs/root_ca.c|output/eng/certs
+COAP_DTLS_SUPPORT||certs/root_ca.c|output/eng/certs
 
 DEV_SIGN||src/dev_sign|output/eng/dev_sign
 

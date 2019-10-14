@@ -6,6 +6,8 @@
 #include "infra_defs.h"
 #include "infra_compat.h"
 
+sdk_impl_ctx_t g_sdk_impl_ctx = {0};
+
 #if !defined(INFRA_LOG)
 void IOT_SetLogLevel(IOT_LogLevel level) {}
 #endif
@@ -26,7 +28,6 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 
-sdk_impl_ctx_t g_sdk_impl_ctx = {0};
 /* global variable for mqtt construction */
 static iotx_conn_info_t g_iotx_conn_info = {0};
 static char g_empty_string[1] = "";

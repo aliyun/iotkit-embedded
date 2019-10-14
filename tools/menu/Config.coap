@@ -1,6 +1,7 @@
 config COAP_COMM_ENABLED
     bool "FEATURE_COAP_COMM_ENABLED"
     default n
+    select INFRA_COMPAT
     select COAP_CLIENT
 
     help
@@ -23,7 +24,6 @@ config COAP_CLIENT
     select INFRA_MD5
     select INFRA_REPORT
     select INFRA_STRING
-    select COAP_DTLS_SUPPORT
     select HAL_CRYPTO
     select HAL_UDP
     select COAP_PACKET
