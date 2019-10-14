@@ -54,9 +54,9 @@ HTTP2_COMM_ENABLED||external_libs/nghttp2|output/eng/wrappers/external_libs/nght
 COAP_COMM_ENABLED||src/coap/client|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap/CoAPPacket|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap|output/eng/coap_cloud
+COAP_PACKET||src/coap/CoAPPacket|output/eng/CoAPPacket
 
-COAP_PACKET||src/coap|output/eng/coap_server
-COAP_PACKET||src/coap/CoAPPacket|output/eng/coap_server/CoAPPacket
+COAP_SERVER||src/coap|output/eng/coap_server
 COAP_SERVER||src/coap/server|output/eng/coap_server/server
 
 WIFI_PROVISION_ENABLED||src/wifi_provision|output/eng/wifi_provision
