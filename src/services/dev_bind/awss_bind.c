@@ -76,9 +76,11 @@ void awss_bind_deinit()
     awss_cmp_online_deinit();
     awss_cmp_local_deinit();
 
+#ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     extern void awss_registrar_deinit(void);
     awss_registrar_deinit();
+#endif
 #endif
 
     if (NULL != awss_token_mutex) {
