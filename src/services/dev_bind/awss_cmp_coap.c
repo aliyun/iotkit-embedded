@@ -223,8 +223,8 @@ int awss_cmp_local_deinit()
     }
 #ifdef WIFI_PROVISION_ENABLED
     awss_devinfo_notify_stop();
-#endif
     awss_suc_notify_stop();
+#endif
     awss_cmp_coap_deinit();
 
     return 0;
