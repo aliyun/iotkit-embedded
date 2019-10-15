@@ -37,29 +37,24 @@ typedef struct {
     int payload_len;
 } preauth_http_response_t;
 
-int _preauth_assemble_auth_req_string(const iotx_dev_meta_info_t *dev_meta, const char *sign,
+int _preauth_assemble_auth_req_string(const iotx_dev_meta_info_t *dev_meta,
                                       const char *device_id, char *request_buff, uint32_t buff_len)
 {
     uint8_t i = 0;
     const char *kv[][2] = {
         { "productKey", NULL },
         { "deviceName", NULL },
-        { "signmethod", "hmacsha256"},
-        { "sign", NULL },
-        { "version", "default" },
         { "clientId", NULL },
-        { "timestamp", "2524608000000" },
         { "resources", "mqtt" }
     };
 
-    if (dev_meta == NULL || sign == NULL || device_id == NULL || request_buff == NULL) {
+    if (dev_meta == NULL || device_id == NULL || request_buff == NULL) {
         return STATE_USER_INPUT_INVALID;
     }
 
     kv[0][1] = dev_meta->product_key;
     kv[1][1] = dev_meta->device_name;
-    kv[3][1] = sign;
-    kv[5][1] = device_id;
+    kv[2][1] = device_id;
 
     for (i = 0; i < (sizeof(kv) / (sizeof(kv[0]))); i++) {
         if ((strlen(request_buff) + strlen(kv[i][0]) + strlen(kv[i][1]) + 2) >=
@@ -110,70 +105,32 @@ static int _preauth_get_string_value(char *p_string, char *value_buff, uint32_t 
 
 static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len, iotx_sign_mqtt_t *output)
 {
-    int res = FAIL_RETURN;
-    char *p = json_string;
-    char *p_start, *p_end, *pt;
-    uint8_t len;
-    int code = 0;
+    int32_t res = STATE_SUCCESS;
+    char *code = NULL, *host = NULL, *port = NULL;
+    uint32_t code_len = 0, host_len = 0, port_len = 0;
+    uint32_t port_num = 0;
 
-    while (p < (json_string + string_len)) {
-        while (*(++p) != ':') {
-            if (p >= (json_string + string_len)) {
-                if (code != 200) {
-                    return STATE_HTTP_PREAUTH_INVALID_RESP;
-                } else {
-                    return SUCCESS_RETURN;
-                }
-            }
-        }
+    printf("json_string: %s\n",json_string);
 
-        pt = p;
-        p_start = p_end = NULL;
-        while (--pt > json_string) {
-            if (*pt == '\"') {
-                if (p_end != NULL) {
-                    p_start = pt + 1;
-                    break;
-                } else {
-                    p_end = pt;
-                }
-            }
-        }
-
-        if (p_start == NULL || p_end == NULL) {
-            return STATE_HTTP_PREAUTH_INVALID_RESP;
-        }
-        len = p_end - p_start;
-
-        if (strlen("code") == len && !memcmp(p_start, "code", len)) {
-            infra_str2int(++p, &code);
-            iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_RSP, "code: %d", code);
-            if (code != 200) {
-                return STATE_HTTP_PREAUTH_INVALID_RESP;
-            }
-        } else if (strlen("iotId") == len && !memcmp(p_start, "iotId", len)) {
-            res = _preauth_get_string_value(p, output->username, PREAUTH_IOT_ID_MAXLEN);
-            if (res < SUCCESS_RETURN) {
-                return STATE_HTTP_PREAUTH_INVALID_RESP;
-            }
-        } else if (strlen("iotToken") == len && !memcmp(p_start, "iotToken", len)) {
-            res = _preauth_get_string_value(p, output->password, PREAUTH_IOT_TOKEN_MAXLEN);
-            if (res < SUCCESS_RETURN) {
-                return STATE_HTTP_PREAUTH_INVALID_RESP;
-            }
-        } else if (strlen("host") == len && !memcmp(p_start, "host", len)) {
-            res = _preauth_get_string_value(p, output->hostname, PREAUTH_IOT_HOST_MAXLEN);
-            iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_RSP, "host: %s", output->hostname);
-            if (res < SUCCESS_RETURN) {
-                return STATE_HTTP_PREAUTH_INVALID_RESP;
-            }
-        } else if (strlen("port") == len && !memcmp(p_start, "port", len)) {
-            int port_temp;
-            infra_str2int(++p, &port_temp);
-            output->port = port_temp;
-            iotx_state_event(ITE_STATE_MQTT_COMM, STATE_HTTP_PREAUTH_RSP, "port: %d", (int)(output->port));
-        }
+    res = infra_json_value(json_string, string_len, "code", strlen("code"), &code, &code_len);
+    if (res < SUCCESS_RETURN || code_len != strlen("200") || memcmp(code, "200", code_len) != 0)  {
+        return STATE_HTTP_PREAUTH_INVALID_RESP;
     }
+
+    res = infra_json_value(json_string, string_len, "host", strlen("host"), &host, &host_len);
+    if (res < SUCCESS_RETURN) {
+        return STATE_HTTP_PREAUTH_INVALID_RESP;
+    }
+
+    res = infra_json_value(json_string, string_len, "port", strlen("port"), &port, &port_len);
+    if (res < SUCCESS_RETURN) {
+        return STATE_HTTP_PREAUTH_INVALID_RESP;
+    }
+
+    utils_str2uint(port, port_len, &port_num);
+
+    memcpy(output->hostname, host + 1, host_len -2);
+    output->port = (uint16_t)port_num;
 
     return STATE_SUCCESS;
 }
@@ -190,10 +147,10 @@ static int _preauth_recv_callback(char *ptr, int length, int total_length, void 
 }
 
 int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *dev_meta,
-                                const char *sign, const char *device_id, iotx_sign_mqtt_t *preauth_output)
+                                const char *device_id, iotx_sign_mqtt_t *preauth_output)
 {
     char http_url[128] = "http://";
-    char http_url_frag[] = "/auth/devicename";
+    char http_url_frag[] = "/auth/bootstrap";
     uint64_t timestamp;
 #ifdef SUPPORT_TLS
     int http_port = 443;
@@ -221,7 +178,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     memcpy(http_url + strlen(http_url), g_infra_http_domain[region], strlen(g_infra_http_domain[region]));
     memcpy(http_url + strlen(http_url), http_url_frag, sizeof(http_url_frag));
 
-    _preauth_assemble_auth_req_string(dev_meta, sign, device_id, request_buff, sizeof(request_buff));
+    _preauth_assemble_auth_req_string(dev_meta, device_id, request_buff, sizeof(request_buff));
 
     response.payload = response_buff;
     response.payload_len = PREAUTH_HTTP_RSP_LEN;

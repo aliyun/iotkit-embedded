@@ -14,9 +14,7 @@
 #define MODE_TCP_DIRECT_PLAIN       "3"
 #define MODE_ITLS_DNS_ID2           "8"
 
-#if defined(MQTT_PRE_AUTH)
-    #define SECURE_MODE             MODE_TLS_GUIDER
-#elif defined(SUPPORT_TLS)
+#if defined(SUPPORT_TLS)
     #define SECURE_MODE             MODE_TLS_DIRECT
 #else
     #define SECURE_MODE             MODE_TCP_DIRECT_PLAIN

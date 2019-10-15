@@ -20,6 +20,6 @@
 #endif
 
 int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *dev_meta,
-                                const char *sign, const char *device_id, iotx_sign_mqtt_t *preauth_output);
+                                const char *device_id, iotx_sign_mqtt_t *preauth_output);
 
 #endif /* #ifndef __INFRA_PREAUTH__ */

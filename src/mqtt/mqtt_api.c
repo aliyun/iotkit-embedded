@@ -110,7 +110,6 @@ static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *
 {
     uint16_t length = 0;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
-    char sign_string[65] = {0};
     int res;
 
     memset(preauth_out, 0, sizeof(iotx_sign_mqtt_t));
@@ -120,13 +119,7 @@ static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *
     memcpy(device_id + strlen(device_id), ".", strlen("."));
     memcpy(device_id + strlen(device_id), meta->device_name, strlen(meta->device_name));
 
-    /* setup sign_string */
-    res = _iotx_generate_sign_string(device_id, meta->device_name, meta->product_key, meta->device_secret, sign_string);
-    if (res < STATE_SUCCESS) {
-        return res;
-    }
-
-    return preauth_get_connection_info(region, meta, sign_string, device_id, preauth_out);
+    return preauth_get_connection_info(region, meta, device_id, preauth_out);
 }
 #endif /* #ifdef MQTT_PRE_AUTH */
 
@@ -204,6 +197,21 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         iotx_state_event(ITE_STATE_MQTT_COMM, ret, "invalid device secret");
         mqtt_err("ret = _iotx_preauth() = %d, abort", ret);
         return NULL;
+    }
+
+    {
+        iotx_sign_mqtt_t tmp_sign;
+        memset(&tmp_sign, 0, sizeof(iotx_sign_mqtt_t));
+
+        ret = IOT_Sign_MQTT(region, &meta_info, &tmp_sign);
+        if (ret < STATE_SUCCESS) {
+            iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt sign fail");
+            return NULL;
+        }
+
+        memcpy(g_default_sign.username, tmp_sign.username, strlen(tmp_sign.username));
+        memcpy(g_default_sign.password, tmp_sign.password, strlen(tmp_sign.password));
+        memcpy(g_default_sign.clientid, tmp_sign.clientid, strlen(tmp_sign.clientid));
     }
 #else /* direct mode */
     ret = IOT_Sign_MQTT(region, &meta_info, &g_default_sign);

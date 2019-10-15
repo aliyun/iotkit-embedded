@@ -167,6 +167,22 @@ int infra_str2int(const char *input, int *val)
     return 0;
 }
 
+int32_t utils_str2uint(char *input, uint8_t input_len, uint32_t *output)
+{
+    uint8_t index = 0;
+    uint32_t temp = 0;
+
+    for (index = 0; index < input_len; index++) {
+        if (input[index] < '0' || input[index] > '9') {
+            return -1;
+        }
+        temp = temp * 10 + input[index] - '0';
+    }
+    *output = temp;
+
+    return 0;
+}
+
 #endif
 
 int32_t infra_json_value(const char *input, uint32_t input_len, const char *key, uint32_t key_len, char **value, uint32_t *value_len)

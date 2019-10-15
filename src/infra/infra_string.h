@@ -10,6 +10,7 @@ char *infra_strtok(char *str, const char *delim);
 int infra_randstr(char *random, int length);
 void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len);
 int infra_str2int(const char *input, int *val);
+int32_t utils_str2uint(char *input, uint8_t input_len, uint32_t *output);
 void LITE_hexbuf_convert(unsigned char *digest, char *out, int in_len, int uppercase);
 int32_t infra_json_value(const char *input, uint32_t input_len, const char *key, uint32_t key_len, char **value, uint32_t *value_len);
 #endif
