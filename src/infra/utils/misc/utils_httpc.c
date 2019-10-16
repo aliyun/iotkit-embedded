@@ -825,7 +825,7 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
             ret = httpclient_response_parse(client, buf, reclen, iotx_time_left(&timer), client_data);
         }
     }
-    ret = SUCCESS_RETURN;
+
 err:
     utils_err("err = %d", ret);
     if (buf != NULL) {
