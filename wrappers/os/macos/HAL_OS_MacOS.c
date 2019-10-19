@@ -148,7 +148,7 @@ void HAL_Srandom(uint32_t seed)
 
 uint32_t HAL_Random(uint32_t region)
 {
-    return (region > 0) ? (random() % region) : 0;
+    return (region > 0) ? (random() % region) : (uint32_t)random();
 }
 
 int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)

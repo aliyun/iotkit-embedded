@@ -10,6 +10,7 @@
 #include "infra_defs.h"
 #include "infra_config.h"
 #include "wrappers_defs.h"
+#include "wrappers_os.h"
 #ifdef _MSC_BUILD
     #include <Winbase.h>
     #pragma comment(lib,"ws2_32")
