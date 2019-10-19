@@ -18,6 +18,7 @@ endif
 	            cp -rf $(OUTPUT_DIR)/usr/$${i} $(FINAL_DIR); \
 	        fi; \
 	    done; \
+            rm -rf $(FINAL_DIR)/bin/*.dSYM; \
 	    VDR_NAME=$$(grep -m 1 "VENDOR *:" $(CONFIG_TPL) 2>/dev/null|awk '{ print $$NF }'); \
 	    if [ "$$(ls $(IMPORT_DIR)/$${VDR_NAME}/$(PREBUILT_LIBDIR)/lib* 2>/dev/null)" != "" ]; then \
 	        cp -f $(IMPORT_DIR)/$${VDR_NAME}/$(PREBUILT_LIBDIR)/lib* $(FINAL_DIR)/lib; \

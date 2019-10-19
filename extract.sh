@@ -430,7 +430,7 @@ echo -e "#include \"wrappers.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 find ${OUTPUT_DIR}/eng -name "*api.h" | gawk -F'/' '{print $NF}' | ${SED} -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/sdk_include.h
 
-rm ./${OUTPUT_DIR}/eng/wrappers/temp/ -rf
+rm -rf ./${OUTPUT_DIR}/eng/wrappers/temp/ 
 
 # if echo "${SWITCHES}"|grep -qw "DEVICE_MODEL_ENABLED"; then
 #     echo ""
