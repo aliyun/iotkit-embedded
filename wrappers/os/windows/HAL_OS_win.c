@@ -18,6 +18,7 @@
 #include "infra_compat.h"
 #include "infra_defs.h"
 #include "wrappers_defs.h"
+#include "wrappers_os.h"
 
 #define hal_err(...)        HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
 #define hal_debug(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
@@ -104,7 +105,7 @@ void HAL_Srandom(uint32_t seed)
 uint32_t HAL_Random(uint32_t region)
 {
     orig_seed = 1664525 * orig_seed + 1013904223;
-    return (region > 0) ? (orig_seed % region) : 0;
+    return (region > 0) ? (orig_seed % region) : orig_seed;
 }
 
 int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)
