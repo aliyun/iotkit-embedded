@@ -5,7 +5,7 @@ TOP_DIR         ?= $(CURDIR)
 
 ifeq (Darwin,$(strip $(shell uname)))
 SED             := gsed
-STRIP_DBGOPT    :=
+STRIP_DBGOPT    := -x
 else
 SED             := sed
 STRIP_DBGOPT    := --strip-dwo
