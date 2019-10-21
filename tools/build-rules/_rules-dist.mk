@@ -51,9 +51,11 @@ endif
 	    bash $(RULE_DIR)/scripts/gen_rom_stats.sh
 
 ifeq (i686-w64-mingw32-gcc,$(CC))
+ifeq ($(shell uname), Linux)
 	$(TOP_Q)for iter in $(FINAL_DIR)/bin/*; do \
 	    mv $${iter} $${iter}.exe; \
 	done
+endif
 endif
 
 endif
