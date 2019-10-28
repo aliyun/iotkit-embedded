@@ -106,7 +106,7 @@ static int user_trigger_event_reply_event_handler(const int devid, const int msg
     return 0;
 }
 
-/** recv event post response message from cloud **/
+/** recv property setting message from cloud **/
 static int user_property_set_event_handler(const int devid, const char *request, const int request_len)
 {
     int res = 0;
