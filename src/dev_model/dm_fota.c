@@ -65,7 +65,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
 {
     int res = 0, file_download = 0;
     uint32_t file_size = 0, file_downloaded = 0;
-    uint32_t percent_pre = 0, percent_now = 0;
+    uint64_t percent_pre = 0, percent_now = 0;
     unsigned long long report_pre = 0, report_now = 0;
     dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
     void *ota_handle = NULL;
