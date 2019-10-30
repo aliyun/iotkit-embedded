@@ -366,7 +366,13 @@ void *user_dispatch_yield(void *args)
 
     return NULL;
 }
-
+#ifdef DEV_BIND_ENABLED
+static int user_dev_bind_handler(const char *detail)
+{
+    EXAMPLE_TRACE("get bind event:%s", detail);
+    return 0;
+}
+#endif
 static int user_sdk_state_dump(int ev, const char *msg)
 {
     printf("received state: -0x%04X(%s)\n", -ev, msg);
@@ -423,7 +429,9 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
-
+#ifdef DEV_BIND_ENABLED
+    IOT_RegisterCallback(ITE_BIND_EVENT, user_dev_bind_handler);
+#endif
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, g_product_key, strlen(g_product_key));
     memcpy(master_meta_info.product_secret, g_product_secret, strlen(g_product_secret));

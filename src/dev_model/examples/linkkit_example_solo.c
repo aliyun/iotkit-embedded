@@ -231,6 +231,13 @@ static int user_cota_event_handler(int type, const char *config_id, int config_s
     return 0;
 }
 
+#ifdef DEV_BIND_ENABLED
+static int user_dev_bind_handler(const char *detail)
+{
+    EXAMPLE_TRACE("get bind event:%s", detail);
+    return 0;
+}
+#endif
 void user_post_property(void)
 {
     static int cnt = 0;
@@ -356,8 +363,9 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
     IOT_RegisterCallback(ITE_DYNREG_DEVICE_SECRET, dynreg_device_secret);
-
-
+#ifdef DEV_BIND_ENABLED
+    IOT_RegisterCallback(ITE_BIND_EVENT, user_dev_bind_handler);
+#endif
     domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
 

@@ -24,6 +24,8 @@ static void bind_mqtt_deal_event(void *pcontext, void *pclient, iotx_mqtt_event_
 static int bind_mqtt_report(void *handle, char *topic, char *data, int len);
 
 extern bind_context_t *g_context;
+typedef int (* bind_event_callback)(const char *detail);
+
 int bind_mqtt_init(void *handle, void *mqtt_handle)
 {
     int ret;
@@ -200,8 +202,9 @@ static void bind_mqtt_deal_event(void *pcontext, void *pclient, iotx_mqtt_event_
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             int len = 0;
             char *id, *params, *identify;
-            iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_RECV_CLOUD_NOTIFY, (const char *)topic_info->payload);
-
+            char identify_buf[BIND_IDENTIFY_LEN] = {0};
+            char params_buf[BIND_PARAMS_LEN] = {0};
+            bind_event_callback callback;
             id = json_get_value_by_name((char *)topic_info->payload, topic_info->payload_len, BIND_JSON_ID, &len, NULL);
             if (id == NULL || len <= 0 || len > BIND_UINT32_STRLEN) {
                 iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_MQTT_RSP_INVALID, topic_info->payload);
@@ -214,14 +217,20 @@ static void bind_mqtt_deal_event(void *pcontext, void *pclient, iotx_mqtt_event_
                 iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_MQTT_RSP_INVALID, topic_info->payload);
                 return;
             }
-
+            strncpy(params_buf, params, len < BIND_PARAMS_LEN ? len : BIND_PARAMS_LEN - 1);
+            iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_RECV_CLOUD_NOTIFY, (const char *)params_buf);
             identify = json_get_value_by_name(params, len, BIND_JSON_IDENTIFY, &len, NULL);
             if (identify == NULL) {
                 iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_MQTT_RSP_INVALID, topic_info->payload);
                 return;
             }
+            strncpy(identify_buf, identify, len < BIND_IDENTIFY_LEN ? len : BIND_IDENTIFY_LEN - 1);
 
-            bind_report_event_reply(pcontext, reply_id, identify);
+            callback = iotx_event_callback(ITE_BIND_EVENT);
+            if (callback) {
+                callback(params_buf);
+            }
+            bind_report_event_reply(pcontext, reply_id, identify_buf);
             break;
         }
         default:

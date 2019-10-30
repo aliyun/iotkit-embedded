@@ -16,6 +16,8 @@
 #define BIND_UINT32_STRLEN         10
 #define BIND_REPORT_MAX            10
 #define BIND_NOTIFY_MAX            120
+#define BIND_IDENTIFY_LEN          64
+#define BIND_PARAMS_LEN            160
 #define BIND_TOKEN_LIFE            (90*1000)
 #define BIND_ID_LEN                16
 #define BIND_IP_ADDR_LEN           16
@@ -47,7 +49,7 @@
 #define BIND_REPORT_TOKEN_FMT                "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"thing.awss.enrollee.match\",\"params\":{\"token\":\"%s\"}}"
 #define BIND_REPORT_RESET_FMT                "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"thing.reset\",\"params\":{}}"
 #define BIND_EVENT_REPLY_FMT                 "{\"code\":200,\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"_thing.event.notify\",\
-\"message\":\"success\",\"data\":{\"identifier\":\"%s\",\"serviceResult\": {}},}"
+\"message\":\"success\",\"data\":{\"identifier\":\"%s\",\"serviceResult\": {}}}"
 
 #define BIND_AWSS_VER                        "{\"smartconfig\":\"2.0\",\"zconfig\":\"2.0\",\"router\":\"2.0\",\"ap\":\"2.0\",\"softap\":\"2.0\"}"
 #define BIND_NOTIFY_HOST                     "255.255.255.255"
@@ -84,6 +86,7 @@ typedef struct {
     void *mqtt_handle;
     void *coap_handle;
     void *lock;
+
     bind_steps_type step;
     uint8_t token[BIND_TOKEN_LEN];
     uint32_t  token_exp_time;
