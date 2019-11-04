@@ -342,7 +342,6 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     }
     ret = SUCCESS_RETURN;
 err:
-    utils_err("err = %d", ret);
     if (host != NULL) {
         httpc_free(host);
     }
@@ -834,7 +833,6 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
     }
 
 err:
-    utils_err("err = %d", ret);
     if (buf != NULL) {
         httpc_free(buf);
     }
