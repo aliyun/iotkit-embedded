@@ -135,7 +135,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
     iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
     int dynamic = 0;
-    uint8_t enalbe_itls = 0;
+    uint8_t enable_itls = 0;
     int ret;
     void *callback;
 
@@ -229,14 +229,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     /* reconfig clientid, append custome clientKV and itls switch flag */
     if (pInitParams != NULL && pInitParams->customize_info != NULL) {
         if (strstr(pInitParams->customize_info, "authtype=id2") != NULL) {
-            enalbe_itls = 1;
+            enable_itls = 1;
         } else {
-            enalbe_itls = 0;
+            enable_itls = 0;
         }
     }
 
     ret = _sign_get_clientid(g_default_sign.clientid, device_id, (pInitParams != NULL) ? pInitParams->customize_info : NULL,
-                             enalbe_itls);
+                             enable_itls);
     if (ret < STATE_SUCCESS) {
         iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt sign fail");
         return NULL;
@@ -248,13 +248,12 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #ifdef SUPPORT_TLS
     {
         extern const char *iotx_ca_crt;
-        if (enalbe_itls == 0) {
+        if (enable_itls == 0) {
             mqtt_params.pub_key = iotx_ca_crt;
         } else {
             memset(iotx_ca_crt_itls, 0, sizeof(iotx_ca_crt_itls));
             IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, iotx_ca_crt_itls);
-            iotx_ca_crt_itls[strlen(iotx_ca_crt_itls)] = '.';
-            IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, iotx_ca_crt_itls + strlen(iotx_ca_crt_itls));
+            IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, iotx_ca_crt_itls + strlen(iotx_ca_crt_itls) + 1);
             mqtt_params.pub_key = iotx_ca_crt_itls;
         }
     }
