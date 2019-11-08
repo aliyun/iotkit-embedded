@@ -28,7 +28,6 @@ void *ofc_Init(char *url, int offset)
     int port = 0;
     char header[OFC_HTTP_HEADER_MAXLEN] = {0};
     char *header_fmt = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
-                       "Accept-Encoding: gzip, deflate\r\n" \
                        "Range: bytes=%d-\r\n";
     char *protocol_end = NULL, *port_start = NULL, *port_end = NULL;
     int protocol_len = 0;
