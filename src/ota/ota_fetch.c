@@ -34,8 +34,8 @@ void *ofc_Init(char *url)
     memset(h_odc, 0, sizeof(otahttp_Struct_t));
 
     /* set http request-header parameter */
-    h_odc->http.header = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
-                         "Accept-Encoding: gzip, deflate\r\n";
+    h_odc->http.header = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
+
 #if defined(SUPPORT_ITLS)
     char *s_ptr = strstr(url, "://");
     if (strlen("https") == (s_ptr - url) && (0 == strncmp(url, "https", strlen("https")))) {
