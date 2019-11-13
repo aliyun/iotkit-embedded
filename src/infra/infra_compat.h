@@ -6,6 +6,31 @@
 #undef  being_deprecated
 #define being_deprecated
 
+#define IOCTL_FUNC(evt, params)                 iotx_ioctl_##evt(params)
+#define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb)
+#define DECLARE_EVENT_CALLBACK(evt, cb)         int iotx_register_for_##evt(cb);
+#define DEFINE_EVENT_CALLBACK(evt, cb)          int iotx_register_for_##evt(cb) { \
+        if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {return -1;} \
+        g_impl_event_map[evt].callback = (void *)callback;return 0;}
+
+/* compatible for V2.3.0 */
+#define IOTX_CLOUD_DOMAIN_SH                    IOTX_CLOUD_REGION_SHANGHAI
+#define IOTX_CLOUD_DOMAIN_SG                    IOTX_CLOUD_REGION_SINGAPORE
+#define IOTX_CLOUD_DOMAIN_JP                    IOTX_CLOUD_REGION_JAPAN
+#define IOTX_CLOUD_DOMAIN_US                    IOTX_CLOUD_REGION_USA_WEST
+#define IOTX_CLOUD_DOMAIN_GER                   IOTX_CLOUD_REGION_GERMANY
+#define IOTX_IOCTL_SET_DOMAIN                   IOTX_IOCTL_SET_REGION
+#define IOTX_IOCTL_GET_DOMAIN                   IOTX_IOCTL_GET_REGION
+
+#define IOT_OpenLog(arg)
+#define IOT_CloseLog()                          IOT_SetLogLevel(IOT_LOG_NONE)
+#define IOT_LOG_EMERG                           IOT_LOG_NONE
+
+#define IOT_Linkkit_Post                        IOT_Linkkit_Report
+#define AES_DECRYPTION                          HAL_AES_DECRYPTION
+#define AES_ENCRYPTION                          HAL_AES_ENCRYPTION
+
+#define NETWORK_ADDR_LEN                        (16)
 typedef enum _IOT_LogLevel {
     IOT_LOG_NONE = 0,
     IOT_LOG_CRIT,
@@ -15,9 +40,15 @@ typedef enum _IOT_LogLevel {
     IOT_LOG_DEBUG,
 } IOT_LogLevel;
 
-void IOT_SetLogLevel(IOT_LogLevel level);
-void IOT_DumpMemoryStats(IOT_LogLevel level);
-
+typedef struct {
+    uint16_t        port;
+    uint8_t         init;
+    char            *host_name;
+    char            *client_id;
+    char            *username;
+    char            *password;
+    const char      *pub_key;
+} iotx_conn_info_t, *iotx_conn_info_pt;
 /**
  * @brief event list used for iotx_regist_event_monitor_cb
  */
@@ -103,12 +134,6 @@ typedef enum {
     ITE_STATE_DEV_MODEL
 } iotx_ioctl_event_t;
 
-#define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb)
-#define DECLARE_EVENT_CALLBACK(evt, cb)         int iotx_register_for_##evt(cb);
-#define DEFINE_EVENT_CALLBACK(evt, cb)          int iotx_register_for_##evt(cb) { \
-        if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {return -1;} \
-        g_impl_event_map[evt].callback = (void *)callback;return 0;}
-
 DECLARE_EVENT_CALLBACK(ITE_AWSS_STATUS,          int (*cb)(int))
 DECLARE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_CONNECT_FAIL,         int (*cb)(void))
@@ -153,22 +178,6 @@ DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t cb);
 int iotx_state_event(const int event, const int state_code, const char *state_message_format, ...);
 
 void *iotx_event_callback(int evt);
-
-typedef struct {
-    uint16_t        port;
-    uint8_t         init;
-    char            *host_name;
-    char            *client_id;
-    char            *username;
-    char            *password;
-    const char      *pub_key;
-} iotx_conn_info_t, *iotx_conn_info_pt;
-
-int IOT_SetupConnInfo(const char *product_key,
-                      const char *device_name,
-                      const char *device_secret,
-                      void **info_ptr);
-
 
 typedef enum {
     IOTX_IOCTL_SET_REGION,              /* value(int*): iotx_cloud_region_types_t */
@@ -216,36 +225,13 @@ typedef enum {
  * @return None.
  * @see None.
  */
-int IOT_Ioctl(int option, void *data);
-
-
-/* compatible for V2.3.0 */
-#define IOTX_CLOUD_DOMAIN_SH        IOTX_CLOUD_REGION_SHANGHAI
-#define IOTX_CLOUD_DOMAIN_SG        IOTX_CLOUD_REGION_SINGAPORE
-#define IOTX_CLOUD_DOMAIN_JP        IOTX_CLOUD_REGION_JAPAN
-#define IOTX_CLOUD_DOMAIN_US        IOTX_CLOUD_REGION_USA_WEST
-#define IOTX_CLOUD_DOMAIN_GER       IOTX_CLOUD_REGION_GERMANY
-#define IOTX_IOCTL_SET_DOMAIN       IOTX_IOCTL_SET_REGION
-#define IOTX_IOCTL_GET_DOMAIN       IOTX_IOCTL_GET_REGION
-
-#define IOT_OpenLog(arg)
-#define IOT_CloseLog()              IOT_SetLogLevel(IOT_LOG_NONE)
-#define IOT_LOG_EMERG               IOT_LOG_NONE
-
-#define IOT_Linkkit_Post            IOT_Linkkit_Report
-/* compatible for V2.3.0 end */
 
 typedef enum {
     HAL_AES_ENCRYPTION = 0,
     HAL_AES_DECRYPTION = 1,
 } AES_DIR_t;
 
-#define AES_DECRYPTION HAL_AES_DECRYPTION
-#define AES_ENCRYPTION HAL_AES_ENCRYPTION
-
 typedef void *p_Aes128_t;
-
-#define NETWORK_ADDR_LEN        (16)
 
 typedef struct _network_addr_t {
     unsigned char
@@ -253,4 +239,14 @@ typedef struct _network_addr_t {
     unsigned short  port;
 } NetworkAddr;
 
+int IOT_Ioctl(int option, void *data);
+
+int IOT_SetupConnInfo(const char *product_key,
+                      const char *device_name,
+                      const char *device_secret,
+                      void **info_ptr);
+
+void IOT_SetLogLevel(IOT_LogLevel level);
+
+void IOT_DumpMemoryStats(IOT_LogLevel level);
 #endif  /* _INFRA_COMPAT_H_ */

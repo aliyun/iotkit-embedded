@@ -28,6 +28,8 @@ typedef struct {
     int payload_len;
 } dynreg_http_response_t;
 
+static int dynamic_register = 0;
+
 static int _parse_string_value(char *payload, int *pos, int *start, int *end)
 {
     int idx = 0;
@@ -536,3 +538,21 @@ int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info
 #endif
 }
 
+int IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, void *data)
+{
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+    dynamic_register = *(int *)data;
+    return SUCCESS_RETURN;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_GET_DYNAMIC_REGISTER, void *data)
+{
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    *(int *)data = dynamic_register;
+    return SUCCESS_RETURN;
+}

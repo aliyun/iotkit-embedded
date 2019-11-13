@@ -192,6 +192,33 @@ uint8_t awss_get_config_press(void)
     return g_user_press;
 }
 
+int IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL, void *data)
+{
+    int res;
+    uint32_t timeout;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+    timeout = *(uint32_t *) data;
+    awss_set_press_timeout_ms(timeout);
+    return SUCCESS_RETURN;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL, void *data)
+{
+    int res;
+    uint32_t timeout;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    timeout = *(uint32_t *) data;
+    awss_set_channel_scan_interval_ms(timeout);
+    return SUCCESS_RETURN;
+}
+
+
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

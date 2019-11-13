@@ -46,4 +46,3 @@
 #endif
 
 #endif  /* __IOTX_MQTT_INTERNAL_H__ */
-

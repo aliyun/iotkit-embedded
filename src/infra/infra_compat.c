@@ -8,7 +8,7 @@
 #include "infra_compat.h"
 #include "wrappers.h"
 
-sdk_impl_ctx_t g_sdk_impl_ctx = {0};
+/*sdk_impl_ctx_t g_sdk_impl_ctx = {0};*/
 
 #if !defined(INFRA_LOG)
 void IOT_SetLogLevel(IOT_LogLevel level) {}
@@ -19,23 +19,8 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
     extern void awss_set_channel_scan_interval_ms(uint32_t timeout_ms);
 #endif
 
-#ifdef MQTT_COMM_ENABLED
-#include "dev_sign_api.h"
-#include "mqtt_api.h"
-
-#ifdef INFRA_LOG
-    #include "infra_log.h"
-    #define sdk_err(...)       log_err("infra_compat", __VA_ARGS__)
-    #define sdk_info(...)      log_info("infra_compat", __VA_ARGS__)
-#else
-    #define sdk_err(...)
-    #define sdk_info(...)
-#endif
-
-#ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
-#endif
-
+static char http_custom_domain[IOTX_DOMAIN_MAX_LEN + 1] = {0};
+static iotx_dev_meta_info_t  g_dev_meta_info_t = {0};
 /* global variable for mqtt construction */
 static iotx_conn_info_t g_iotx_conn_info = {0};
 static char g_empty_string[1] = "";
@@ -64,83 +49,85 @@ int IOT_SetupConnInfo(const char *product_key,
     }
     return SUCCESS_RETURN;
 }
-#endif /* #ifdef MQTT_COMM_ENABLED */
 
-#if defined(DEVICE_MODEL_ENABLED)
-    #include "iotx_dm.h"
-    #include "dm_opt.h"
+int IOCTL_FUNC(IOTX_IOCTL_SET_REGION, void *);
+int IOCTL_FUNC(IOTX_IOCTL_GET_REGION, void *);
+int IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_DOMAIN, void *data);
+int IOCTL_FUNC(IOTX_IOCTL_SET_HTTP_DOMAIN, void *data);
+#if defined(DYNAMIC_REGISTER)
+int IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, void *data);
+int IOCTL_FUNC(IOTX_IOCTL_GET_DYNAMIC_REGISTER, void *);
 #endif
-
-#if defined(DEVICE_MODEL_GATEWAY)
-extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
-                                       char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+int IOCTL_FUNC(IOTX_IOCTL_FOTA_TIMEOUT_MS, void *data);
+#if defined(DEVICE_MODEL_ENABLED) 
+int IOCTL_FUNC(IOTX_IOCTL_SET_CUSTOMIZE_INFO, void *data);
+int IOCTL_FUNC(IOTX_IOCTL_SET_PROXY_REGISTER, void *);
+int IOCTL_FUNC(IOTX_IOCTL_SET_OTA_DEV_ID, void *);
+int IOCTL_FUNC(IOTX_IOCTL_QUERY_DEVID, void *data);
+int IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_PORT, void *);
 #endif
+int IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL, void *data);
+int IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL, void *data);
+int IOCTL_FUNC(IOTX_IOCTL_SUB_USER_TOPIC, void *);
+int IOCTL_FUNC(IOTX_IOCTL_RECV_PROP_REPLY, void *);
+int IOCTL_FUNC(IOTX_IOCTL_SEND_PROP_SET_REPLY, void *);
 
-int IOT_Ioctl(int option, void *data)
+int IOCTL_FUNC(IOTX_IOCTL_SET_HTTP_DOMAIN, void *data)
 {
-    int                 res = SUCCESS_RETURN;
-    sdk_impl_ctx_t     *ctx = NULL;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+    memset(http_custom_domain, 0, strlen((char *)data) + 1);
+    memcpy(http_custom_domain, data, strlen((char *)data));
+    g_infra_http_domain[IOTX_CLOUD_REGION_CUSTOM] = (const char *)http_custom_domain;
+    return SUCCESS_RETURN;
+}
 
-    ctx = &g_sdk_impl_ctx;
+int IOT_Ioctl(int  option, void *data)
+{
+    int                 res = FAIL_RETURN;
+    iotx_dev_meta_info_t     *meta = NULL;
 
+    meta = &g_dev_meta_info_t;
+    
     if (option < 0 || data == NULL) {
         return FAIL_RETURN;
     }
-
-    switch (option) {
-        case IOTX_IOCTL_SET_REGION: {
-            ctx->domain_type = *(iotx_mqtt_region_types_t *)data;
-            /* iotx_guider_set_region(*(int *)data); */
-
-            res = SUCCESS_RETURN;
+    switch(option){
+        case IOTX_IOCTL_SET_REGION:
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_REGION, data);
+            break;
+        case IOTX_IOCTL_GET_REGION:
+            res = IOCTL_FUNC(IOTX_IOCTL_GET_REGION, data);
+            break;
+    
+        case IOTX_IOCTL_SET_MQTT_DOMAIN:{
+            int domain_type = IOTX_CLOUD_REGION_CUSTOM;
+            IOCTL_FUNC(IOTX_IOCTL_SET_REGION, &domain_type);
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_DOMAIN, data);
         }
-        break;
-        case IOTX_IOCTL_GET_REGION: {
-            *(iotx_mqtt_region_types_t *)data = ctx->domain_type;
+            break;
 
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case IOTX_IOCTL_SET_MQTT_DOMAIN: {
-            ctx->domain_type = IOTX_CLOUD_REGION_CUSTOM;
+         case IOTX_IOCTL_SET_HTTP_DOMAIN: {
+            int region = IOTX_HTTP_REGION_CUSTOM;
+            IOCTL_FUNC(IOTX_IOCTL_SET_REGION, &region);
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_DOMAIN, data);
+         }
+            break; 
+#if defined(DYNAMIC_REGISTER)
+         case IOTX_IOCTL_SET_DYNAMIC_REGISTER:
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, data);
+            break;     
+         case IOTX_IOCTL_GET_DYNAMIC_REGISTER:
+            res = IOCTL_FUNC(IOTX_IOCTL_GET_DYNAMIC_REGISTER, data);
+            break;
+#endif
 
-            if (strlen(data) > IOTX_DOMAIN_MAX_LEN) {
-                return FAIL_RETURN;
-            }
-            memset(ctx->cloud_custom_domain, 0, strlen((char *)data) + 1);
-            memcpy(ctx->cloud_custom_domain, data, strlen((char *)data));
-            g_infra_mqtt_domain[IOTX_CLOUD_REGION_CUSTOM] = (const char *)ctx->cloud_custom_domain;
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case IOTX_IOCTL_SET_HTTP_DOMAIN: {
-            ctx->domain_type = IOTX_HTTP_REGION_CUSTOM;
-
-            if (strlen(data) > IOTX_DOMAIN_MAX_LEN) {
-                return FAIL_RETURN;
-            }
-            memset(ctx->http_custom_domain, 0, strlen((char *)data) + 1);
-            memcpy(ctx->http_custom_domain, data, strlen((char *)data));
-            g_infra_http_domain[IOTX_CLOUD_REGION_CUSTOM] = (const char *)ctx->http_custom_domain;
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case IOTX_IOCTL_SET_DYNAMIC_REGISTER: {
-            ctx->dynamic_register = *(int *)data;
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case IOTX_IOCTL_GET_DYNAMIC_REGISTER: {
-            *(int *)data = ctx->dynamic_register;
-
-            res = SUCCESS_RETURN;
-        }
-        break;
+        break; 
         case IOTX_IOCTL_SET_PRODUCT_KEY: {
             if ((data != NULL) && (strlen(data) <= IOTX_PRODUCT_KEY_LEN)) {
-                memset(ctx->product_key, 0, IOTX_PRODUCT_KEY_LEN + 1);
-                memcpy(ctx->product_key, data, strlen(data));
+                memset(meta->product_key, 0, IOTX_PRODUCT_KEY_LEN + 1);
+                memcpy(meta->product_key, data, strlen(data));
                 res = SUCCESS_RETURN;
             } else {
                 res = FAIL_RETURN;
@@ -148,14 +135,14 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_PRODUCT_KEY: {
-            memcpy(data, ctx->product_key, strlen(ctx->product_key));
+            memcpy(data, meta->product_key, strlen(meta->product_key));
             res = SUCCESS_RETURN;
         }
         break;
         case IOTX_IOCTL_SET_PRODUCT_SECRET: {
             if ((data != NULL) && (strlen(data) <= IOTX_PRODUCT_SECRET_LEN)) {
-                memset(ctx->product_secret, 0, IOTX_PRODUCT_SECRET_LEN + 1);
-                memcpy(ctx->product_secret, data, strlen(data));
+                memset(meta->product_secret, 0, IOTX_PRODUCT_SECRET_LEN + 1);
+                memcpy(meta->product_secret, data, strlen(data));
                 res = SUCCESS_RETURN;
             } else {
                 res = FAIL_RETURN;
@@ -163,14 +150,14 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_PRODUCT_SECRET: {
-            memcpy(data, ctx->product_secret, strlen(ctx->product_secret));
+            memcpy(data, meta->product_secret, strlen(meta->product_secret));
             res = SUCCESS_RETURN;
         }
         break;
         case IOTX_IOCTL_SET_DEVICE_NAME: {
             if ((data != NULL) && (strlen(data) <= IOTX_DEVICE_NAME_LEN)) {
-                memset(ctx->device_name, 0, IOTX_DEVICE_NAME_LEN + 1);
-                memcpy(ctx->device_name, data, strlen(data));
+                memset(meta->device_name, 0, IOTX_DEVICE_NAME_LEN + 1);
+                memcpy(meta->device_name, data, strlen(data));
                 res = SUCCESS_RETURN;
             } else {
                 res = FAIL_RETURN;
@@ -178,14 +165,14 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_DEVICE_NAME: {
-            memcpy(data, ctx->device_name, strlen(ctx->device_name));
+            memcpy(data, meta->device_name, strlen(meta->device_name));
             res = SUCCESS_RETURN;
         }
         break;
         case IOTX_IOCTL_SET_DEVICE_SECRET: {
             if ((data != NULL) && (strlen(data) <= IOTX_DEVICE_SECRET_LEN)) {
-                memset(ctx->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
-                memcpy(ctx->device_secret, data, strlen(data));
+                memset(meta->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
+                memcpy(meta->device_secret, data, strlen(data));
                 res = SUCCESS_RETURN;
             } else {
                 res = FAIL_RETURN;
@@ -193,39 +180,26 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
         case IOTX_IOCTL_GET_DEVICE_SECRET: {
-            memcpy(data, ctx->device_secret, strlen(ctx->device_secret));
+            memcpy(data, meta->device_secret, strlen(meta->device_secret));
             res = SUCCESS_RETURN;
         }
-        break;
+
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case IOTX_IOCTL_RECV_EVENT_REPLY:
         case IOTX_IOCTL_RECV_PROP_REPLY: {
-            res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY, data);
+            res = IOCTL_FUNC(IOTX_IOCTL_RECV_PROP_REPLY, data);
         }
         break;
         case IOTX_IOCTL_SEND_PROP_SET_REPLY : {
-            res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY, data);
+            res = IOCTL_FUNC(IOTX_IOCTL_SEND_PROP_SET_REPLY, data);
         }
         break;
 #endif
-        case IOTX_IOCTL_SET_SUBDEV_SIGN: {
-            /* todo */
-        }
-        break;
-        case IOTX_IOCTL_GET_SUBDEV_LOGIN: {
-            /* todo */
-        }
-        break;
 #if defined(DEVICE_MODEL_GATEWAY)
 #ifdef DEVICE_MODEL_SUBDEV_OTA
         case IOTX_IOCTL_SET_OTA_DEV_ID: {
-            int devid = *(int *)(data);
-            if (devid < 0) {
-                res = STATE_USER_INPUT_DEVID;
-            } else {
-                res = iotx_dm_ota_switch_device(devid);
-            }
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_OTA_DEV_ID, data);
         }
         break;
 #endif
@@ -241,59 +215,57 @@ int IOT_Ioctl(int option, void *data)
 #endif
 #if defined(DEVICE_MODEL_ENABLED)
         case IOTX_IOCTL_FOTA_TIMEOUT_MS: {
-            res = iotx_dm_set_opt(DM_OPT_FOTA_RETRY_TIMEOUT_MS, data);
+            res = IOCTL_FUNC(IOTX_IOCTL_FOTA_TIMEOUT_MS, data);
         }
         break;
-#endif
+
+        case IOTX_IOCTL_SUB_USER_TOPIC: {
+            res = IOCTL_FUNC(IOTX_IOCTL_SUB_USER_TOPIC, data);
+        }
+        break;
         case IOTX_IOCTL_SET_CUSTOMIZE_INFO: {
-            if (strlen(data) > IOTX_CUSTOMIZE_INFO_LEN) {
-                return FAIL_RETURN;
-            }
-            memset(ctx->mqtt_customzie_info, 0, strlen((char *)data) + 1);
-            memcpy(ctx->mqtt_customzie_info, data, strlen((char *)data));
-            res = SUCCESS_RETURN;
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_CUSTOMIZE_INFO, data);
         }
         break;
         case IOTX_IOCTL_SET_MQTT_PORT: {
-            ctx->mqtt_port_num = *(uint16_t *)data;
-            res = SUCCESS_RETURN;
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_PORT, data);
         }
-        break;
+#endif
+
 #if defined(DEVICE_MODEL_GATEWAY) && !defined(DEPRECATED_LINKKIT)
         case IOTX_IOCTL_SET_PROXY_REGISTER: {
-            res = iotx_dm_set_opt(DM_OPT_PROXY_PRODUCT_REGISTER, data);
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_PROXY_REGISTER, data);
         }
         break;
         case IOTX_IOCTL_QUERY_DEVID: {
-            iotx_dev_meta_info_t *dev_info = (iotx_dev_meta_info_t *)data;
-
-            res = iot_linkkit_subdev_query_id(dev_info->product_key, dev_info->device_name);
+            res = IOCTL_FUNC(IOTX_IOCTL_QUERY_DEVID, data);
+        }
+        break;
+        case IOTX_IOCTL_SET_SUBDEV_SIGN: {
+            /* todo */
+        }
+        break;
+        case IOTX_IOCTL_GET_SUBDEV_LOGIN: {
+            /* todo */
         }
         break;
 #endif
+
 #if defined(WIFI_PROVISION_ENABLED)
         case IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL: {
-            uint32_t timeout = *(uint32_t *) data;
-            awss_set_press_timeout_ms(timeout);
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL, data);
         }
         break;
         case IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL: {
-            uint32_t timeout = *(uint32_t *) data;
-            awss_set_channel_scan_interval_ms(timeout);
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL, data);
         }
         break;
 #endif
-#if defined(DEVICE_MODEL_ENABLED)
-        case IOTX_IOCTL_SUB_USER_TOPIC: {
-            iotx_user_subscribe_context *context = (iotx_user_subscribe_context *) data;
-            res = iotx_dm_subscribe_user_topic((char *)context->topic, (void *)context->callback);
-        }
-        break;
-#endif
+
         default: {
             res = FAIL_RETURN;
         }
-        break;
+        break;   
     }
 
     return res;
@@ -434,7 +406,7 @@ DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t callback)
 
 #if !defined(__APPLE__)
-extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+    extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
 #define IOTX_STATE_EVENT_MESSAGE_MAXLEN (64)

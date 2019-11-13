@@ -1961,6 +1961,89 @@ int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char
     iotx_dm_subdev_query(product_key, device_name, &res);
     return res;
 }
+
+int IOCTL_FUNC(IOTX_IOCTL_QUERY_DEVID, void *data)
+{
+    int res;
+    iotx_dev_meta_info_t *dev_info = (iotx_dev_meta_info_t *)data;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+  
+    res = iot_linkkit_subdev_query_id(dev_info->product_key, dev_info->device_name);
+    return res;
+}
+
+#ifdef DEVICE_MODEL_SUBDEV_OTA
+int IOCTL_FUNC(IOTX_IOCTL_SET_OTA_DEV_ID, void *data)
+{
+    int res;
+    int devid;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    devid = *(int *)(data);
+    if (devid < 0) {
+        res = STATE_USER_INPUT_DEVID;
+    } else {
+        res = iotx_dm_ota_switch_device(devid);
+    }
+    return res;
+}
+#endif
 #endif /* #ifdef DEVICE_MODEL_GATEWAY */
 
+int IOCTL_FUNC(IOTX_IOCTL_RECV_PROP_REPLY, void *data)
+{
+    int res;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY, data);
+    return res;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_SEND_PROP_SET_REPLY, void *data)
+{
+    int res;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+    res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY, data);
+    return res;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_FOTA_TIMEOUT_MS, void *data)
+{
+    int res;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+    res = iotx_dm_set_opt(DM_OPT_FOTA_RETRY_TIMEOUT_MS, data);
+    return res;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_SET_PROXY_REGISTER, void *data)
+{
+    int res;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+    res = iotx_dm_set_opt(DM_OPT_PROXY_PRODUCT_REGISTER, data);
+    return res;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_SUB_USER_TOPIC, void *data)
+{
+    int res;
+    iotx_user_subscribe_context *context = (iotx_user_subscribe_context *) data;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    res = iotx_dm_subscribe_user_topic((char *)context->topic, (void *)context->callback);
+    return res;
+}
 #endif

@@ -340,6 +340,7 @@ typedef enum {
  * @brief contains iot_ioctl context
  *
  */
+/*
 typedef struct {
     int domain_type;
     int dynamic_register;
@@ -352,7 +353,7 @@ typedef struct {
     char device_name[IOTX_DEVICE_NAME_LEN + 1];
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 } sdk_impl_ctx_t;
-
+*/
 typedef struct {
     char hostname[DEV_SIGN_HOSTNAME_MAXLEN];
     uint16_t port;

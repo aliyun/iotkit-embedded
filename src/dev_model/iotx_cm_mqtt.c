@@ -3,6 +3,9 @@
 #if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 
 static iotx_cm_connection_t *_mqtt_conncection = NULL;
+
+static char mqtt_customzie_info[IOTX_CUSTOMIZE_INFO_LEN + 1] = {0};
+static uint16_t mqtt_customzie_port = 0;
 static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
 static int  _mqtt_connect(uint32_t timeout);
 static int _mqtt_publish(iotx_cm_ext_params_t *params, const char *topic, const char *payload,
@@ -13,6 +16,35 @@ static iotx_mqtt_qos_t _get_mqtt_qos(iotx_cm_ack_types_t ack_type);
 static int _mqtt_unsub(const char *topic);
 static int _mqtt_close(void);
 static void _set_common_handlers(void);
+
+int IOCTL_FUNC(IOTX_IOCTL_SET_CUSTOMIZE_INFO, void *data)
+{
+    int res;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    if (strlen((char *)data) > IOTX_CUSTOMIZE_INFO_LEN) {
+        return FAIL_RETURN;
+    }
+    memset(mqtt_customzie_info, 0, strlen((char *)data) + 1);
+    memcpy(mqtt_customzie_info, data, strlen((char *)data));
+    res = SUCCESS_RETURN;
+    return res;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_PORT, void *data)
+{
+    int res;
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    mqtt_customzie_port = *(uint16_t *)data;
+    res = SUCCESS_RETURN;
+    return res;
+}
+
 
 iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
 {
@@ -196,7 +228,6 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
     }
 }
 
-extern sdk_impl_ctx_t g_sdk_impl_ctx;
 static int _mqtt_connect(uint32_t timeout)
 {
     void *pclient;
@@ -225,11 +256,11 @@ static int _mqtt_connect(uint32_t timeout)
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout);
 
-    if (g_sdk_impl_ctx.mqtt_customzie_info[0] != '\0') {
-        ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->customize_info = g_sdk_impl_ctx.mqtt_customzie_info;
+    if (mqtt_customzie_info[0] != '\0') {
+        ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->customize_info = mqtt_customzie_info;
     }
-    if (g_sdk_impl_ctx.mqtt_port_num != 0) {
-        ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->port = g_sdk_impl_ctx.mqtt_port_num;
+    if (mqtt_customzie_port != 0) {
+        ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->port = mqtt_customzie_port;
     }
 
     do {

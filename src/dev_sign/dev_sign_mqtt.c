@@ -4,7 +4,7 @@
 #include "infra_defs.h"
 #include "infra_config.h"
 #include "infra_sha256.h"
-
+#include "infra_compat.h"
 #include "dev_sign_api.h"
 #include "wrappers.h"
 
@@ -22,6 +22,9 @@
 
 /* use fixed timestamp */
 #define TIMESTAMP_VALUE             "2524608000000"
+
+static iotx_mqtt_region_types_t domain_type = IOTX_CLOUD_REGION_SHANGHAI;
+static char cloud_custom_domain[IOTX_DOMAIN_MAX_LEN + 1] = {0};
 
 /* clientid key value pair define */
 const char *clientid_kv[][2] = {
@@ -217,3 +220,39 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     return STATE_SUCCESS;
 }
 
+int IOCTL_FUNC(IOTX_IOCTL_SET_REGION, void *data)
+{
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    domain_type = *(iotx_mqtt_region_types_t *)data;
+    return SUCCESS_RETURN;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_GET_REGION, void *data)
+{
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    *(iotx_mqtt_region_types_t *)data = domain_type;
+    return SUCCESS_RETURN;
+}
+
+int IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_DOMAIN, void *data)
+{
+    if(data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    domain_type = IOTX_CLOUD_REGION_CUSTOM;
+
+    if (strlen((char *)data) > IOTX_DOMAIN_MAX_LEN) {
+        return FAIL_RETURN;
+    }
+    memset(cloud_custom_domain, 0, strlen((char *)data) + 1);
+    memcpy(cloud_custom_domain, data, strlen((char *)data));
+    g_infra_mqtt_domain[IOTX_CLOUD_REGION_CUSTOM] = (const char *)cloud_custom_domain;
+    return SUCCESS_RETURN;
+}

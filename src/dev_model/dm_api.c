@@ -829,6 +829,7 @@ int iotx_dm_ota_switch_device(_IN_ int devid)
 {
     return dm_ota_switch_device(devid);
 }
+
 #endif
 #endif
 

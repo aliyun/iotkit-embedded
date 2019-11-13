@@ -3,7 +3,6 @@
 
 typedef struct {
     int fd;
-    iotx_conn_info_t *conn_info;
     void *callback;
 } dm_client_ctx_t;
 
