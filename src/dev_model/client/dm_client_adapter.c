@@ -28,12 +28,11 @@ int dm_client_open(void)
     cm_param.handle_event = dm_client_event_handle;
 
     res = iotx_cm_open(&cm_param);
-
+    ctx->fd = res;
     if (res < SUCCESS_RETURN) {
         return res;
     }
-    ctx->fd = res;
-
+    
     dm_log_info("CM Fd: %d", ctx->fd);
 
     return SUCCESS_RETURN;
