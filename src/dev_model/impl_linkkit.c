@@ -1325,12 +1325,10 @@ static int _iotx_linkkit_slave_connect(int devid)
     /* Subdev Add Topo */
     res = iotx_dm_subdev_topo_add(devid);
     if (res < SUCCESS_RETURN) {
-        _iotx_linkkit_mutex_unlock();
         return res;
     }
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
-        _iotx_linkkit_mutex_unlock();
         return STATE_SYS_DEPEND_SEMAPHORE_CREATE;
     }
 
@@ -1724,12 +1722,10 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
-    _iotx_linkkit_mutex_lock();
     switch (msg_type) {
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case ITM_MSG_POST_PROPERTY: {
             if (payload == NULL || payload_len <= 0) {
-                _iotx_linkkit_mutex_unlock();
                 return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_post_property(devid, (char *)payload, payload_len);
@@ -1743,7 +1739,6 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #ifdef DEVICE_MODEL_SHADOW
         case ITM_MSG_PROPERTY_DESIRED_GET: {
             if (payload == NULL || payload_len <= 0) {
-                _iotx_linkkit_mutex_unlock();
                 return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_property_desired_get(devid, (char *)payload, payload_len);
@@ -1751,7 +1746,6 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         break;
         case ITM_MSG_PROPERTY_DESIRED_DELETE: {
             if (payload == NULL || payload_len <= 0) {
-                _iotx_linkkit_mutex_unlock();
                 return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_property_desired_delete(devid, (char *)payload, payload_len);
@@ -1760,7 +1754,6 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #endif
         case ITM_MSG_DEVICEINFO_UPDATE: {
             if (payload == NULL || payload_len <= 0) {
-                _iotx_linkkit_mutex_unlock();
                 return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_deviceinfo_update(devid, (char *)payload, payload_len);
@@ -1768,7 +1761,6 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         break;
         case ITM_MSG_DEVICEINFO_DELETE: {
             if (payload == NULL || payload_len <= 0) {
-                _iotx_linkkit_mutex_unlock();
                 return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_deviceinfo_delete(devid, (char *)payload, payload_len);
@@ -1777,7 +1769,6 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #endif
         case ITM_MSG_POST_RAW_DATA: {
             if (payload == NULL || payload_len <= 0) {
-                _iotx_linkkit_mutex_unlock();
                 return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_post_rawdata(devid, (char *)payload, payload_len);
@@ -1818,7 +1809,6 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #ifdef DEVICE_HISTORY_POST
         case ITM_MSG_POST_HISTORY_DATA: {
             if (payload == NULL || payload_len <= 0) {
-                _iotx_linkkit_mutex_unlock();
                 return STATE_USER_INPUT_INVALID;
             }
             res = iotx_dm_post_history(devid, (char *)payload, payload_len);
@@ -1830,7 +1820,6 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         }
         break;
     }
-    _iotx_linkkit_mutex_unlock();
     return res;
 }
 
@@ -1847,7 +1836,6 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
         return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
-    _iotx_linkkit_mutex_lock();
     switch (msg_type) {
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case ITM_MSG_QUERY_TIMESTAMP: {
@@ -1884,7 +1872,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
         }
         break;
     }
-    _iotx_linkkit_mutex_unlock();
+
     return res;
 }
 
@@ -1902,9 +1890,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
         return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
-    _iotx_linkkit_mutex_lock();
     res = iotx_dm_post_event(devid, eventid, eventid_len, payload, payload_len);
-    _iotx_linkkit_mutex_unlock();
 
     return res;
 #else
