@@ -2,6 +2,23 @@ config DYNAMIC_REGISTER
     bool "FEATURE_DYNAMIC_REGISTER"
     default n
     select INFRA_STRING
-    select INFRA_HTTPC
     select INFRA_SHA256
     select SUPPORT_TLS
+    select MQTT_DYNAMIC_REGISTER if !HTTP_DYNAMIC_REGISTER
+menu "DYNAMIC_REGISTER Configurations"
+    depends on DYNAMIC_REGISTER
+
+        config HTTP_DYNAMIC_REGISTER
+            bool "FEATURE_HTTP_DYNAMIC_REGISTER"
+            default y
+            select INFRA_HTTPC
+            select SUPPORT_TLS
+        
+if !HTTP_DYNAMIC_REGISTER
+        config MQTT_DYNAMIC_REGISTER
+            default n
+            bool "FEATURE_MQTT_DYNAMIC_REGISTER"
+            select MQTT_DYNAMIC_REGISTER
+            select SUPPORT_TLS
+endif
+endmenu

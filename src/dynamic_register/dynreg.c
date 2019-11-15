@@ -30,6 +30,7 @@ typedef struct {
 
 static int dynamic_register = 0;
 
+#if !defined(MQTT_DYNAMIC_REGISTER)
 static int _parse_string_value(char *payload, int *pos, int *start, int *end)
 {
     int idx = 0;
@@ -317,7 +318,7 @@ int32_t _http_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     return STATE_SUCCESS;
 }
 
-#ifdef MQTT_DYNAMIC_REGISTER
+#else
 static int _mqtt_dynreg_sign_password(iotx_dev_meta_info_t *meta_info, iotx_sign_mqtt_t *signout, char *rand)
 {
     char signsource[DEV_SIGN_SOURCE_MAXLEN] = {0};
