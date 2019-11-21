@@ -4,7 +4,7 @@
 
 #include "iotx_dm_internal.h"
 
-#ifdef LOG_REPORT_TO_CLOUD
+#if defined(LOG_REPORT_TO_CLOUD) && !defined(DEVICE_MODEL_RAWDATA_SOLO)
 
 #include "dev_model_api.h"
 

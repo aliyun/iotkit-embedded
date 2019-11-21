@@ -1411,7 +1411,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     HEXDUMP_DEBUG(topic_msg.payload, topic_msg.payload_len);
 #endif
 #endif
-#ifdef LOG_REPORT_TO_CLOUD
+#if defined(LOG_REPORT_TO_CLOUD) && !defined(DEVICE_MODEL_RAWDATA_SOLO)
     get_msgid(topicName.lenstring.data, 1);
 #endif
 
