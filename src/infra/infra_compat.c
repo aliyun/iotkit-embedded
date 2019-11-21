@@ -58,7 +58,7 @@ int IOT_SetupConnInfo(const char *product_key,
 }
 #endif /* #ifdef MQTT_COMM_ENABLED */
 
-#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
+#if defined(DEVICE_MODEL_ENABLED)
     #include "iotx_dm.h"
 #endif
 
@@ -127,7 +127,7 @@ int IOT_Ioctl(int option, void *data)
             res = SUCCESS_RETURN;
         }
         break;
-#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
+#if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case IOTX_IOCTL_RECV_EVENT_REPLY:
         case IOTX_IOCTL_RECV_PROP_REPLY: {
@@ -147,7 +147,7 @@ int IOT_Ioctl(int option, void *data)
             /* todo */
         }
         break;
-#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_GATEWAY)
+#if defined(DEVICE_MODEL_GATEWAY)
 #ifdef DEVICE_MODEL_SUBDEV_OTA
         case IOTX_IOCTL_SET_OTA_DEV_ID: {
             int devid = *(int *)(data);

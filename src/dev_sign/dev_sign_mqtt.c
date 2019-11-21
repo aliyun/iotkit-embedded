@@ -46,7 +46,7 @@ const char *clientid_kv[][2] = {
     {
         "lan", "C"
     },
-#if defined(DEVICE_MODEL_ENABLED) && !defined(DEVICE_MODEL_CLASSIC)
+#if 0 
     {
         "v", IOTX_ALINK_VERSION
     },
