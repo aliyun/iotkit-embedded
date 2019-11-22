@@ -283,7 +283,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
         }
 
 #if defined(MBEDTLS_CERTS_C)
-        printf("start mbedtls_pk_parse_key[%s]\n", cli_pwd);
+        /* printf("start mbedtls_pk_parse_key[%s]\n", cli_pwd); */
         ret = mbedtls_pk_parse_key(pk_cli, (const unsigned char *) cli_key, key_len, (const unsigned char *) cli_pwd, pwd_len);
 #else
         {
