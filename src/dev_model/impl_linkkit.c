@@ -1568,10 +1568,6 @@ int IOT_Linkkit_Yield(int timeout_ms)
 #ifdef DEV_BIND_ENABLED
     IOT_Bind_Yield();
 #endif
-
-#ifdef DEVICE_MODEL_GATEWAY
-    HAL_SleepMs(timeout_ms);
-#endif
     ctx->is_yield_running = 0;
 
     return res;

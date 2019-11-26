@@ -144,6 +144,7 @@ static void *_iotx_cm_yield_thread_func(void *params)
 int iotx_cm_yield(int fd, unsigned int timeout)
 {
 #ifdef DEVICE_MODEL_MULTI_THREAD
+    HAL_SleepMs(timeout_ms);
     return STATE_SUCCESS;
 #else
     return _iotx_cm_yield(fd, timeout);
