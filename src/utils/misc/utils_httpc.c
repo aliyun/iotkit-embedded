@@ -640,7 +640,13 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     /*If not ending of response body, try to get more data again */
     if (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
         int new_trf_len, ret;
-        ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, iotx_time_left(&timer));
+        int max_remain_len = HTTPCLIENT_CHUNK_SIZE - len - 1;
+        if (max_remain_len <= 0) {
+            log_debug("buffer exceeded max\n");
+            return ERROR_HTTP_PARSE;
+        }
+        ret = httpclient_recv(client, data + len, 1, max_remain_len, &new_trf_len, iotx_time_left(&timer));
+
         if (ret == ERROR_HTTP_CONN) {
             return ret;
         }
