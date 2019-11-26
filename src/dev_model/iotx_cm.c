@@ -15,7 +15,7 @@ static int _recycle_fd(int fd);
 static int inline _fd_is_valid(int fd);
 static int inited_conn_num = 0;
 
-#ifdef DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_MULTI_THREAD
     static void *_iotx_cm_yield_thread_func(void *params);
     static void *yield_thread = NULL;
     static int yield_task_leave = 1;
@@ -75,7 +75,7 @@ int iotx_cm_connect(int fd, uint32_t timeout)
         inited_conn_num++;
         if (inited_conn_num == 1) {
 
-#ifdef DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_MULTI_THREAD
             int stack_used;
             hal_os_thread_param_t task_parms = {0};
             task_parms.stack_size = 6144;
@@ -129,7 +129,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     return yield_func(timeout);
 }
 
-#ifdef DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_MULTI_THREAD
 static void *_iotx_cm_yield_thread_func(void *params)
 {
     yield_task_leave = 0;
@@ -143,7 +143,7 @@ static void *_iotx_cm_yield_thread_func(void *params)
 
 int iotx_cm_yield(int fd, unsigned int timeout)
 {
-#ifdef DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_MULTI_THREAD
     return STATE_SUCCESS;
 #else
     return _iotx_cm_yield(fd, timeout);
@@ -203,7 +203,7 @@ int iotx_cm_close(int fd)
 
 
     if (inited_conn_num < 2) {
-#ifdef DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_MULTI_THREAD
         while (!yield_task_leave) {
             HAL_SleepMs(10);
         }
