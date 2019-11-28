@@ -80,7 +80,7 @@ int cut_main(int argc, char **argv)
     int         i = 0, j = 0, cnt = 0;
     char        tmpbuf[128];
     char       *pos;
-
+    int         teared;
     if (argc >= 2) {
 
         int         idx = 1;
@@ -118,7 +118,7 @@ int cut_main(int argc, char **argv)
 
     for (; i < cut.ccnt_total; i++) {
         pos = tmpbuf;
-
+        teared = 0;
         cut.ccur = cut.clist[i];
         if (cut.ccur->skip) {
             continue;
@@ -149,6 +149,7 @@ int cut_main(int argc, char **argv)
             if (cut.ccur->teardown)
             {
                 cut.ccur->teardown(cut.ccur->data);
+                teared = 1;
             }
 
             pos += sprintf(pos, " [%sSUCC%s]\n", COL_GRE, COL_DEF);
@@ -158,7 +159,10 @@ int cut_main(int argc, char **argv)
             continue;
         }
         EXCEPT {
-
+            if (teared == 0 && cut.ccur->teardown)
+            {
+                cut.ccur->teardown(cut.ccur->data);
+            }
             pos += sprintf(pos, " [%sFAIL%s]\n", COL_RED, COL_DEF);
             cut_printf("%s", tmpbuf);
 
