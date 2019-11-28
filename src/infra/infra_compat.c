@@ -111,7 +111,7 @@ int IOT_Ioctl(int  option, void *data)
          case IOTX_IOCTL_SET_HTTP_DOMAIN: {
             int region = IOTX_HTTP_REGION_CUSTOM;
             IOCTL_FUNC(IOTX_IOCTL_SET_REGION, &region);
-            res = IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_DOMAIN, data);
+            res = IOCTL_FUNC(IOTX_IOCTL_SET_HTTP_DOMAIN, data);
          }
             break; 
 #if defined(DYNAMIC_REGISTER)
