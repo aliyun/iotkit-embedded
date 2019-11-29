@@ -8,6 +8,7 @@
 #ifndef CLOUD__COAP_EXPORT_H__
 #define CLOUD__COAP_EXPORT_H__
 
+/* #define COAP_DTLS_SUPPORT */
 typedef CoAPMsgOption Cloud_CoAPMsgOption;
 typedef CoAPMessageCode Cloud_CoAPMessageCode;
 typedef CoAPMessage Cloud_CoAPMessage ;

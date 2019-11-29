@@ -30,9 +30,16 @@ int CoAPNetwork_read(NetworkContext         *p_context,
     }
 
     network = (NetworkConf *)p_context;
-    len =  HAL_UDP_recvfrom(network->fd, p_remote, p_data,
-                            datalen, timeout_ms);
-    /* COAP_DEBUG("[CoAP-NWK]: Network read return %d", len); */
+#ifdef COAP_DTLS_SUPPORT
+    if (COAP_NETWORK_DTLS == network->type) {
+    } else {
+#endif
+        len =  HAL_UDP_recvfrom(network->fd, p_remote, p_data,
+                                datalen, timeout_ms);
+        /* COAP_DEBUG("[CoAP-NWK]: Network read return %d", len); */
+#ifdef COAP_DTLS_SUPPORT
+    }
+#endif
     return len;
 }
 
@@ -52,8 +59,17 @@ int CoAPNetwork_write(NetworkContext          *p_context,
     }
 
     network = (NetworkConf *)p_context;
-    len = HAL_UDP_sendto(network->fd, p_remote,
-                         p_data, datalen, timeout_ms);
+#ifdef COAP_DTLS_SUPPORT
+    /* TODO: */
+    if (COAP_NETWORK_DTLS == network->type) {
+
+    } else {
+#endif
+        len = HAL_UDP_sendto(network->fd, p_remote,
+                             p_data, datalen, timeout_ms);
+#ifdef COAP_DTLS_SUPPORT
+    }
+#endif
     return len;
 }
 
@@ -74,15 +90,25 @@ NetworkContext *CoAPNetwork_init(const NetworkInit   *p_param)
     memset(network, 0x00, sizeof(NetworkConf));
     network->type = p_param->type;
 
-    /*Create udp socket*/
-    network->port = p_param->port;
-    network->fd = (intptr_t)HAL_UDP_create_without_connect(NULL, network->port);
-    if ((intptr_t) - 1 == network->fd) {
+#ifdef COAP_DTLS_SUPPORT
+    if (COAP_NETWORK_DTLS == network->type) {
+        /* TODO: */
         coap_free(network);
         return NULL;
-    }
+    } else {
+#endif
+        /*Create udp socket*/
+        network->port = p_param->port;
+        network->fd = (intptr_t)HAL_UDP_create_without_connect(NULL, network->port);
+        if ((intptr_t) - 1 == network->fd) {
+            coap_free(network);
+            return NULL;
+        }
 
-    HAL_UDP_joinmulticast(network->fd, p_param->group);
+        HAL_UDP_joinmulticast(network->fd, p_param->group);
+#ifdef COAP_DTLS_SUPPORT
+    }
+#endif
     return (NetworkContext *)network;
 }
 
@@ -95,10 +121,17 @@ void CoAPNetwork_deinit(NetworkContext *p_context)
     }
 
     network = (NetworkConf *)p_context;
-    HAL_UDP_close_without_connect(network->fd);
-    coap_free(p_context);
-    p_context = NULL;
-
+#ifdef COAP_DTLS_SUPPORT
+    if (COAP_NETWORK_DTLS == network->type) {
+        /* TODO: */
+    } else {
+#endif
+        HAL_UDP_close_without_connect(network->fd);
+        coap_free(p_context);
+        p_context = NULL;
+#ifdef COAP_DTLS_SUPPORT
+    }
+#endif
     return;
 }
 

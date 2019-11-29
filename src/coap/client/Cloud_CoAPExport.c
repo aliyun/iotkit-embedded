@@ -170,6 +170,12 @@ Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param)
         goto err;
     }
 
+#ifdef COAP_DTLS_SUPPORT
+    if (COAP_ENDPOINT_DTLS == network_param.ep_type) {
+        extern const char *iotx_ca_crt;
+        network_param.p_ca_cert_pem  = (unsigned char *)iotx_ca_crt;
+    }
+#endif
     if (COAP_ENDPOINT_NOSEC == network_param.ep_type
         || COAP_ENDPOINT_PSK == network_param.ep_type) {
         network_param.p_ca_cert_pem = NULL;

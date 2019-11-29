@@ -6,3 +6,6 @@ config SUPPORT_TLS
     bool
     default y
 
+config COAP_DTLS_SUPPORT
+    bool
+    default n

@@ -24,6 +24,7 @@ config COAP_CLIENT
     select INFRA_MD5
     select INFRA_REPORT
     select INFRA_STRING
+    select COAP_DTLS_SUPPORT
     select INFRA_AES
     select COAP_PACKET
 

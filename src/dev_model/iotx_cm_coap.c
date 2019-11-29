@@ -5,27 +5,41 @@
 #include "iotx_cm_coap.h"
 #include "infra_timer.h"
 
-#ifdef COAP_PSK_SUPPORT  /* PSK */
+#ifdef COAP_DTLS_SUPPORT  /* DTLS */
     #ifdef ON_DAILY
-        #define IOTX_COAP_SERVER_URI      "coap-psk://10.101.83.159:5682"
+        #define IOTX_COAP_SERVER_URI      "coaps://11.239.164.238:5684"
     #else
         #ifdef ON_PRE
-            #define IOTX_COAP_SERVER_URI      "coap-psk://pre.coap.cn-shanghai.link.aliyuncs.com:5682"
+            #define IOTX_COAP_SERVER_URI      "coaps://pre.coap.cn-shanghai.link.aliyuncs.com:5684"
+
         #else /* online */
-            #define IOTX_COAP_SERVER_URI      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
-        #endif
-    #endif
-#else                 /* UDP */
-    #ifdef ON_DAILY
-        #define IOTX_COAP_SERVER_URI      ""
-    #else
-        #ifdef ON_PRE
-            #define IOTX_COAP_SERVER_URI      "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
-        #else /* online */
-            #define IOTX_COAP_SERVER_URI      "coap://%s.coap.cn-shanghai.link.aliyuncs.com:5683"
+            #define IOTX_COAP_SERVER_URI      "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
         #endif
     #endif
 
+#else
+    #ifdef COAP_PSK_SUPPORT  /* PSK */
+        #ifdef ON_DAILY
+            #define IOTX_COAP_SERVER_URI      "coap-psk://10.101.83.159:5682"
+        #else
+            #ifdef ON_PRE
+                #define IOTX_COAP_SERVER_URI      "coap-psk://pre.coap.cn-shanghai.link.aliyuncs.com:5682"
+            #else /* online */
+                #define IOTX_COAP_SERVER_URI      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
+            #endif
+        #endif
+    #else                 /* UDP */
+        #ifdef ON_DAILY
+            #define IOTX_COAP_SERVER_URI      ""
+        #else
+            #ifdef ON_PRE
+                #define IOTX_COAP_SERVER_URI      "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
+            #else /* online */
+                #define IOTX_COAP_SERVER_URI      "coap://%s.coap.cn-shanghai.link.aliyuncs.com:5683"
+            #endif
+        #endif
+
+    #endif
 #endif
 
 extern uint32_t IOT_CoAP_GetCurToken(iotx_coap_context_t *p_context);
@@ -125,8 +139,7 @@ static int iotx_set_devinfo(iotx_coap_device_info_t *p_devinfo)
     IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, p_devinfo->product_key);
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, p_devinfo->device_name);
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, p_devinfo->device_secret);
-    HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2, "%s.%s", p_devinfo->product_key,
-                 p_devinfo->device_name);
+    HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2, "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
     p_devinfo->device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = '\0';
     /**< end*/
     cm_info("*****The Product Key  : %s *****\r\n", p_devinfo->product_key);

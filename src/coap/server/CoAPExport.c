@@ -110,9 +110,15 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     CoAPObsClient_init(p_ctx, param->obs_maxcount);
 #endif
 
+#ifdef COAP_DTLS_SUPPORT
+    network_param.type = COAP_NETWORK_DTLS;
+    network_param.port = COAPS_DEFAULT_PORT;
+#else
     network_param.type = COAP_NETWORK_NOSEC;
     network_param.port = param->port;
     network_param.group = param->group;
+#endif
+
 
     /*CoAP network init*/
     p_ctx->p_network = CoAPNetwork_init(&network_param);

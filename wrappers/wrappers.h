@@ -33,6 +33,10 @@
     #include "wrappers_tls.h"
 #endif
 
+#if defined(COAP_DTLS_SUPPORT)
+    #include "wrappers_dtls.h"
+#endif
+
 #if defined(AT_TCP_ENABLED) || defined(AT_SSL_ENABLED) || defined(AT_PARSER_ENABLED)
     #include "wrappers_atm.h"
 #endif
