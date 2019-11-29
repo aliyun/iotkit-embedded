@@ -4,6 +4,9 @@
 #include "infra_compat.h"
 #include "infra_log.h"
 #include "wrappers.h"
+#if defined(WITH_MEM_STATS)
+    #include "infra_mem_stats.h"
+#endif
 #if defined(INFRA_CJSON)
     #include "infra_cjson.h"
 #endif

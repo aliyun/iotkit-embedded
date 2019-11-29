@@ -6,6 +6,13 @@
 #include "infra_defs.h"
 #include "infra_state.h"
 #include "infra_compat.h"
+#if defined(INFRA_LOG)
+    #include "infra_log.h"
+#endif
+#if defined(INFRA_MEM_STATS)
+    #include "infra_mem_stats.h"
+#endif
+
 #include "wrappers.h"
 
 /*sdk_impl_ctx_t g_sdk_impl_ctx = {0};*/
