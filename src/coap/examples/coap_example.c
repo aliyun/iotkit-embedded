@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     /* set device info use HAL function */
     IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key); 
     IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
-    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, g_device_secret);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, g_device_secret);
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 

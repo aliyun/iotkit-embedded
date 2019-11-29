@@ -22,6 +22,17 @@
 #include "mbedtls/net_sockets.h"
 #include "wrappers.h"
 
+#include "infra_sha256.h"
+#include "infra_string.h"
+
+#define DTLS_AUTH_MODE_CA        0
+#define DTLS_AUTH_MODE_PSK       1
+
+#ifndef DTLS_AUTH_MODE
+/* choose dtls auth mode here */
+#define DTLS_AUTH_MODE           DTLS_AUTH_MODE_PSK
+#endif
+
 #define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DEBUG(...)  HAL_Printf("[dbg] "), HAL_Printf(__VA_ARGS__)
@@ -37,7 +48,7 @@ typedef struct {
     mbedtls_ssl_config           conf;
     mbedtls_ctr_drbg_context     ctr_drbg;
     mbedtls_entropy_context      entropy;
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA)
     mbedtls_x509_crt             cacert;
 #endif
     mbedtls_net_context          fd;
@@ -49,10 +60,8 @@ typedef struct {
     void (*free)(void *ptr);
 } dtls_hooks_t;
 
-#define MBEDTLS_MEM_STATS 1
-
+/* define MBEDTLS_MEM_STATS to enable dtls memery stats */
 #ifdef MBEDTLS_MEM_STATS
-
 #define MBEDTLS_MEM_INFO_MAGIC   0x12345678
 
 static unsigned int mbedtls_mem_used = 0;
@@ -143,9 +152,9 @@ static int _DTLSSession_save(const mbedtls_ssl_session *session,
 {
     unsigned char *p = buf;
     size_t left = buf_len;
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA)
     size_t cert_len;
-#endif /* MBEDTLS_X509_CRT_PARSE_C */
+#endif /* #if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA) */
 
     if (left < sizeof(mbedtls_ssl_session)) {
         return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
@@ -155,7 +164,7 @@ static int _DTLSSession_save(const mbedtls_ssl_session *session,
     p += sizeof(mbedtls_ssl_session);
     left -= sizeof(mbedtls_ssl_session);
 
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA)
     if (session->peer_cert == NULL) {
         cert_len = 0;
     } else {
@@ -175,7 +184,7 @@ static int _DTLSSession_save(const mbedtls_ssl_session *session,
     }
 
     p += cert_len;
-#endif /* MBEDTLS_X509_CRT_PARSE_C */
+#endif /* #if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA) */
 
     *olen = p - buf;
 
@@ -188,7 +197,7 @@ static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session, unsig
     int result;
     unsigned int err_code = DTLS_SUCCESS;
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA)
     if (p_ca_cert_pem != NULL) {
         mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
         if (strstr(host, "pre.iot-as-coap")) {
@@ -208,11 +217,70 @@ static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session, unsig
         } else {
             mbedtls_ssl_conf_ca_chain(&p_dtls_session->conf, &p_dtls_session->cacert, NULL);
         }
-    } else
-#endif
-    {
-        mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_NONE);
     }
+#else
+    {
+        static const int ciphersuites[1] = {MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA};
+        char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+        char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+        char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+        char *auth_type = "devicename";
+        char *sign_method = "hmacsha256";
+        char *timestamp = "2524608000000";
+        char *psk_identity = NULL, string_to_sign[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 33] = {0};
+        uint32_t psk_identity_len = 0;
+        uint8_t sign_hex[32] = {0};
+        char sign_string[65] = {0};
+
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, device_secret);
+
+        /* psk identity length */
+        psk_identity_len = strlen(auth_type) + strlen(sign_method) + strlen(product_key) + strlen(device_name) + strlen(
+                                       timestamp) + 5;
+        psk_identity = HAL_Malloc(psk_identity_len);
+        if (psk_identity == NULL) {
+            printf("psk_identity malloc failed\n");
+            return -1;
+        }
+        memset(psk_identity, 0, psk_identity_len);
+        memcpy(psk_identity, auth_type, strlen(auth_type));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), sign_method, strlen(sign_method));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), product_key, strlen(product_key));
+        memcpy(psk_identity + strlen(psk_identity), "&", strlen("&"));
+        memcpy(psk_identity + strlen(psk_identity), device_name, strlen(device_name));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), timestamp, strlen(timestamp));
+
+        /* string to sign */
+        memcpy(string_to_sign, "id", strlen("id"));
+        memcpy(string_to_sign + strlen(string_to_sign), product_key, strlen(product_key));
+        memcpy(string_to_sign + strlen(string_to_sign), "&", strlen("&"));
+        memcpy(string_to_sign + strlen(string_to_sign), device_name, strlen(device_name));
+        memcpy(string_to_sign + strlen(string_to_sign), "timestamp", strlen("timestamp"));
+        memcpy(string_to_sign + strlen(string_to_sign), timestamp, strlen(timestamp));
+
+        utils_hmac_sha256((uint8_t *)string_to_sign, strlen(string_to_sign), (uint8_t *)device_secret,
+                          strlen(device_secret), sign_hex);
+        infra_hex2str(sign_hex, 32, sign_string);
+
+        /*
+        printf("psk_identity: %s\n",psk_identity);
+        printf("psk         : %s\n",sign_string);
+        */
+
+        mbedtls_ssl_conf_psk(&(p_dtls_session->conf), (const unsigned char *)sign_string, strlen(sign_string),
+                             (const unsigned char *)psk_identity, strlen(psk_identity));
+        mbedtls_ssl_conf_ciphersuites(&(p_dtls_session->conf), ciphersuites);
+
+        HAL_Free(psk_identity);
+
+        printf("mbedtls psk config finished\n");
+    }
+#endif 
 
     return err_code;
 }
@@ -240,10 +308,10 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
                                      mbedtls_timing_get_delay);
         }
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA)
         DTLS_TRC("mbedtls_ssl_set_hostname %s\r\n", p_options->p_host);
         mbedtls_ssl_set_hostname(&p_dtls_session->context, p_options->p_host);
-#endif
+#endif /* #if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA) */
         mbedtls_ssl_set_bio(&p_dtls_session->context,
                             (void *)&p_dtls_session->fd,
                             mbedtls_net_send,
@@ -301,9 +369,9 @@ dtls_session_t *_DTLSSession_init()
         mbedtls_ssl_init(&p_dtls_session->context);
         mbedtls_ssl_config_init(&p_dtls_session->conf);
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA)
         mbedtls_x509_crt_init(&p_dtls_session->cacert);
-#endif
+#endif /* #if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA) */
         mbedtls_ctr_drbg_init(&p_dtls_session->ctr_drbg);
         mbedtls_entropy_init(&p_dtls_session->entropy);
         DTLS_INFO("HAL_DTLSSession_init success\r\n");
@@ -322,7 +390,7 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
         } while (ret == MBEDTLS_ERR_SSL_WANT_WRITE);
 
         mbedtls_net_free(&p_dtls_session->fd);
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if (DTLS_AUTH_MODE == DTLS_AUTH_MODE_CA)
         mbedtls_x509_crt_free(&p_dtls_session->cacert);
 #endif
         mbedtls_ssl_config_free(&p_dtls_session->conf);
@@ -335,34 +403,13 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 
     return DTLS_SUCCESS;
 }
-/*
-int _DTLSHooks_set(dtls_hooks_t *hooks)
-{
-    if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
-        return DTLS_INVALID_PARAM;
-    }
-
-    g_dtls_hooks.malloc = hooks->malloc;
-    g_dtls_hooks.free = hooks->free;
-
-    return DTLS_SUCCESS;
-}
-*/
 
 DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
 {
     char port[6] = {0};
     int result = 0;
     dtls_session_t *p_dtls_session = NULL;
-    /*
-    dtls_hooks_t dtls_hooks;
 
-    memset(&dtls_hooks, 0, sizeof(dtls_hooks_t));
-    dtls_hooks.malloc = _DTLSMalloc_wrapper;
-    dtls_hooks.free = _DTLSFree_wrapper;
-
-    _DTLSHooks_set(&dtls_hooks);
-    */
     p_dtls_session = _DTLSSession_init();
     if (NULL != p_dtls_session) {
         mbedtls_ssl_config_init(&p_dtls_session->conf);
