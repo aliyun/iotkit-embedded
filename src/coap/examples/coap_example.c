@@ -186,7 +186,7 @@ reconnect:
     if (NULL != p_ctx) {
         IOT_CoAP_DeviceNameAuth(p_ctx);
         do {
-            if (count == 11 || 0 == count) {
+            if (count == 5) {
                 iotx_post_data_to_server((void *)p_ctx);
                 count = 1;
             }
