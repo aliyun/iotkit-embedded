@@ -199,6 +199,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
+    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)g_default_sign.hostname);
+
     {
         iotx_sign_mqtt_t tmp_sign;
         memset(&tmp_sign, 0, sizeof(iotx_sign_mqtt_t));
