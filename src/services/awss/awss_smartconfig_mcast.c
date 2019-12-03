@@ -28,6 +28,8 @@ static uint8_t mcast_src_mac[ETH_ALEN] = {0};
 int mcast_locked_channel = -1;
 struct mcast_smartconfig_data_type mcast_smartconfig_data = {0};
 static uint8_t receive_record[MCAST_MAX_LEN] = {0};
+int static get_all = 0;
+int find_channel_from_aplist = 0;
 
 void reset_mcast_data()
 {
@@ -37,6 +39,8 @@ void reset_mcast_data()
     mcast_locked_channel = -1;
     memset(&(mcast_smartconfig_data), 0, sizeof(struct mcast_smartconfig_data_type));
     memset(receive_record, 0, MCAST_MAX_LEN);
+    get_all = 0;
+    find_channel_from_aplist = 0;
 }
 
 int mcast_receive_done()
@@ -194,6 +198,7 @@ int parse_result()
     ret = verify_checksum();
     if (SUCCESS_RETURN != ret) {
         awss_err("mcast: checksum mismatch\n");
+        reset_mcast_data();
         return -1;
     }
     ret = decode_passwd();
@@ -340,8 +345,6 @@ int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int li
 
     return ALINK_BROADCAST;
 }
-int static get_all = 0;
-int find_channel_from_aplist = 0;
 
 int lock_mcast_channel(struct parser_res *res, int encry_type)
 {
@@ -398,7 +401,7 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
     frame_offset = zconfig_fixed_offset[encry_type][0];
 
     len -= frame_offset;
-    if (len != 1) {
+    if ((len != 1) && (len != 18)) {
 #ifdef VERBOSE_MCAST_DEBUG
         awss_trace("error len, len is %d\n", len);
 #endif
