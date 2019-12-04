@@ -32,10 +32,10 @@
 
 #define SHADOW_MQTT_MSGLEN      (1024)
 
-char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
-char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1MZxOdcBnO";
+char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "h4I4dneEFp7EImTv";
 char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
-char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "jiPvZkVO9lhNj2Q9f2KdP4Yln7ACJI3X";
 
 #define SHADOW_TRACE(fmt, ...)  \
     do { \
@@ -81,6 +81,10 @@ int demo_device_shadow(void)
     memcpy(meta.product_secret, g_product_secret, strlen(g_product_secret));
     memcpy(meta.device_name, g_device_name, strlen(g_device_name));
     memcpy(meta.device_secret, g_device_secret, strlen(g_device_secret));
+
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, g_device_secret);
 
     if (IOT_Sign_MQTT(region, &meta, &sign_mqtt) < 0) {
         return -1;
