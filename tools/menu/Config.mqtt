@@ -66,6 +66,7 @@ menu "MQTT Configurations"
     config MQTT_SHADOW
         bool "FEATURE_MQTT_SHADOW"
         default n
+        select INFRA_JSON_PARSER
 
         help
             Enable mqtt shadow function

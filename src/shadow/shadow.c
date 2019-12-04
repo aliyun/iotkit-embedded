@@ -50,13 +50,13 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
     if (NULL != pname) {
         iotx_ds_common_update_time(pshadow, atoi(pname));
     }
-    LITE_free(pname);
+    SHADOW_free(pname);
 
     /* update 'version' if there is 'version' key in JSON string */
     pname = LITE_json_value_of((char *)"version", (char *)topic_info->payload);
     if (NULL != pname) {
         iotx_ds_common_update_version(pshadow, atoi(pname));
-        LITE_free(pname);
+        SHADOW_free(pname);
     }
 
     /* get 'method' */
@@ -72,7 +72,7 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
-        LITE_free(pname);
+        SHADOW_free(pname);
     } else if ((strlen("reply") == strlen(pname)) && !strcmp(pname, "reply")) {
         /* call update ACK handle function. */
         shadow_debug("receive 'reply' method");
@@ -80,10 +80,10 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
-        LITE_free(pname);
+        SHADOW_free(pname);
     } else {
         shadow_err("Invalid 'method' key");
-        LITE_free(pname);
+        SHADOW_free(pname);
     }
 
     shadow_debug("End of method handle");
@@ -163,10 +163,10 @@ int IOT_Shadow_Push_Async(
 
     pelement = iotx_shadow_update_wait_ack_list_add(pshadow, ptoken, strlen(ptoken), cb_fpt, pcontext, timeout_s);
     if (NULL == pelement) {
-        LITE_free(ptoken);
+        SHADOW_free(ptoken);
         return ERROR_SHADOW_WAIT_LIST_OVERFLOW;
     }
-    LITE_free(ptoken);
+    SHADOW_free(ptoken);
 
     if ((rc = iotx_ds_common_publish2update(pshadow, data, data_len)) < 0) {
         iotx_shadow_update_wait_ack_list_remove(pshadow, pelement);
@@ -254,7 +254,7 @@ iotx_err_t IOT_Shadow_Pull(void *handle)
 
     shadow_info("Device Shadow sync start.");
 
-    buf = LITE_malloc(SHADOW_SYNC_MSG_SIZE);
+    buf = SHADOW_malloc(SHADOW_SYNC_MSG_SIZE);
     if (NULL == buf) {
         shadow_err("Device Shadow sync failed");
         return ERROR_NO_MEM;
@@ -270,7 +270,7 @@ iotx_err_t IOT_Shadow_Pull(void *handle)
         shadow_info("Device Shadow sync failed.");
     }
 
-    LITE_free(buf);
+    SHADOW_free(buf);
     HAL_SleepMs(1000);
 
     return ret;
@@ -328,7 +328,7 @@ void *IOT_Shadow_Construct(iotx_shadow_para_pt pparams)
     iotx_shadow_pt pshadow = NULL;
 
     /* initialize shadow */
-    if (NULL == (pshadow = LITE_malloc(sizeof(iotx_shadow_t)))) {
+    if (NULL == (pshadow = SHADOW_malloc(sizeof(iotx_shadow_t)))) {
         shadow_err("Not enough memory");
         return NULL;
     }
@@ -404,11 +404,11 @@ iotx_err_t IOT_Shadow_Destroy(void *handle)
     }
 
     if (NULL != pshadow->inner_data.ptopic_get) {
-        LITE_free(pshadow->inner_data.ptopic_get);
+        SHADOW_free(pshadow->inner_data.ptopic_get);
     }
 
     if (NULL != pshadow->inner_data.ptopic_update) {
-        LITE_free(pshadow->inner_data.ptopic_update);
+        SHADOW_free(pshadow->inner_data.ptopic_update);
     }
 
     if (NULL != pshadow->inner_data.attr_list) {
@@ -419,7 +419,7 @@ iotx_err_t IOT_Shadow_Destroy(void *handle)
         HAL_MutexDestroy(pshadow->mutex);
     }
 
-    LITE_free(handle);
+    SHADOW_free(handle);
 
     return SUCCESS_RETURN;
 }
@@ -454,7 +454,7 @@ iotx_err_t IOT_Shadow_DeleteAttribute(void *handle, iotx_shadow_attr_pt pattr)
         return ERROR_SHADOW_ATTR_NO_EXIST;
     }
 
-    buf = LITE_malloc(SHADOW_DELETE_MSG_SIZE);
+    buf = SHADOW_malloc(SHADOW_DELETE_MSG_SIZE);
     if (NULL == buf) {
         return ERROR_NO_MEM;
     }
@@ -465,11 +465,11 @@ iotx_err_t IOT_Shadow_DeleteAttribute(void *handle, iotx_shadow_attr_pt pattr)
 
     ret = IOT_Shadow_Push(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN != ret) {
-        LITE_free(buf);
+        SHADOW_free(buf);
         return ret;
     }
 
-    LITE_free(buf);
+    SHADOW_free(buf);
 
     return iotx_ds_common_remove_attr(pshadow, pattr);
 

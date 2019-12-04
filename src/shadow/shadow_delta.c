@@ -14,7 +14,7 @@ static int iotx_shadow_delta_response(iotx_shadow_pt pshadow)
     void *buf;
     format_data_t format;
 
-    buf = LITE_malloc(IOTX_SHADOW_DELTA_RESPONSE_LEN);
+    buf = SHADOW_malloc(IOTX_SHADOW_DELTA_RESPONSE_LEN);
     if (NULL == buf) {
         return ERROR_NO_MEM;
     }
@@ -25,7 +25,7 @@ static int iotx_shadow_delta_response(iotx_shadow_pt pshadow)
 
     rc = iotx_ds_common_publish2update(pshadow, format.buf, format.offset);
 
-    LITE_free(buf);
+    SHADOW_free(buf);
 
     return (rc >= 0) ? SUCCESS_RETURN : rc;
 }
@@ -146,8 +146,8 @@ void iotx_shadow_delta_entry(
                                   pmetadata,
                                   strlen(pmetadata));
 
-    LITE_free(pstate);
-    LITE_free(pmetadata);
+    SHADOW_free(pstate);
+    SHADOW_free(pmetadata);
 
     /* generate ACK and publish to @update topic using QOS1 */
     iotx_shadow_delta_response(pshadow);
