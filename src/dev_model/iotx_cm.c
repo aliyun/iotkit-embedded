@@ -211,8 +211,10 @@ int iotx_cm_close(int fd)
         cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
-
-    if (inited_conn_num < 2) {
+    if (inited_conn_num > 0) {
+        inited_conn_num--;
+    }
+    if (inited_conn_num == 0) {
 #ifdef DEVICE_MODEL_GATEWAY
         while (!yield_task_leave) {
             HAL_SleepMs(10);
@@ -232,9 +234,7 @@ int iotx_cm_close(int fd)
     if (_recycle_fd(fd) != 0) {
         return -1;
     }
-    if (inited_conn_num > 0) {
-        inited_conn_num--;
-    }
+
     if (inited_conn_num == 0) {
         if (fd_lock != NULL) {
             HAL_MutexDestroy(fd_lock);
