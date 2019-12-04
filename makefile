@@ -26,6 +26,7 @@ $(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/dev_bind)
 $(call CompLib_Map, FEATURE_BIND_ENABLED, src/bind)
 $(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/wifi_provision)
 $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, src/http2)
+$(call CompLib_Map, FEATURE_MQTT_SHADOW, src/shadow)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls

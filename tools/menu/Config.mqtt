@@ -63,5 +63,15 @@ menu "MQTT Configurations"
             Switching to "y" leads to building MQTT async protocol stack related implementation into SDK and ASYNC_PROTOCOL_STACK included into CFLAGS
             Switching to "n" seldom happens unless you're not using async protocol stack
  
+    config MQTT_SHADOW
+        bool "FEATURE_MQTT_SHADOW"
+        default n
+
+        help
+            Enable mqtt shadow function
+
+            Switching to "y" to enable mqtt shadow function
+            Switching to "n" to disable mqtt shadow function
+
 endmenu
 
