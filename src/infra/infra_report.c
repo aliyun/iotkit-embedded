@@ -32,11 +32,14 @@
     #define VERSION_ERR(...)    do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #endif
 
-static unsigned int g_report_id = 0;
+static int g_report_id = 0;
 
-unsigned int iotx_report_id(void)
+int iotx_report_id(void)
 {
-    return g_report_id++;
+    if (++g_report_id < 0) {
+        g_report_id = 0;
+    }
+    return g_report_id;
 }
 
 static info_report_func_pt info_report_func = NULL;
