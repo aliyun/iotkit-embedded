@@ -61,7 +61,7 @@ typedef struct {
 } dm_msg_response_payload_t;
 
 typedef struct {
-    unsigned int msgid;
+    int msgid;
     int devid;
     const char *service_prefix;
     const char *service_name;
