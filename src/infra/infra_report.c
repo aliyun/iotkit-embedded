@@ -34,7 +34,7 @@
 
 static unsigned int g_report_id = 0;
 
-int iotx_report_id(void)
+unsigned int iotx_report_id(void)
 {
     return g_report_id++;
 }
