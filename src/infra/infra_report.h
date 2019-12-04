@@ -47,7 +47,7 @@ typedef int (*info_report_func_pt)(void *handle, const char *topic_name,int req_
 #define FIRMWARE_VERSION_MSG_LEN          (64)
 #define DEBUG_REPORT_MID_DEVINFO_FIRMWARE (1)
 
-int     iotx_report_id(void);
+unsigned int     iotx_report_id(void);
 int     iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);
 int     iotx_midreport_payload(char *msg, char *requestId, char *mid, char *pid);
 int     iotx_midreport_topic(char *topic_name, char *topic_head, char *product_key, char *device_name);
