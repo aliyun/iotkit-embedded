@@ -1,6 +1,5 @@
 CONFIG_ENV_CFLAGS   += \
-    -Os -Wall \
-    -g3 --coverage \
+    -Os \
     -D_PLATFORM_IS_LINUX_ \
     -D__UBUNTU_SDK_DEMO__ \
 
@@ -19,6 +18,5 @@ CONFIG_ENV_CFLAGS   += \
 
 
 CONFIG_ENV_CFLAGS   += -rdynamic
-CONFIG_ENV_CFLAGS   += -Werror -Wno-unused
 
 CONFIG_ENV_LDFLAGS  += -lpthread -lrt
