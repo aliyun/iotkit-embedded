@@ -11,6 +11,7 @@ CONFIG_LIB_EXPORT               ?= static
 
 CFLAGS  += -Iexamples -Iexamples/linkkit -Itests
 
+CFLAGS  += -DDM_MESSAGE_CACHE_DISABLED
 CFLAGS  += -DFORCE_SSL_VERIFY
 CFLAGS  += -DCOAP_SERV_MULTITHREAD
 CFLAGS  += -Wno-unused
