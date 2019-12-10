@@ -636,13 +636,19 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
     request.callback = dm_client_thing_sub_register_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -685,13 +691,19 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
     request.callback = dm_client_thing_sub_unregister_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -734,13 +746,19 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
     request.callback = dm_client_thing_topo_add_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_ADD_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_ADD_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -783,13 +801,19 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
     request.callback = dm_client_thing_topo_delete_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_DELETE_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_DELETE_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -828,13 +852,19 @@ int dm_mgr_upstream_thing_topo_get(void)
     request.callback = dm_client_thing_topo_get_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_GET_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_GET_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -877,13 +907,19 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
     request.callback = dm_client_thing_list_found_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_ADD_NOTIFY_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_ADD_NOTIFY_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -926,13 +962,19 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
     request.callback = dm_client_combine_login_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGIN_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGIN_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -979,13 +1021,19 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     request.callback = dm_client_combine_logout_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -1130,18 +1178,23 @@ int dm_mgr_upstream_thing_property_desired_get(_IN_ int devid, _IN_ char *payloa
     request.callback = dm_client_thing_property_desired_get_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_GET_REPLY, &prop_desired_get_reply);
+    if (res == SUCCESS_RETURN && prop_desired_get_reply) {
+        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_PROPERTY_DESIRED_GET_REPLY, NULL);
+    }
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     /*TODO */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        int prop_desired_get_reply = 0;
-        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_GET_REPLY, &prop_desired_get_reply);
-        if (res == SUCCESS_RETURN && prop_desired_get_reply) {
-            dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_PROPERTY_DESIRED_GET_REPLY, NULL);
-        }
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1165,17 +1218,22 @@ int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *pay
     /* Callback */
     request.callback = dm_client_thing_property_desired_delete_reply;
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        int prop_desired_delete_reply = 0;
-        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_DELETE_REPLY, &prop_desired_delete_reply);
-        if (res == SUCCESS_RETURN && prop_desired_delete_reply) {
-            dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_PROPERTY_DESIRED_DELETE_REPLY, NULL);
-        }
-        res = request.msgid;
+    res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_DELETE_REPLY, &prop_desired_delete_reply);
+    if (res == SUCCESS_RETURN && prop_desired_delete_reply) {
+        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_PROPERTY_DESIRED_DELETE_REPLY, NULL);
     }
 #endif
+    /* Send Message To Cloud */
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
+    }
+#endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 #endif
@@ -1200,17 +1258,22 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
     request.callback = dm_client_thing_event_post_reply;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_MSG_DEST_ALL, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        int prop_post_reply = 0;
-        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &prop_post_reply);
-        if (res == SUCCESS_RETURN && prop_post_reply) {
-            dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, NULL);
-        }
-        res = request.msgid;
+    res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &prop_post_reply);
+    if (res == SUCCESS_RETURN && prop_post_reply) {
+        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, NULL);
     }
 #endif
+    /* Send Message To Cloud */
+    res = dm_msg_request(DM_MSG_DEST_ALL, &request);
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
+    }
+#endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1292,17 +1355,22 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
     request.callback = dm_client_thing_event_post_reply;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_MSG_DEST_ALL, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        int event_post_reply = 0;
-        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &event_post_reply);
-        if (res == SUCCESS_RETURN && event_post_reply) {
-            dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, NULL);
-        }
-        res = request.msgid;
+    res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &event_post_reply);
+    if (res == SUCCESS_RETURN && event_post_reply) {
+        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, NULL);
     }
 #endif
+    /* Send Message To Cloud */
+    res = dm_msg_request(DM_MSG_DEST_ALL, &request);
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
+    }
+#endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(service_name);
 
     return res;
@@ -1329,13 +1397,19 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
     request.callback = dm_client_thing_deviceinfo_update_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1359,13 +1433,19 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
     request.callback = dm_client_thing_deviceinfo_delete_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1388,13 +1468,19 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
     }
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1420,13 +1506,19 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
     request.callback = dm_client_thing_dynamictsl_get_reply;
 
     /* Send Message To Cloud */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY, NULL);
+#endif
+    /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY, NULL);
-        res = request.msgid;
+    if (res != SUCCESS_RETURN) {
+        dm_msg_cache_remove(request.msgid);
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
