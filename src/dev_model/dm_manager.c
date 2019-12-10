@@ -647,10 +647,11 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -699,10 +700,11 @@ int dm_mgr_upstream_thing_proxy_product_register(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -751,10 +753,11 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -803,10 +806,11 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -855,10 +859,11 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -903,10 +908,11 @@ int dm_mgr_upstream_thing_topo_get(void)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -955,10 +961,11 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -1007,10 +1014,11 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -1063,10 +1071,11 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(request.params);
 
     return res;
@@ -1215,10 +1224,11 @@ int dm_mgr_upstream_thing_property_desired_get(_IN_ int devid, _IN_ char *payloa
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1253,10 +1263,11 @@ int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *pay
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 #endif
@@ -1290,10 +1301,11 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1324,10 +1336,11 @@ int dm_mgr_upstream_thing_history_post(int devid, char *payload, int payload_len
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 #endif /* #ifdef DEVICE_HISTORY_POST */
@@ -1421,10 +1434,11 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     DM_free(service_name);
 
     return res;
@@ -1457,10 +1471,11 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1490,10 +1505,11 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1522,10 +1538,11 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
@@ -1557,10 +1574,11 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     if (res != SUCCESS_RETURN) {
         dm_msg_cache_remove(request.msgid);
-    } else {
-        res = request.msgid;
     }
 #endif
+    if (res == SUCCESS_RETURN) {
+        res = request.msgid;
+    }
     return res;
 }
 
