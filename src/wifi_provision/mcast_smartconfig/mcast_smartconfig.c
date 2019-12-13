@@ -115,7 +115,7 @@ int set_zc_bssid()
 
 void gen16ByteToken()
 {
-    int bssid_len = mcast_smartconfig_data.bssid_type_len & 0b11111;
+    int bssid_len = mcast_smartconfig_data.bssid_type_len & 0x1f;
 #ifdef DEV_BIND_ENABLED
     IOT_Bind_SetToken_Ext(mcast_smartconfig_data.token, mcast_smartconfig_data.token_len, (char *)zc_passwd,
                           mcast_smartconfig_data.bssid, bssid_len);
@@ -178,7 +178,7 @@ int parse_result()
     offset++;
     mcast_smartconfig_data.bssid = &(mcast_smartconfig_data.data[offset]);
     /* get bssid len from last 5 bits from bssid_type_len */
-    offset += mcast_smartconfig_data.bssid_type_len & 0b11111;
+    offset += mcast_smartconfig_data.bssid_type_len & 0x1f;
     mcast_smartconfig_data.checksum = mcast_smartconfig_data.data[offset];
     dump_awss_status(STATE_WIFI_MCAST_DEBUG, "mcast: checksum is %d", mcast_smartconfig_data.checksum);
     dump_awss_status(STATE_WIFI_MCAST_DEBUG, "mcast: total processed %d packagets", processed_packet);

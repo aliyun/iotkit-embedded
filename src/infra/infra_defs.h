@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+#define IOTX_SDK_REVISION               "20191216.wifi-provision-fix-compile-issue-in-IAR"
 #define IOTX_SDK_VERSION                "3.1.0"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
