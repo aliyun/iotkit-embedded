@@ -71,8 +71,8 @@ int HAL_Aes128_Cbc_Encrypt(
     for (i = 0; i < blockNum; ++i) {
         ret = mbedtls_aes_crypt_cbc(&p_aes128->ctx, MBEDTLS_AES_ENCRYPT, AES_BLOCK_SIZE,
                                     p_aes128->iv, src, dst);
-        src += 16;
-        dst += 16;
+        src = (unsigned char *)src + 16;
+        dst = (unsigned char *)dst + 16;
     }
 
     return ret;
@@ -93,8 +93,8 @@ int HAL_Aes128_Cbc_Decrypt(
     for (i = 0; i < blockNum; ++i) {
         ret = mbedtls_aes_crypt_cbc(&p_aes128->ctx, MBEDTLS_AES_DECRYPT, AES_BLOCK_SIZE,
                                     p_aes128->iv, src, dst);
-        src += 16;
-        dst += 16;
+        src = (unsigned char *)src + 16;
+        dst = (unsigned char *)dst + 16;
     }
 
     return ret;
