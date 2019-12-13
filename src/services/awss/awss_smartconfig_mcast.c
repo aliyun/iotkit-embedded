@@ -127,7 +127,7 @@ int set_zc_bssid()
 
 void gen16ByteToken()
 {
-    int bssid_len = mcast_smartconfig_data.bssid_type_len & 0b11111;
+    int bssid_len = mcast_smartconfig_data.bssid_type_len & 0x1f;
     awss_complete_token((char *)zc_passwd, mcast_smartconfig_data.bssid, bssid_len,
                         mcast_smartconfig_data.token, mcast_smartconfig_data.token_len, zc_token);
 }
@@ -186,7 +186,7 @@ int parse_result()
     offset++;
     mcast_smartconfig_data.bssid = &(mcast_smartconfig_data.data[offset]);
     /* get bssid len from last 5 bits from bssid_type_len */
-    offset += mcast_smartconfig_data.bssid_type_len & 0b11111;
+    offset += mcast_smartconfig_data.bssid_type_len & 0x1f;
     mcast_smartconfig_data.checksum = mcast_smartconfig_data.data[offset];
     awss_trace("mcast: checksum is %d\n", mcast_smartconfig_data.checksum);
     awss_trace("mcast: total processed %d packagets \n", processed_packet);
