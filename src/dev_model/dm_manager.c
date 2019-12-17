@@ -1242,6 +1242,7 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
 {
     int res = 0;
     dm_msg_request_t request;
+    int prop_post_reply = 0;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
         return DM_INVALID_PARAMETER;
@@ -1330,6 +1331,7 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
     int res = 0, service_name_len = 0;
     char *service_name = NULL;
     dm_msg_request_t request;
+    int event_post_reply = 0;
 
     if (devid < 0 || identifier == NULL || identifier_len <= 0 ||
         method == NULL || payload == NULL || payload_len <= 0) {

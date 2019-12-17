@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20191216.wifi-provision-fix-compile-error-in-IAR"
+#define IOTX_SDK_REVISION               "20191217.dm-fix-build-error-while-DM_MESSAGE_CACHE_DISABLED-not-def"
 #define IOTX_SDK_VERSION                "3.0.1"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
