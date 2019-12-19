@@ -21,6 +21,7 @@ endif
 
 SRCS_mqtt-example-rrpc          := app_entry.c mqtt/mqtt_example_rrpc.c
 SRCS_mqtt-example               := app_entry.c mqtt/mqtt_example.c
+SRCS_mqtt-example-shadow        := mqtt/mqtt_example_shadow.c
 SRCS_mqtt-example-multithread   := app_entry.c mqtt/mqtt_example_multithread.c
 SRCS_http2-example-uploadfile   := http2/http2_example_uploadfile.c app_entry.c
 SRCS_http2-example              := http2/http2_example_stream.c app_entry.c
@@ -45,6 +46,7 @@ SRCS_linkkit-example-gw         := app_entry.c cJSON.c linkkit/linkkit_example_g
 $(call Append_Conditional, TARGET, mqtt-example-rrpc,           MQTT_COMM_ENABLED)
 $(call Append_Conditional, TARGET, mqtt-example,                MQTT_COMM_ENABLED)
 $(call Append_Conditional, TARGET, mqtt-example-multithread,    MQTT_COMM_ENABLED)
+$(call Append_Conditional, TARGET, mqtt-example-shadow,         MQTT_COMM_ENABLED MQTT_SHADOW)
 
 $(call Append_Conditional, LDFLAGS, \
     -litls \
