@@ -741,7 +741,7 @@ static int _mqtt_connect(void *client)
         }
 
         if (STATE_SUCCESS != rc) {
-            mqtt_err("wait connect ACK timeout! rc = %d", rc);
+            mqtt_err("wait connect ACK timeout! rc = -0x%04X", -rc);
             mqtt_warning("tried [%d/%d] times CONN, waiting for %d ms...", try_count, RETRY_TIME_LIMIT - 1, RETRY_INTV_PERIOD);
 
             HAL_SleepMs(RETRY_INTV_PERIOD);
@@ -1522,7 +1522,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         if (rc == STATE_SYS_DEPEND_NWK_CLOSE) {
             iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         }
-        mqtt_err("readPacket error,result = %d", rc);
+        mqtt_err("readPacket error, result = -0x%04X", -rc);
         return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 

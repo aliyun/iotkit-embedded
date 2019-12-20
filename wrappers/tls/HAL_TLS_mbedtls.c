@@ -797,7 +797,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
         } else {
             if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
                 mbedtls_strerror(ret, err_str, sizeof(err_str));
-                printf("ssl recv error: code = %d, err_str = '%s'\n", ret, err_str);
+                printf("ssl recv error: code = -0x%04X, err_str = '%s'\n", -ret, err_str);
                 net_status = -2; /* connection is closed */
                 break;
             } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret)
@@ -810,7 +810,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
                 return readLen;
             } else {
                 mbedtls_strerror(ret, err_str, sizeof(err_str));
-                printf("ssl recv error: code = %d, err_str = '%s'\n", ret, err_str);
+                printf("ssl recv error: code = -0x%04X, err_str = '%s'\n", -ret, err_str);
                 net_status = -1;
                 return -1; /* Connection error */
             }
