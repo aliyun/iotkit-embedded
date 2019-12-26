@@ -1,6 +1,10 @@
 #ifndef _INFRA_COMPAT_H_
 #define _INFRA_COMPAT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "infra_defs.h"
 #include "infra_list.h"
 
@@ -280,5 +284,9 @@ typedef struct _network_addr_t {
     addr[NETWORK_ADDR_LEN];
     unsigned short  port;
 } NetworkAddr;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* _INFRA_COMPAT_H_ */
