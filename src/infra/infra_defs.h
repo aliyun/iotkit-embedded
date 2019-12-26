@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20191225.dm-modify-retval-of-duplitcated-invoking-IOT_Linkkit_Open"
+#define IOTX_SDK_REVISION               "20191226.infra-add-extern-C-declaration-in-infra_compat.h"
 #define IOTX_SDK_VERSION                "3.1.0"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
