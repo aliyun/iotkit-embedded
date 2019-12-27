@@ -947,9 +947,13 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
         if (res < 0) {
             if (res != MBEDTLS_ERR_SSL_WANT_READ &&
                 res != MBEDTLS_ERR_SSL_WANT_WRITE) {
+                if (write_bytes == 0) {
+                    return res;
+                }
                 break;
             }
         } else if (res == 0) {
+
             break;
         } else {
             write_bytes += res;
