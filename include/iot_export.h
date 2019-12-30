@@ -155,6 +155,7 @@ typedef enum {
     ITE_STATE_OTA,
     ITE_STATE_DEV_BIND,
     ITE_STATE_SUB_DEVICE,
+    ITE_EVENT_NOTIFY,
     ITE_STATE_DEV_MODEL     /* Must be last state relative event */
 } iotx_ioctl_event_t;
 
@@ -172,6 +173,7 @@ DECLARE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*cb)(const int, const unsi
 DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*cb)(const int, const char *, const int, const char *, const int,
                        char **, int *))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*cb)(const int, const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_EVENT_NOTIFY,         int (*cb)(const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*cb)(const int, const char *, const int, char **, int *))
 DECLARE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*cb)(const int, const int, const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*cb)(const int, const int, const int, const char *, const int,

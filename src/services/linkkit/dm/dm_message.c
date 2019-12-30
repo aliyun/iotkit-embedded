@@ -278,6 +278,67 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
 }
 
 
+const char DM_MSG_RESPONSE_WITH_DATA_MESSAGE[] DM_READ_ONLY =
+            "{\"id\":\"%.*s\",\"code\":%d,\"message\":\"success\",\"data\":{\"identifier\":\"%.*s\", \"serviceResult\": {}}}";
+int dm_msg_response_with_identifier(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *request,
+                                    _IN_ dm_msg_response_t *response,
+                                    _IN_ char *data, _IN_ int data_len, _IN_ void *user_data)
+{
+    int res = 0, payload_len = 0;
+    char *uri = NULL, *payload = NULL;
+    lite_cjson_t lite;
+
+    if (request == NULL || response == NULL || data == NULL || data_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    /* Response URI */
+    res = dm_utils_service_name(response->service_prefix, response->service_name,
+                                response->product_key, response->device_name, &uri);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Response Payload */
+    payload_len = strlen(DM_MSG_RESPONSE_WITH_DATA_MESSAGE) + request->id.value_length + DM_UTILS_UINT32_STRLEN + data_len +
+                  1;
+    payload = DM_malloc(payload_len);
+    if (payload == NULL) {
+        DM_free(uri);
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(payload, 0, payload_len);
+    HAL_Snprintf(payload, payload_len, DM_MSG_RESPONSE_WITH_DATA_MESSAGE,
+                 request->id.value_length, request->id.value, response->code, data_len, data);
+
+    memset(&lite, 0, sizeof(lite_cjson_t));
+    res = lite_cjson_parse(payload, payload_len, &lite);
+    if (res < SUCCESS_RETURN) {
+        dm_log_info("Wrong JSON Format, URI: %s, Payload: %s", uri, payload);
+        DM_free(uri);
+        DM_free(payload);
+        return FAIL_RETURN;
+    }
+
+    dm_log_info("Send URI: %s, Payload: %s", uri, payload);
+
+    if (type & DM_MSG_DEST_CLOUD) {
+        dm_client_publish(uri, (unsigned char *)payload, strlen(payload), NULL);
+    }
+
+#ifdef ALCS_ENABLED
+    if (type & DM_MSG_DEST_LOCAL) {
+        dm_server_send(uri, (unsigned char *)payload, strlen(payload), user_data);
+    }
+#endif
+
+    DM_free(uri);
+    DM_free(payload);
+
+    return SUCCESS_RETURN;
+}
+
+
 const char DM_MSG_THING_MODEL_DOWN_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"payload\":\"%.*s\"}";
 int dm_msg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                                 _IN_ char *payload, _IN_ int payload_len)
@@ -1860,7 +1921,8 @@ int dm_msg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
     /* dm_log_debug("Time Stamp: %s", timestamp); */
 
     /* Client ID */
-    HAL_Snprintf(client_id, PRODUCT_KEY_MAXLEN + 1 + DEVICE_NAME_MAXLEN + 21, "%s.%s|_v=sdk-c-"LINKKIT_VERSION"|", product_key, device_name);
+    HAL_Snprintf(client_id, PRODUCT_KEY_MAXLEN + 1 + DEVICE_NAME_MAXLEN + 21, "%s.%s|_v=sdk-c-"LINKKIT_VERSION"|",
+                 product_key, device_name);
 
     /* Sign */
     sign_source_len = strlen(DM_MSG_COMBINE_LOGIN_SIGN_SOURCE) + strlen(client_id) +
@@ -2373,4 +2435,28 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
     return SUCCESS_RETURN;
 }
 
+
 #endif
+
+const char DM_MSG__THING_EVENT_NOTIFY[] DM_READ_ONLY = "{\"devid\":%d,\"payload\":%.*s}";
+int dm_msg__thing_event_notify(int devid, dm_msg_request_payload_t *request)
+{
+    int res = 0, message_len = 0;
+    char *message = NULL;
+
+    message_len = strlen(DM_MSG__THING_EVENT_NOTIFY) + DM_UTILS_UINT32_STRLEN + request->params.value_length + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG__THING_EVENT_NOTIFY, devid, request->params.value_length,
+                 request->params.value);
+
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT__THING_EVENT_NOTIFY, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
+        return FAIL_RETURN;
+    }
+    return SUCCESS_RETURN;
+}

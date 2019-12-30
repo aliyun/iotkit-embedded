@@ -40,6 +40,8 @@ void dm_client_rrpc_request_wildcard(int fd, const char *topic, const char *payl
                                      void *context);
 void dm_client_ntp_response(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context);
 void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context);
+void dm_client__thing_event_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
+                                   void *context);
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY

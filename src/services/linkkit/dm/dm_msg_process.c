@@ -31,6 +31,8 @@ const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/mode
     const char DM_URI_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY = "thing/service/+";
     const char DM_URI_THING_SERVICE_REQUEST[]             DM_READ_ONLY = "thing/service/%s";
     const char DM_URI_THING_SERVICE_RESPONSE[]            DM_READ_ONLY = "thing/service/%.*s_reply";
+    const char DM_URI__THING_EVENT_NOTIFY[]               DM_READ_ONLY = "_thing/event/notify";
+    const char DM_URI__THING_EVENT_NOTIFY_REPLY[]         DM_READ_ONLY = "_thing/event/notify_reply";
 
     /* From Local To Cloud Request And Response*/
     const char DM_URI_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY = "thing/event/property/post";
@@ -83,6 +85,7 @@ const char DM_URI_DEV_CORE_SERVICE_DEV[]              DM_READ_ONLY = "/dev/core/
     const char DM_URI_COMBINE_LOGOUT[]                    DM_READ_ONLY = "combine/logout";
     const char DM_URI_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY = "combine/logout_reply";
 #endif
+
 
 int dm_msg_proc_thing_model_down_raw(_IN_ dm_msg_source_t *source)
 {
@@ -870,3 +873,43 @@ int dm_msg_proc_thing_dev_core_service_dev(_IN_ dm_msg_source_t *source, _IN_ dm
     return SUCCESS_RETURN;
 }
 #endif
+
+
+int dm_msg_proc__thing_event_notify(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
+                                    _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
+{
+    int res = 0, devid = 0;
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+
+    dm_log_info(DM_URI__THING_EVENT_NOTIFY);
+
+    /* Request */
+    res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
+                                device_name);
+    if (res < SUCCESS_RETURN) {
+        return res;
+    }
+
+    res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
+    if (res < SUCCESS_RETURN) {
+        return res;
+    }
+
+    res = dm_msg_request_parse((char *)source->payload, source->payload_len, request);
+    if (res < SUCCESS_RETURN) {
+        return res ;
+    }
+
+    /* Operation */
+    res = dm_msg__thing_event_notify(devid, request);
+
+    /* Response */
+    response->service_prefix = DM_URI_SYS_PREFIX;
+    response->service_name = dest->uri_name;
+    memcpy(response->product_key, product_key, strlen(product_key));
+    memcpy(response->device_name, device_name, strlen(device_name));
+    response->code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
+
+    return SUCCESS_RETURN;
+}
