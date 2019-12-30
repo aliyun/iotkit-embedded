@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #ifdef __UBUNTU_SDK_DEMO__
-#include <unistd.h>
+    #include <unistd.h>
 #endif
 
 #include "iot_export_linkkit.h"
@@ -43,7 +43,8 @@
     } while (0)
 
 
-void run_ubuntu_wifi_provision_example() {
+void run_ubuntu_wifi_provision_example()
+{
 #ifdef __UBUNTU_SDK_DEMO__
 #if defined(WIFI_PROVISION_ENABLED)
     char *wifi_name = "linkkit";
@@ -196,6 +197,14 @@ static int user_property_set_event_handler(const int devid, const char *request,
                              (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 
+    return 0;
+}
+
+
+static int user_event_notify_event_handler(const int devid, const char *request, const int request_len)
+{
+    int res = 0;
+    EXAMPLE_TRACE("Event Notify Received, Devid: %d, Request: %s", devid, request);
     return 0;
 }
 
@@ -549,7 +558,7 @@ static int user_master_dev_available(void)
 
 static int user_dev_bind_event(const int state_code, const char *state_message)
 {
-    EXAMPLE_TRACE("state_code: -0x%04x, str_msg= %s",-state_code , state_message == NULL? "NULL": state_message);
+    EXAMPLE_TRACE("state_code: -0x%04x, str_msg= %s", -state_code, state_message == NULL ? "NULL" : state_message);
     return 0;
 }
 static int user_cloud_error_handler(const int code, const char *data, const char *detail)
@@ -593,23 +602,23 @@ int linkkit_main(void *paras)
     set_iotx_info();
 #endif
 
-/*
- * if the following conditions are met:
- *    1) wifi provision is enabled,
- *    2) current OS is Ubuntu,
- *    3) a wireless card(Linksys思科wusb600n双频无线网卡) is inserted
- *    4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
- *       for example, the output of command "ifconfig" is like:
- *         wlx00259ce04ceb Link encap:Ethernet  HWaddr 00:25:9c:e0:4c:eb
- *         UP BROADCAST PROMISC MULTICAST  MTU:1500  Metric:1
- *         RX packets:8709 errors:0 dropped:27 overruns:0 frame:0
- *         TX packets:2457 errors:0 dropped:0 overruns:0 carrier:0
- *         collisions:0 txqueuelen:1000
- *         RX bytes:2940097 (2.9 MB)  TX bytes:382827 (382.8 KB)
- *       then set g_ifname = "wlx00259ce04ceb"
- *    5) the linkkit-example-solo is running with sudo permission
- *  Then you can run wifi-provision example in Ubuntu, just to uncomment the following line
- */
+    /*
+     * if the following conditions are met:
+     *    1) wifi provision is enabled,
+     *    2) current OS is Ubuntu,
+     *    3) a wireless card(Linksys思科wusb600n双频无线网卡) is inserted
+     *    4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
+     *       for example, the output of command "ifconfig" is like:
+     *         wlx00259ce04ceb Link encap:Ethernet  HWaddr 00:25:9c:e0:4c:eb
+     *         UP BROADCAST PROMISC MULTICAST  MTU:1500  Metric:1
+     *         RX packets:8709 errors:0 dropped:27 overruns:0 frame:0
+     *         TX packets:2457 errors:0 dropped:0 overruns:0 carrier:0
+     *         collisions:0 txqueuelen:1000
+     *         RX bytes:2940097 (2.9 MB)  TX bytes:382827 (382.8 KB)
+     *       then set g_ifname = "wlx00259ce04ceb"
+     *    5) the linkkit-example-solo is running with sudo permission
+     *  Then you can run wifi-provision example in Ubuntu, just to uncomment the following line
+     */
 
     /* run_ubuntu_wifi_provision_example(); */
 
@@ -623,6 +632,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUST, user_service_request_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
+    IOT_RegisterCallback(ITE_EVENT_NOTIFY, user_event_notify_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
     IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, user_trigger_event_reply_event_handler);

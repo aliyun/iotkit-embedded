@@ -97,12 +97,16 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
 int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request);
 int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response,
                     _IN_ char *data, _IN_ int data_len, _IN_ void *user_data);
+int dm_msg_response_with_identifier(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *request,
+                                    _IN_ dm_msg_response_t *response,
+                                    _IN_ char *data, _IN_ int data_len, _IN_ void *user_data);
 int dm_msg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                                 _IN_ char *payload, _IN_ int payload_len);
 int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
                                     _IN_ char device_name[DEVICE_NAME_MAXLEN], char *payload, int payload_len);
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int dm_msg_property_set(int devid, dm_msg_request_payload_t *request);
+int dm_msg__thing_event_notify(int devid, dm_msg_request_payload_t *request);
 #ifndef DEPRECATED_LINKKIT
 int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, _IN_ void *ctx);
 #else

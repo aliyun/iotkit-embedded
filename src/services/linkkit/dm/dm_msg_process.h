@@ -32,6 +32,8 @@ extern const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_REQUEST[]             DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_RESPONSE[]            DM_READ_ONLY;
+    extern const char DM_URI__THING_EVENT_NOTIFY[]               DM_READ_ONLY;
+    extern const char DM_URI__THING_EVENT_NOTIFY_REPLY[]         DM_READ_ONLY;
 
 
     /* From Local To Cloud Request And Response*/
@@ -111,6 +113,8 @@ int dm_msg_proc_thing_dynamictsl_get_reply(_IN_ dm_msg_source_t *source);
 int dm_msg_proc_rrpc_request(_IN_ dm_msg_source_t *source);
 int dm_disp_ntp_response(_IN_ dm_msg_source_t *source);
 int dm_disp_ext_error_response(_IN_ dm_msg_source_t *source);
+int dm_msg_proc__thing_event_notify(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
+                                    _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response);
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY

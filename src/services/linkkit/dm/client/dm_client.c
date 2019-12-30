@@ -1,18 +1,19 @@
 #include "iotx_dm_internal.h"
 
 static dm_client_uri_map_t g_dm_client_uri_map[] = {
-    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_model_down_raw               },
-    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_model_up_raw_reply           },
+    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_down_raw               },
+    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_up_raw_reply           },
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-    {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_service_property_set         },
-    {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_service_request              },
-    {DM_URI_THING_EVENT_POST_REPLY_WILDCARD,  DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_event_post_reply             },
-    {DM_URI_THING_DEVICEINFO_UPDATE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_deviceinfo_update_reply      },
-    {DM_URI_THING_DEVICEINFO_DELETE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_deviceinfo_delete_reply      },
-    {DM_URI_THING_DYNAMICTSL_GET_REPLY,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_dynamictsl_get_reply         },
-    {DM_URI_RRPC_REQUEST_WILDCARD,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_rrpc_request_wildcard              },
-    {DM_URI_NTP_RESPONSE,                     DM_URI_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_ALL,     (void *)dm_client_ntp_response                       },
-    {NULL,                                    DM_URI_EXT_ERROR_PREFIX,   IOTX_DM_DEVICE_ALL,     (void *)dm_client_ext_error                          },
+    {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_property_set         },
+    {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_request              },
+    {DM_URI_THING_EVENT_POST_REPLY_WILDCARD,  DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_event_post_reply             },
+    {DM_URI_THING_DEVICEINFO_UPDATE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_deviceinfo_update_reply      },
+    {DM_URI_THING_DEVICEINFO_DELETE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_deviceinfo_delete_reply      },
+    {DM_URI_THING_DYNAMICTSL_GET_REPLY,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_dynamictsl_get_reply         },
+    {DM_URI_RRPC_REQUEST_WILDCARD,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_rrpc_request_wildcard              },
+    {DM_URI_NTP_RESPONSE,                     DM_URI_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_ALL, (void *)dm_client_ntp_response                       },
+    {NULL,                                    DM_URI_EXT_ERROR_PREFIX,   IOTX_DM_DEVICE_ALL, (void *)dm_client_ext_error                          },
+    {DM_URI__THING_EVENT_NOTIFY,              DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client__thing_event_notify                },
 #endif
 #ifdef DEVICE_MODEL_GATEWAY
     {DM_URI_THING_TOPO_ADD_NOTIFY,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, (void *)dm_client_thing_topo_add_notify              },
@@ -198,6 +199,49 @@ void dm_client_thing_service_property_set(int fd, const char *topic, const char 
             dm_msg_response(DM_MSG_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
         }
     }
+}
+
+#define BIND_JSON_IDENTIFY                   "identifier"
+#define BIND_JSON_PARAMS                     "params"
+
+void  dm_client__thing_event_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
+                                    void *context)
+{
+    int res = 0;
+    int params_len;
+    char *params, *identify;
+    int identify_len = 0;
+    dm_msg_source_t source;
+    dm_msg_dest_t dest;
+    dm_msg_request_payload_t request;
+    dm_msg_response_t response;
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+    memset(&dest, 0, sizeof(dm_msg_dest_t));
+    memset(&request, 0, sizeof(dm_msg_request_payload_t));
+    memset(&response, 0, sizeof(dm_msg_response_t));
+
+    source.uri = topic;
+    source.payload = (unsigned char *)payload;
+    source.payload_len = payload_len;
+    source.context = NULL;
+
+    dest.uri_name = DM_URI__THING_EVENT_NOTIFY_REPLY;
+
+    res = dm_msg_proc__thing_event_notify(&source, &dest, &request, &response);
+    if (res < SUCCESS_RETURN) {
+        return;
+    }
+    params = json_get_value_by_name((char *)payload, payload_len, BIND_JSON_PARAMS, &params_len, NULL);
+    if (NULL == params) {
+        return;
+    }
+    identify = json_get_value_by_name((char *)params, params_len, BIND_JSON_IDENTIFY, &identify_len, NULL);
+    if (NULL == identify) {
+        return;
+    }
+
+    dm_msg_response_with_identifier(DM_MSG_DEST_CLOUD, &request, &response, identify, identify_len, NULL);
 }
 
 void dm_client_thing_service_request(int fd, const char *topic, const char *payload, unsigned int payload_len,

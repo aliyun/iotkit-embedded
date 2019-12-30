@@ -754,7 +754,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = iotx_event_callback(ITE_CLOUD_ERROR);
             if (callback) {
-                ((int (*)(int ,const char *,const char *))callback)(lite_item_code.value_int, err_data, err_detail);
+                ((int (*)(int, const char *, const char *))callback)(lite_item_code.value_int, err_data, err_detail);
             }
             IMPL_LINKKIT_FREE(err_data);
             IMPL_LINKKIT_FREE(err_detail);
@@ -840,6 +840,33 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         }
         break;
 #endif
+        case IOTX_DM_EVENT__THING_EVENT_NOTIFY: {
+            char *event_payload = NULL;
+
+            if (payload == NULL || lite_item_devid.type != cJSON_Number || lite_item_payload.type != cJSON_Object) {
+                return;
+            }
+
+            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+            sdk_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+
+            event_payload = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
+            if (event_payload == NULL) {
+                sdk_err("No Enough Memory");
+                return;
+            }
+            memset(event_payload, 0, lite_item_payload.value_length + 1);
+            memcpy(event_payload, lite_item_payload.value, lite_item_payload.value_length);
+
+            callback = iotx_event_callback(ITE_EVENT_NOTIFY);
+            if (callback) {
+                ((int (*)(const int, const char *, const int))callback)(lite_item_devid.value_int, event_payload,
+                        lite_item_payload.value_length);
+            }
+
+            IMPL_LINKKIT_FREE(event_payload);
+        }
+        break;
         default: {
         }
         break;
@@ -1435,7 +1462,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_subdev_login(devid);
             if (res != SUCCESS_RETURN) {
- 
+
                 return FAIL_RETURN;
             }
 #else

@@ -34,6 +34,7 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_STATE_OTA,            NULL},
     {ITE_STATE_DEV_BIND,       NULL},
     {ITE_STATE_SUB_DEVICE,     NULL},
+    {ITE_EVENT_NOTIFY,         NULL},
     {ITE_STATE_DEV_MODEL,      NULL}        /* DEV_MODEL must be last entry */
 
 };
@@ -54,6 +55,7 @@ DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const
 DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*callback)(const int, const char *, const int, const char *,
                       const int, char **, int *))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
+DEFINE_EVENT_CALLBACK(ITE_EVENT_NOTIFY,         int (*callback)(const int, const char *, const int))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*callback)(const int, const char *, const int, char **, int *))
 DEFINE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*callback)(const int, const int, const int, const char *,
                       const int))
