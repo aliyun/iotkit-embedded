@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20191226.infra-add-extern-C-declaration-in-infra_compat.h"
+#define IOTX_SDK_REVISION               "20200114.infra-update-IOTX_FIRMWARE_VER_LEN-to-64-bytes"
 #define IOTX_SDK_VERSION                "3.1.0"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
@@ -19,7 +19,7 @@ extern "C" {
 #define IOTX_PARTNER_ID_LEN             (64)
 #define IOTX_MODULE_ID_LEN              (64)
 #define IOTX_NETWORK_IF_LEN             (160)
-#define IOTX_FIRMWARE_VER_LEN           (32)
+#define IOTX_FIRMWARE_VER_LEN           (64)
 #define IOTX_URI_MAX_LEN                (135)
 #define IOTX_DOMAIN_MAX_LEN             (64)
 #define IOTX_CUSTOMIZE_INFO_LEN         (80)
