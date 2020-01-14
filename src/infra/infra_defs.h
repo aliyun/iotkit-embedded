@@ -18,7 +18,7 @@ extern "C" {
 #define IOTX_PARTNER_ID_LEN             (64)
 #define IOTX_MODULE_ID_LEN              (64)
 #define IOTX_NETWORK_IF_LEN             (160)
-#define IOTX_FIRMWARE_VER_LEN           (32)
+#define IOTX_FIRMWARE_VER_LEN           (64)
 #define IOTX_URI_MAX_LEN                (135)
 #define IOTX_DOMAIN_MAX_LEN             (64)
 #define IOTX_CUSTOMIZE_INFO_LEN         (80)
