@@ -16,7 +16,7 @@
 #define DEVICE_ID_MAXLEN            (64 + 1)
 #define DEVICE_SECRET_MAXLEN        (64 + 1)
 #define PRODUCT_SECRET_MAXLEN       (64 + 1)
-#define FIRMWARE_VERSION_MAXLEN     (32 + 1)
+#define FIRMWARE_VERSION_MAXLEN     (64 + 1)
 #define HAL_CID_LEN                 (64 + 1)
 
 /**
