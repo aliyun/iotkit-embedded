@@ -713,7 +713,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
         /* try to read more header */
         int max_remain_len = HTTPCLIENT_CHUNK_SIZE - len -1;
         if (max_remain_len <= 0) {
-            utils_debug("buffer exceeded max\n");
+            utils_err("buffer exceeded max\n");
             return ERROR_HTTP_PARSE;
         }
         max_remain_len = max_remain_len > HTTPCLIENT_RAED_HEAD_SIZE ? HTTPCLIENT_RAED_HEAD_SIZE : max_remain_len;
