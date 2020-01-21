@@ -44,7 +44,7 @@ endef
 endif # dynamic
 endif # COMP_LIB
 
-comp-lib: toolchain
+comp-lib: toolchain $(COMP_LIB_OBJS)
 ifdef COMP_LIB
 	$(TOP_Q)+( \
 	if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
