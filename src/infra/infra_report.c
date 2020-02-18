@@ -176,7 +176,7 @@ int iotx_report_firmware_version(void *pclient)
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
-    char version[IOTX_FIRMWARE_VERSION_LEN + 1] = {0};
+    char version[IOTX_FIRMWARE_VER_LEN + 1] = {0};
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
