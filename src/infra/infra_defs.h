@@ -7,10 +7,9 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20200114.infra-update-IOTX_FIRMWARE_VER_LEN-to-64-bytes"
+#define IOTX_SDK_REVISION               "20200218.ota-fix-no-device-name-issue-during-version-reporting"
 #define IOTX_SDK_VERSION                "3.1.0"
 #define IOTX_ALINK_VERSION              "20"
-#define IOTX_FIRMWARE_VERSION_LEN       (32)
 #define IOTX_PRODUCT_KEY_LEN            (20)
 #define IOTX_DEVICE_NAME_LEN            (32)
 #define IOTX_DEVICE_SECRET_LEN          (64)
