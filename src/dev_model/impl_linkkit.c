@@ -25,8 +25,8 @@
     #include "bind_api.h"
 #endif
 #if (defined(AWSS_SUPPORT_ZEROCONFIG) &&  !defined(AWSS_DISABLE_REGISTRAR))
-extern void awss_registrar_init(void);
-extern void awss_registrar_deinit(void);
+    extern void awss_registrar_init(void);
+    extern void awss_registrar_deinit(void);
 #endif
 
 #define IOTX_LINKKIT_KEY_ID          "id"
@@ -51,6 +51,7 @@ extern void awss_registrar_deinit(void);
 #define IOTX_LINKKIT_KEY_TIME        "time"
 #define IOTX_LINKKIT_KEY_DATA        "data"
 #define IOTX_LINKKIT_KEY_MESSAGE     "message"
+#define IOTX_LINKKIT_KEY_MODULE_ID   "module"
 
 #define IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS    10000
 #define IOTX_LINKKIT_RRPC_ID_LEN                25
@@ -421,7 +422,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload, lite_item_ctx;
     lite_cjson_t lite_item_code, lite_item_eventid, lite_item_utc, lite_item_rrpcid, lite_item_topo;
     lite_cjson_t lite_item_pk, lite_item_time;
-    lite_cjson_t lite_item_version, lite_item_configid, lite_item_configsize, lite_item_gettype, lite_item_sign,
+    lite_cjson_t lite_item_module,  lite_item_version, lite_item_configid, lite_item_configsize, lite_item_gettype,
+                 lite_item_sign,
                  lite_item_signmethod, lite_item_url, lite_item_data, lite_item_message;
 
     iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_ALINK_PROT_EVENT, "alink event type: %d", type);
@@ -434,6 +436,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 #ifdef LOG_REPORT_TO_CLOUD
         dm_utils_json_object_item(&lite, "msgid", 5, cJSON_Invalid, &msg_id);
 #endif
+
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_ID, strlen(IOTX_LINKKIT_KEY_ID), cJSON_Invalid, &lite_item_id);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID), cJSON_Invalid,
                                   &lite_item_devid);
@@ -456,6 +459,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                                   &lite_item_time);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_VERSION, strlen(IOTX_LINKKIT_KEY_VERSION), cJSON_Invalid,
                                   &lite_item_version);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_MODULE_ID, strlen(IOTX_LINKKIT_KEY_MODULE_ID), cJSON_Invalid,
+                                  &lite_item_module);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_CONFIG_ID, strlen(IOTX_LINKKIT_KEY_CONFIG_ID), cJSON_Invalid,
                                   &lite_item_configid);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_CONFIG_SIZE, strlen(IOTX_LINKKIT_KEY_CONFIG_SIZE), cJSON_Invalid,
@@ -911,9 +916,19 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 #endif
         case IOTX_DM_EVENT_FOTA_NEW_FIRMWARE: {
             char *version = NULL;
+            char *module = NULL;
 
             if (payload == NULL || lite_item_version.type != cJSON_String) {
                 return;
+            }
+
+            if (payload != NULL && lite_item_module.type == cJSON_String) {
+                module = IMPL_LINKKIT_MALLOC(lite_item_module.value_length + 1);
+                if (module == NULL) {
+                    return;
+                }
+                memset(module, 0, lite_item_module.value_length + 1);
+                memcpy(module, lite_item_module.value, lite_item_module.value_length);
             }
 
             iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_ALINK_PROT_EVENT, "new fota information received, %.*s",
@@ -926,14 +941,27 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(version, 0, lite_item_version.value_length + 1);
             memcpy(version, lite_item_version.value, lite_item_version.value_length);
 
-            callback = iotx_event_callback(ITE_FOTA);
-            if (callback) {
-                ((int (*)(const int, const char *))callback)(0, version);
+            if (NULL == module) {
+                callback = iotx_event_callback(ITE_FOTA);
+                if (callback) {
+                    ((int (*)(const int, const char *))callback)(0, version);
+                }
+            } else {
+                callback = iotx_event_callback(ITE_FOTA_MODULE);
+                if (callback) {
+                    ((int (*)(const int, const char *, const char *))callback)(0, version, module);
+                }
             }
 
             if (version) {
                 IMPL_LINKKIT_FREE(version);
             }
+
+            if (module) {
+                IMPL_LINKKIT_FREE(module);
+            }
+
+
         }
         break;
         case IOTX_DM_EVENT_COTA_NEW_CONFIG: {
@@ -1962,10 +1990,10 @@ int IOCTL_FUNC(IOTX_IOCTL_QUERY_DEVID, void *data)
 {
     int res;
     iotx_dev_meta_info_t *dev_info = (iotx_dev_meta_info_t *)data;
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
-  
+
     res = iot_linkkit_subdev_query_id(dev_info->product_key, dev_info->device_name);
     return res;
 }
@@ -1975,7 +2003,7 @@ int IOCTL_FUNC(IOTX_IOCTL_SET_OTA_DEV_ID, void *data)
 {
     int res;
     int devid;
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
 
@@ -1993,7 +2021,7 @@ int IOCTL_FUNC(IOTX_IOCTL_SET_OTA_DEV_ID, void *data)
 int IOCTL_FUNC(IOTX_IOCTL_RECV_PROP_REPLY, void *data)
 {
     int res;
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
 
@@ -2004,7 +2032,7 @@ int IOCTL_FUNC(IOTX_IOCTL_RECV_PROP_REPLY, void *data)
 int IOCTL_FUNC(IOTX_IOCTL_SEND_PROP_SET_REPLY, void *data)
 {
     int res;
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
     res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY, data);
@@ -2014,7 +2042,7 @@ int IOCTL_FUNC(IOTX_IOCTL_SEND_PROP_SET_REPLY, void *data)
 int IOCTL_FUNC(IOTX_IOCTL_FOTA_TIMEOUT_MS, void *data)
 {
     int res;
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
     res = iotx_dm_set_opt(DM_OPT_FOTA_RETRY_TIMEOUT_MS, data);
@@ -2024,7 +2052,7 @@ int IOCTL_FUNC(IOTX_IOCTL_FOTA_TIMEOUT_MS, void *data)
 int IOCTL_FUNC(IOTX_IOCTL_SET_PROXY_REGISTER, void *data)
 {
     int res;
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
     res = iotx_dm_set_opt(DM_OPT_PROXY_PRODUCT_REGISTER, data);
@@ -2035,7 +2063,7 @@ int IOCTL_FUNC(IOTX_IOCTL_SUB_USER_TOPIC, void *data)
 {
     int res;
     iotx_user_subscribe_context *context = (iotx_user_subscribe_context *) data;
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
 

@@ -145,7 +145,7 @@ int otalib_GetFirmwareVarlenPara(const char *json_doc,
 }
 
 int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char **version, char *md5,
-                     uint32_t *file_size)
+                     uint32_t *file_size, char **module)
 {
 #define OTA_FILESIZE_STR_LEN    (16)
     char file_size_str[OTA_FILESIZE_STR_LEN + 1] = {0};
@@ -154,6 +154,12 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "version", version)) {
         OTA_LOG_ERROR("get value of version key failed");
         return -1;
+    }
+
+
+    /* get module*/
+    if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "module", module)) {
+        OTA_LOG_INFO("no module key found");
     }
 
     /* get URL */

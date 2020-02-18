@@ -36,17 +36,28 @@ static int _dm_fota_send_new_config_to_user(void *ota_handle)
     char *message = NULL;
     char version[128] = {0};
     const char *fota_new_config_fmt = "{\"version\":\"%s\"}";
+    char module[128] = {0};
+    const char *fota_new_config_with_module_fmt = "{\"version\":\"%s\",\"module\":\"%s\"}";
 
     IOT_OTA_Ioctl(ota_handle, IOT_OTAG_VERSION, version, 128);
-
-    message_len = strlen(fota_new_config_fmt) + strlen(version) + 1;
+    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_MODULE, module, 128);
+    if (strlen(module) == 0) {
+        message_len = strlen(fota_new_config_fmt) + strlen(version) + 1;
+    } else {
+        message_len = strlen(fota_new_config_with_module_fmt) + strlen(version) + strlen(module) + 1;
+    }
 
     message = DM_malloc(message_len);
     if (message == NULL) {
         return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, fota_new_config_fmt, version);
+
+    if (strlen(module) == 0) {
+        HAL_Snprintf(message, message_len, fota_new_config_fmt, version);
+    } else {
+        HAL_Snprintf(message, message_len, fota_new_config_with_module_fmt, version, module);
+    }
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_FOTA_NEW_FIRMWARE, message);
     if (res != SUCCESS_RETURN) {

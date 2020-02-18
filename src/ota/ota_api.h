@@ -85,6 +85,7 @@ typedef enum {
     IOT_OTAG_FILE_SIZE,        /* size of file */
     IOT_OTAG_MD5SUM,           /* md5 in string format */
     IOT_OTAG_VERSION,          /* version in string format */
+    IOT_OTAG_MODULE,           /* version in string format */
     IOT_OTAG_CHECK_FIRMWARE,    /* Check firmware is valid or not */
     IOT_OTAG_CHECK_CONFIG,      /* Check config file is valid or not */
     IOT_OTAG_RESET_FETCHED_SIZE,/* reset the size_fetched parameter to be 0 */
@@ -237,11 +238,11 @@ int IOT_OTA_GetLastError(void *handle);
  * @param [in] handle: specify the OTA module.
  *
  * @param [in] cb: user callback.
- * 
+ *
  * @return The error code.
  * @see None.
  */
-int IOT_OTA_SetOnPushedCallback(void * handle, int (*cb)(void * context));
+int IOT_OTA_SetOnPushedCallback(void *handle, int (*cb)(void *context));
 /** @} */ /* end of api_ota */
 /** @} */ /* end of api */
 

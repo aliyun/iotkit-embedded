@@ -54,7 +54,8 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
                 return -1;
             }
 
-            if (0 != otalib_GetParams(pvalue, val_len, &h_ota->purl, &h_ota->version, h_ota->md5sum, &h_ota->size_file)) {
+            if (0 != otalib_GetParams(pvalue, val_len, &h_ota->purl, &h_ota->version, h_ota->md5sum,
+                                      &h_ota->size_file, &h_ota->module)) {
                 OTA_LOG_ERROR("Get config parameter failed");
                 return -1;
             }
@@ -157,8 +158,8 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             return -1;
             break;
     }
-    
-    if(h_ota->ota_event_cb != NULL) {
+
+    if (h_ota->ota_event_cb != NULL) {
         h_ota->ota_event_cb(h_ota);
     }
     return 0;
@@ -166,15 +167,15 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
 
 static int g_ota_is_initialized = 0;
 
-int IOT_OTA_SetOnPushedCallback(void * handle, int (*cb)(void * context))
+int IOT_OTA_SetOnPushedCallback(void *handle, int (*cb)(void *context))
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt)handle;
-    if(h_ota == NULL ) {
+    if (h_ota == NULL) {
         return -1;
     }
 
     h_ota->ota_event_cb = cb;
-    return 0;    
+    return 0;
 }
 /* Initialize OTA module */
 void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal)
@@ -839,6 +840,14 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, int buf_len)
         case IOT_OTAG_VERSION: {
             strncpy(buf, h_ota->version, buf_len);
             ((char *)buf)[buf_len - 1] = '\0';
+        }
+        break;
+
+        case IOT_OTAG_MODULE: {
+            if (h_ota->module != NULL) {
+                strncpy(buf, h_ota->module, buf_len);
+                ((char *)buf)[buf_len - 1] = '\0';
+            }
         }
         break;
 

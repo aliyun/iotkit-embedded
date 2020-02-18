@@ -196,12 +196,27 @@ static int user_timestamp_reply_event_handler(const char *timestamp)
 /** fota event handler **/
 static int user_fota_event_handler(int type, const char *version)
 {
-    char buffer[128] = {0};
-    int buffer_length = 128;
+    char buffer[1024] = {0};
+    int buffer_length = 1024;
 
     /* 0 - new firmware exist, query the new firmware */
     if (type == 0) {
         EXAMPLE_TRACE("New Firmware Version: %s", version);
+
+        IOT_Linkkit_Query(EXAMPLE_MASTER_DEVID, ITM_MSG_QUERY_FOTA_DATA, (unsigned char *)buffer, buffer_length);
+    }
+
+    return 0;
+}
+
+static int user_fota_module_event_handler(int type, const char *version, const char *module)
+{
+    char buffer[1024] = {0};
+    int buffer_length = 1024;
+
+    /* 0 - new firmware exist, query the new firmware */
+    if (type == 0) {
+        EXAMPLE_TRACE("New Firmware Version: %s, module: %s", version, module);
 
         IOT_Linkkit_Query(EXAMPLE_MASTER_DEVID, ITM_MSG_QUERY_FOTA_DATA, (unsigned char *)buffer, buffer_length);
     }
@@ -360,6 +375,7 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
+    IOT_RegisterCallback(ITE_FOTA_MODULE, user_fota_module_event_handler);
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
     IOT_RegisterCallback(ITE_DYNREG_DEVICE_SECRET, dynreg_device_secret);

@@ -62,16 +62,16 @@ int IOCTL_FUNC(IOTX_IOCTL_GET_REGION, void *);
 int IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_DOMAIN, void *data);
 int IOCTL_FUNC(IOTX_IOCTL_SET_HTTP_DOMAIN, void *data);
 #if defined(DYNAMIC_REGISTER)
-int IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, void *data);
-int IOCTL_FUNC(IOTX_IOCTL_GET_DYNAMIC_REGISTER, void *);
+    int IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, void *data);
+    int IOCTL_FUNC(IOTX_IOCTL_GET_DYNAMIC_REGISTER, void *);
 #endif
 int IOCTL_FUNC(IOTX_IOCTL_FOTA_TIMEOUT_MS, void *data);
-#if defined(DEVICE_MODEL_ENABLED) 
-int IOCTL_FUNC(IOTX_IOCTL_SET_CUSTOMIZE_INFO, void *data);
-int IOCTL_FUNC(IOTX_IOCTL_SET_PROXY_REGISTER, void *);
-int IOCTL_FUNC(IOTX_IOCTL_SET_OTA_DEV_ID, void *);
-int IOCTL_FUNC(IOTX_IOCTL_QUERY_DEVID, void *data);
-int IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_PORT, void *);
+#if defined(DEVICE_MODEL_ENABLED)
+    int IOCTL_FUNC(IOTX_IOCTL_SET_CUSTOMIZE_INFO, void *data);
+    int IOCTL_FUNC(IOTX_IOCTL_SET_PROXY_REGISTER, void *);
+    int IOCTL_FUNC(IOTX_IOCTL_SET_OTA_DEV_ID, void *);
+    int IOCTL_FUNC(IOTX_IOCTL_QUERY_DEVID, void *data);
+    int IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_PORT, void *);
 #endif
 int IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL, void *data);
 int IOCTL_FUNC(IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL, void *data);
@@ -81,7 +81,7 @@ int IOCTL_FUNC(IOTX_IOCTL_SEND_PROP_SET_REPLY, void *);
 
 int IOCTL_FUNC(IOTX_IOCTL_SET_HTTP_DOMAIN, void *data)
 {
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
     memset(http_custom_domain, 0, strlen((char *)data) + 1);
@@ -96,41 +96,41 @@ int IOT_Ioctl(int  option, void *data)
     iotx_dev_meta_info_t     *meta = NULL;
 
     meta = &g_dev_meta_info_t;
-    
+
     if (option < 0 || data == NULL) {
         return FAIL_RETURN;
     }
-    switch(option){
+    switch (option) {
         case IOTX_IOCTL_SET_REGION:
             res = IOCTL_FUNC(IOTX_IOCTL_SET_REGION, data);
             break;
         case IOTX_IOCTL_GET_REGION:
             res = IOCTL_FUNC(IOTX_IOCTL_GET_REGION, data);
             break;
-    
-        case IOTX_IOCTL_SET_MQTT_DOMAIN:{
+
+        case IOTX_IOCTL_SET_MQTT_DOMAIN: {
             int domain_type = IOTX_CLOUD_REGION_CUSTOM;
             IOCTL_FUNC(IOTX_IOCTL_SET_REGION, &domain_type);
             res = IOCTL_FUNC(IOTX_IOCTL_SET_MQTT_DOMAIN, data);
         }
-            break;
+        break;
 
-         case IOTX_IOCTL_SET_HTTP_DOMAIN: {
+        case IOTX_IOCTL_SET_HTTP_DOMAIN: {
             int region = IOTX_HTTP_REGION_CUSTOM;
             IOCTL_FUNC(IOTX_IOCTL_SET_REGION, &region);
             res = IOCTL_FUNC(IOTX_IOCTL_SET_HTTP_DOMAIN, data);
-         }
-            break; 
+        }
+        break;
 #if defined(DYNAMIC_REGISTER)
-         case IOTX_IOCTL_SET_DYNAMIC_REGISTER:
+        case IOTX_IOCTL_SET_DYNAMIC_REGISTER:
             res = IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, data);
-            break;     
-         case IOTX_IOCTL_GET_DYNAMIC_REGISTER:
+            break;
+        case IOTX_IOCTL_GET_DYNAMIC_REGISTER:
             res = IOCTL_FUNC(IOTX_IOCTL_GET_DYNAMIC_REGISTER, data);
             break;
 #endif
 
-        break; 
+            break;
         case IOTX_IOCTL_SET_PRODUCT_KEY: {
             if ((data != NULL) && (strlen(data) <= IOTX_PRODUCT_KEY_LEN)) {
                 memset(meta->product_key, 0, IOTX_PRODUCT_KEY_LEN + 1);
@@ -272,7 +272,7 @@ int IOT_Ioctl(int  option, void *data)
         default: {
             res = FAIL_RETURN;
         }
-        break;   
+        break;
     }
 
     return res;
@@ -334,6 +334,7 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_PERMIT_JOIN,          NULL},
     {ITE_INITIALIZE_COMPLETED, NULL},
     {ITE_FOTA,                 NULL},
+    {ITE_FOTA_MODULE,          NULL},
     {ITE_COTA,                 NULL},
     {ITE_MQTT_CONNECT_SUCC,    NULL},
     {ITE_CLOUD_ERROR,          NULL},
@@ -384,6 +385,7 @@ DEFINE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*callback)(const int, const
 DEFINE_EVENT_CALLBACK(ITE_PERMIT_JOIN,          int (*callback)(const char *, int))
 DEFINE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*callback)(const int))
 DEFINE_EVENT_CALLBACK(ITE_FOTA,                 int (*callback)(const int, const char *))
+DEFINE_EVENT_CALLBACK(ITE_FOTA_MODULE,          int (*callback)(const int, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *,
                       const char *, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))

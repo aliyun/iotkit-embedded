@@ -19,6 +19,7 @@ typedef struct  {
     uint32_t size_file;         /* size of file */
     char *purl;                 /* point to URL */
     char *version;              /* point to string */
+    char *module;               /* point to module string */
     char md5sum[33];            /* MD5 string */
 
     void *md5;                  /* MD5 handle */
@@ -34,7 +35,7 @@ typedef struct  {
     char *cota_url;
     char *getType;
     int err;                    /* last error code */
-    ota_event_fpt  ota_event_cb;  
+    ota_event_fpt  ota_event_cb;
 } OTA_Struct_t, *OTA_Struct_pt;
 
 int iotx_ota_get_config(void *handle, const char *configScope, const char *getType,
