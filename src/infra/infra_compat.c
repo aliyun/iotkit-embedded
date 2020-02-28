@@ -101,6 +101,24 @@ int IOT_Ioctl(int  option, void *data)
         return FAIL_RETURN;
     }
     switch (option) {
+        case IOTX_IOCTL_GET_MODULE: {
+            if (NULL == data) {
+                res = FAIL_RETURN;
+                break;
+            }
+            memcpy(data, meta->module, strlen(meta->module));
+            res = SUCCESS_RETURN;
+        }
+        break;
+        case IOTX_IOCTL_SET_MODULE:
+            if ((data != NULL) && (strlen(data) <= IOTX_MODULE_LEN)) {
+                memset(meta->module, 0, IOTX_MODULE_LEN + 1);
+                memcpy(meta->module, data, strlen(data));
+                res = SUCCESS_RETURN;
+            } else {
+                res = FAIL_RETURN;
+            }
+            break;
         case IOTX_IOCTL_SET_REGION:
             res = IOCTL_FUNC(IOTX_IOCTL_SET_REGION, data);
             break;

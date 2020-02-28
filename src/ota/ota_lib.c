@@ -3,6 +3,7 @@
  */
 
 #include "iotx_ota_internal.h"
+#include "infra_compat.h"
 
 const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const char *key, uint32_t *val_len)
 {
@@ -261,19 +262,40 @@ int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *versio
 int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, const char *msg_detail)
 {
     int ret;
+    char module[IOTX_MODULE_LEN] = {0};
+    IOT_Ioctl(IOTX_IOCTL_GET_MODULE, module);
     if (NULL == msg_detail) {
+       if(strlen(module) == 0) {
         ret = HAL_Snprintf(buf,
                            buf_len,
                            "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"\"}}",
                            id,
                            progress);
+        } else {
+        ret = HAL_Snprintf(buf,
+                           buf_len,
+                           "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"\", \"module\":\"%s\"}}",
+                           id,
+                           progress,
+                           module);
+        }
     } else {
+       if(strlen(module) == 0) {
         ret = HAL_Snprintf(buf,
                            buf_len,
                            "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"%s\"}}",
                            id,
                            progress,
                            msg_detail);
+        }else {
+        ret = HAL_Snprintf(buf,
+                           buf_len,
+                           "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"%s\", \"module\":\"%s\"}}",
+                           id,
+                           progress,
+                           msg_detail,
+                           module);
+       }
     }
 
 

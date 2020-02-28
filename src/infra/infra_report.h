@@ -42,13 +42,13 @@ typedef enum {
     ACTIVE_LINKKIT_OTHERS       /* linkkit and 3-party OS implement */
 } active_system_type_t;
 
-typedef int (*info_report_func_pt)(void *handle, const char *topic_name,int req_ack,void *data, int len);
+typedef int (*info_report_func_pt)(void *handle, const char *topic_name, int req_ack, void *data, int len);
 
 #define MIDREPORT_PAYLOAD_LEN             (62 + IOTX_PARTNER_ID_LEN + IOTX_MODULE_ID_LEN + 32 +1)
 #define MIDREPORT_REQID_LEN               (IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 6)
 #define AOS_VERSON_MSG_LEN                (256)
 #define LINKKIT_VERSION_MSG_LEN           (192)
-#define FIRMWARE_VERSION_MSG_LEN          (64)
+#define FIRMWARE_VERSION_MSG_LEN          (64 + IOTX_MODULE_LEN)
 
 int     iotx_report_id(void);
 int     iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);

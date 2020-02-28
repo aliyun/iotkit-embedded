@@ -3,7 +3,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 
-const char * g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER] = {
+const char *g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER] = {
     "iot-as-mqtt.cn-shanghai.aliyuncs.com",       /* Shanghai */
     "iot-as-mqtt.ap-southeast-1.aliyuncs.com",    /* Singapore */
     "iot-as-mqtt.ap-northeast-1.aliyuncs.com",    /* Japan */

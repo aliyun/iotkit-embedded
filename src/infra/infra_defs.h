@@ -12,6 +12,7 @@ extern "C" {
 #define IOTX_PRODUCT_KEY_LEN            (20)
 #define IOTX_DEVICE_NAME_LEN            (32)
 #define IOTX_DEVICE_SECRET_LEN          (64)
+#define IOTX_MODULE_LEN                 (64)
 #define IOTX_DEVICE_ID_LEN              (64)
 #define IOTX_PRODUCT_SECRET_LEN         (64)
 #define IOTX_PARTNER_ID_LEN             (64)
@@ -23,22 +24,22 @@ extern "C" {
 #define IOTX_CUSTOMIZE_INFO_LEN         (80)
 
 #ifndef _IN_
-    #define _IN_
+#define _IN_
 #endif
 
 #ifndef _OU_
-    #define _OU_
+#define _OU_
 #endif
 
 #ifndef _IN_OPT_
-    #define _IN_OPT_
+#define _IN_OPT_
 #endif
 
 #define NETWORK_ADDR_LEN                (16)
 #define HAL_MAC_LEN                     (17 + 1)    /* MAC地址的长度 */
 #define STR_SHORT_LEN                   (32)
 #ifndef ETH_ALEN
-    #define ETH_ALEN                    (6)
+#define ETH_ALEN                    (6)
 #endif
 #define HAL_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
 #define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
@@ -300,11 +301,12 @@ typedef struct _iotx_dev_meta_info {
     char product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
     char device_name[IOTX_DEVICE_NAME_LEN + 1];
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
+    char module[IOTX_MODULE_LEN + 1];
 } iotx_dev_meta_info_t;
 
 typedef struct {
     const char *topic;
-    void * callback;
+    void *callback;
 } iotx_user_subscribe_context;
 
 typedef struct {

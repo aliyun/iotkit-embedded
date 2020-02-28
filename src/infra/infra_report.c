@@ -131,6 +131,7 @@ int iotx_report_firmware_version(void *pclient)
     char version[IOTX_FIRMWARE_VER_LEN + 1] = {0};
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char *module[IOTX_MODULE_LEN] = {0};
 
     if (info_report_func == NULL) {
         VERSION_ERR("report func not register!");
@@ -162,12 +163,26 @@ int iotx_report_firmware_version(void *pclient)
     VERSION_DEBUG("firmware report topic: %s", topic_name);
 
     /* firmware report message json data generate */
-    ret = HAL_Snprintf(msg,
-                       FIRMWARE_VERSION_MSG_LEN,
-                       "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
-                       iotx_report_id(),
-                       version
-                      );
+
+    IOT_Ioctl(IOTX_IOCTL_GET_MODULE, module);
+    if (strlen(module) == 0) {
+        ret = HAL_Snprintf(msg,
+                           FIRMWARE_VERSION_MSG_LEN,
+                           "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
+                           iotx_report_id(),
+                           version
+                          );
+    } else {
+        ret = HAL_Snprintf(msg,
+                           FIRMWARE_VERSION_MSG_LEN,
+                           "{\"id\":\"%d\",\"params\":{\"version\":\"%s\", \"module\":\"%s\"}}",
+                           iotx_report_id(),
+                           version,
+                           module
+                          );
+    }
+
+
     if (ret <= 0) {
         VERSION_ERR("firmware report message json data generate err");
         return FAIL_RETURN;

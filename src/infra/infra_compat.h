@@ -213,7 +213,9 @@ typedef enum {
     IOTX_IOCTL_SET_DEVICE_NAME,         /* vale(char *) - set device name */
     IOTX_IOCTL_GET_DEVICE_NAME,         /* vale(char[IOTX_DEVICE_NAME_LEN + 1]) - get device name */
     IOTX_IOCTL_SET_DEVICE_SECRET,       /* vale(char *) - set device secret */
-    IOTX_IOCTL_GET_DEVICE_SECRET        /* vale(char[IOTX_DEVICE_SECRET_LEN + 1]) - get device secret */
+    IOTX_IOCTL_GET_DEVICE_SECRET,       /* vale(char[IOTX_DEVICE_SECRET_LEN + 1]) - get device secret */
+    IOTX_IOCTL_SET_MODULE,              /* vale(char[IOTX_MODULE_LEN + 1]) - set module info*/
+    IOTX_IOCTL_GET_MODULE               /* vale(char[IOTX_MODULE_LEN + 1]) - get module info */
 } iotx_ioctl_option_t;
 
 typedef enum {
