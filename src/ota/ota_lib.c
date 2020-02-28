@@ -130,7 +130,9 @@ int otalib_GetFirmwareVarlenPara(const char *json_doc,
     uint32_t val_len;
 
     if (NULL == (pvalue = otalib_JsonValueOf(json_doc, json_doc_len, key, &val_len))) {
-        OTA_LOG_ERROR("Not %s key in json doc of OTA", key);
+        if (0 != strcmp(key, "module")) {
+            OTA_LOG_ERROR("Not %s key in json doc of OTA", key);
+        }
         return -1;
     }
 
@@ -265,37 +267,37 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
     char module[IOTX_MODULE_LEN] = {0};
     IOT_Ioctl(IOTX_IOCTL_GET_MODULE, module);
     if (NULL == msg_detail) {
-       if(strlen(module) == 0) {
-        ret = HAL_Snprintf(buf,
-                           buf_len,
-                           "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"\"}}",
-                           id,
-                           progress);
+        if (strlen(module) == 0) {
+            ret = HAL_Snprintf(buf,
+                               buf_len,
+                               "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"\"}}",
+                               id,
+                               progress);
         } else {
-        ret = HAL_Snprintf(buf,
-                           buf_len,
-                           "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"\", \"module\":\"%s\"}}",
-                           id,
-                           progress,
-                           module);
+            ret = HAL_Snprintf(buf,
+                               buf_len,
+                               "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"\", \"module\":\"%s\"}}",
+                               id,
+                               progress,
+                               module);
         }
     } else {
-       if(strlen(module) == 0) {
-        ret = HAL_Snprintf(buf,
-                           buf_len,
-                           "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"%s\"}}",
-                           id,
-                           progress,
-                           msg_detail);
-        }else {
-        ret = HAL_Snprintf(buf,
-                           buf_len,
-                           "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"%s\", \"module\":\"%s\"}}",
-                           id,
-                           progress,
-                           msg_detail,
-                           module);
-       }
+        if (strlen(module) == 0) {
+            ret = HAL_Snprintf(buf,
+                               buf_len,
+                               "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"%s\"}}",
+                               id,
+                               progress,
+                               msg_detail);
+        } else {
+            ret = HAL_Snprintf(buf,
+                               buf_len,
+                               "{\"id\":%d,\"params\":{\"step\":\"%d\",\"desc\":\"%s\", \"module\":\"%s\"}}",
+                               id,
+                               progress,
+                               msg_detail,
+                               module);
+        }
     }
 
 
