@@ -13,7 +13,7 @@ INTERNAL_INCLUDES += $(foreach mod, $(MODULE_NAME) $(HDR_REFS), \
         $(shell [ -d $(TOP_DIR)/$(mod) ] && \
             find -L $(TOP_DIR)/$(mod)/ -type d \
                 -a -name "[^.]*" \
-                -not -path "*.git*"), \
+                -not -path ".git*"), \
         -I$(d) \
     ) \
 )
