@@ -10,4 +10,4 @@ LDFLAGS         	+= -liot_sdk -liot_hal -liot_tls
 
 $(call Append_Conditional, LIB_SRCS_EXCLUDE, examples/coap_example.c, COAP_CLIENT)
 $(call Append_Conditional, SRCS_coap-example, examples/coap_example.c, COAP_CLIENT)
-$(call Append_Conditional, TARGET, coap-example, COAP_CLIENT)
+$(call Append_Conditional, TARGET, coap-example, COAP_CLIENT, BUILD_AOS NO_EXECUTABLES)

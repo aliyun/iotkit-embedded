@@ -11,6 +11,6 @@ SRCS_http2-example-stream   		+= examples/http2_example_stream.c
 SRCS_http2-example-uploadfile   	+= examples/http2_example_uploadfile.c
 SRCS_http2-example-break-resume  	+= examples/http2_example_break_resume.c
 
-$(call Append_Conditional, TARGET, http2-example-stream, HTTP2_COMM_ENABLED)
-$(call Append_Conditional, TARGET, http2-example-uploadfile http2-example-break-resume, HTTP2_COMM_ENABLED FS_ENABLED)
+$(call Append_Conditional, TARGET, http2-example-stream, HTTP2_COMM_ENABLED, BUILD_AOS NO_EXECUTABLES)
+$(call Append_Conditional, TARGET, http2-example-uploadfile http2-example-break-resume, HTTP2_COMM_ENABLED FS_ENABLED, BUILD_AOS NO_EXECUTABLES)
 
