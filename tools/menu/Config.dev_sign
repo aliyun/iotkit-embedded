@@ -1,4 +1,5 @@
 config DEV_SIGN
     bool
     default y
+    select INFRA_LOG
     select INFRA_SHA256
