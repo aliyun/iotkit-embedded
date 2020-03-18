@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20200312.tools-configuration-INFRA_LOG-should-be-mandantory"
+#define IOTX_SDK_REVISION               "20200318.ota-fix-fota-md5-mismatch-after-remote-config-push"
 #define IOTX_SDK_VERSION                "3.0.1"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_PRODUCT_KEY_LEN            (20)
