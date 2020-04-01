@@ -84,7 +84,7 @@ static void show_usage()
 {
     HAL_Printf("\r\nusage: coap-example [OPTION]...\r\n");
     HAL_Printf("\t-e pre|online|daily\t\tSet the cloud environment.\r\n");
-    HAL_Printf("\t-s nosec|dtls|psk  \t\tSet the security setting.\r\n");
+    HAL_Printf("\t-s dtls            \t\tSet the security setting.\r\n");
     HAL_Printf("\t-l                 \t\tSet the program run loop.\r\n");
     HAL_Printf("\t-r                 \t\tTesting the DTLS session ticket.\r\n");
     HAL_Printf("\t-h                 \t\tShow this usage.\r\n");
@@ -96,28 +96,41 @@ int main(int argc, char **argv)
     char                    secur[32] = {0};
     char                    env[32] = {0};
     int                     opt;
+    char                    url[256] = {0};
     iotx_coap_config_t      config;
     iotx_coap_device_info_t deviceinfo;
 
     /* set device info use HAL function */
-    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key); 
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key);
     IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
     IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, g_device_secret);
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
+    /* set the default env */
+    memcpy(env, "online", 6);
+    /* set the default security mode */
+    memcpy(secur, "psk", 3);
 
 #if !defined(_WIN32) && !defined(BUILD_AOS)
     while ((opt = getopt(argc, argv, "e:s:lhr")) != -1) {
         switch (opt) {
             case 's': {
+                char *mode = "dtls";
+                if (strcmp(optarg, mode) != 0) {
+                    HAL_Printf("only dtls is supported\r\n");
+                    return;
+                }
+                memset(secur, 0, 31);
                 if (strlen(optarg) > 31) {
                     memcpy(secur, optarg, 31);
                 } else {
                     memcpy(secur, optarg, strlen(optarg));
                 }
+
             }
             break;
             case 'e': {
+                memset(env, 0, 31);
                 if (strlen(optarg) > 31) {
                     memcpy(env, optarg, 31);
                 } else {
@@ -161,11 +174,9 @@ int main(int argc, char **argv)
         }
     } else if (0 == strncmp(env, "online", strlen("online"))) {
         if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
-            char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, g_product_key);
             config.p_url = url;
         } else if (0 == strncmp(secur, "psk", strlen("psk"))) {
-            char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, g_product_key);
             config.p_url = url;
         } else {
