@@ -1952,6 +1952,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
                          iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext)
 {
     int                         len = 0, res = 0;
+    int                         tmpqos = (int)qos;
     iotx_time_t                 timer;
     MQTTString                  topic = MQTTString_initializer;
     /*iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};*/
@@ -2129,7 +2130,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     }
 
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic,
-                                  (int *)&qos);
+                                  &tmpqos);
     if (len <= 0) {
 #ifdef PLATFORM_HAS_DYNMEM
         mqtt_free(handler->topic_filter);
@@ -2144,7 +2145,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 
     mqtt_debug("%20s : %08d", "Packet Ident", msgId);
     mqtt_debug("%20s : %s", "Topic", topicFilter);
-    mqtt_debug("%20s : %d", "QoS", (int)qos);
+    mqtt_debug("%20s : %d", "QoS", tmpqos);
     mqtt_debug("%20s : %d", "Packet Length", len);
 #if defined(INSPECT_MQTT_FLOW) && defined (INFRA_LOG)
     HEXDUMP_DEBUG(c->buf_send, len);

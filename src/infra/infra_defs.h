@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20200313.repo-specify-not-to-build-http-dynreg-coap-example-when-cr"
+#define IOTX_SDK_REVISION               "20200401.mqtt-fix-misuse-of-enum-type"
 #define IOTX_SDK_VERSION                "3.2.0"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_PRODUCT_KEY_LEN            (20)
