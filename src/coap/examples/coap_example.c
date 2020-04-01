@@ -118,7 +118,7 @@ int main(int argc, char **argv)
                 char *mode = "dtls";
                 if (strcmp(optarg, mode) != 0) {
                     HAL_Printf("only dtls is supported\r\n");
-                    return;
+                    return -1;
                 }
                 memset(secur, 0, 31);
                 if (strlen(optarg) > 31) {
