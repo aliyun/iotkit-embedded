@@ -380,8 +380,8 @@ static int user_initialized(const int devid)
   */
 static int user_fota_event_handler(int type, const char *version)
 {
-    char buffer[128] = {0};
-    int buffer_length = 128;
+    char buffer[1024] = {0};
+    int buffer_length = 1024;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
 
     if (type == 0) {
