@@ -17,6 +17,7 @@ config PLATFORM_HAS_OS
 config AT_SSL_ENABLED
     bool "FEATURE_AT_SSL_ENABLED"
     depends on SUPPORT_TLS
+    depends on !AT_TCP_ENABLED
     default y if SUPPORT_TLS
 
 config AT_TCP_ENABLED

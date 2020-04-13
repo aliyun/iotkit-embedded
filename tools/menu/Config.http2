@@ -1,5 +1,5 @@
 config HTTP2_COMM_ENABLED
-    bool "FEATURE_HTTP2_COMM_ENABLED"
+    bool
     select INFRA_HTTPC
     select INFRA_SHA1
     select INFRA_TIMER

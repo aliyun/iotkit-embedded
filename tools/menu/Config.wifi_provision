@@ -19,7 +19,7 @@ config AWSS_FRAMEWORKS
      default n
 
 config WIFI_PROVISION_ENABLED 
-    bool "FEATURE_WIFI_PROVISION_ENABLED"
+    bool
     select COAP_SERVER
     select MQTT_COMM_ENABLED if AWSS_DISABLE_REGISTRAR
     select INFRA_AES 
