@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20200413.tools-fix-menuconfig-options-and-disable-non-working-featu"
+#define IOTX_SDK_REVISION               "20200415.ota-fix-compiler-warning-issue-in-ota-module"
 #define IOTX_SDK_VERSION                "3.2.0"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_PRODUCT_KEY_LEN            (20)

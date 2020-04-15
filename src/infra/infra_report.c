@@ -131,7 +131,7 @@ int iotx_report_firmware_version(void *pclient)
     char version[IOTX_FIRMWARE_VER_LEN + 1] = {0};
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    char *module[IOTX_MODULE_LEN] = {0};
+    char module[IOTX_MODULE_LEN] = {0};
 
     if (info_report_func == NULL) {
         VERSION_ERR("report func not register!");
