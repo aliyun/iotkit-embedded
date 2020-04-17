@@ -312,7 +312,7 @@ int dm_mgr_device_destroy(_IN_ int devid)
     }
 #endif
 
-#ifdef DEVICE_MODEL_GATEWAY
+#if defined(DEVICE_MODEL_GATEWAY) && !defined(MQTT_AUTO_SUBSCRIBE)
     dm_client_subdev_unsubscribe(node->product_key, node->device_name);
 #endif
 
