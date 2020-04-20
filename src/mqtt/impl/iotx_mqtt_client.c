@@ -2762,7 +2762,6 @@ int wrapper_mqtt_connect(void *client)
         HAL_MutexLock(pClient->lock_yield);
         pClient->cycle_timeout_ms = 500;
         HAL_MutexUnlock(pClient->lock_yield);
-        _mqtt_cycle(client);
 
         IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
         IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
@@ -2770,6 +2769,8 @@ int wrapper_mqtt_connect(void *client)
         if (strlen(product_key) != 0 && strlen(device_name) != 0) {
             break;
         }
+
+        _mqtt_cycle(client);
     } while (++try_count < RETRY_TIME_LIMIT);
 #endif
     return rc;
