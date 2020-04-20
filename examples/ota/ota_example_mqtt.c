@@ -212,7 +212,8 @@ static int _ota_mqtt_client(void)
             uint32_t last_percent = 0, percent = 0;
             char md5sum[33];
             char version[128] = {0};
-            uint32_t len, size_downloaded, size_file;
+            int len;
+            uint64_t size_downloaded, size_file;
             do {
 
                 len = IOT_OTA_FetchYield(h_ota, buf_ota, OTA_BUF_LEN, 1);
