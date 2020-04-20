@@ -208,7 +208,7 @@ int IOT_Ioctl(int  option, void *data)
             memcpy(data, meta->device_secret, strlen(meta->device_secret));
             res = SUCCESS_RETURN;
         }
-
+        break;
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case IOTX_IOCTL_RECV_EVENT_REPLY:
