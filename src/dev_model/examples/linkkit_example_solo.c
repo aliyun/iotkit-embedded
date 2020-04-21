@@ -23,10 +23,10 @@
     #include "at_api.h"
 #endif
 
-char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a13FN5TplKq";
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
 char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
-char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example_zc";
-char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "uk9h3dId88erLe23mViQDEuLFwIdUix7";
+char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
 
 #define EXAMPLE_TRACE(...)                                          \
     do {                                                            \
