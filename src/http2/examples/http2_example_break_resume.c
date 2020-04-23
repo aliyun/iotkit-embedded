@@ -28,7 +28,7 @@ static int upload_result = 1;
 static char g_upload_id[50] = {0};
 static uint8_t is_connected = 0;
 
-void upload_file_result(const char *file_path, int result, void *user_data)
+void upload_file_result(const char *file_path, int result, const char *store_id, void *user_data)
 {
     upload_result = result;
 

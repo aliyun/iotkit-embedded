@@ -30,7 +30,7 @@ env_check()
 {
     CHECK_OS=$(uname -r | grep 'ali')
     if [ "${OS}" = "Linux" ] && [ "${CHECK_OS}" = "" ]; then
-        export PATH=tools/prebuilt/ubuntu/bin:${PATH}
+        export PATH=${PATH}:tools/prebuilt/ubuntu/bin
     fi
     gawk --help > /dev/null 2>&1
     if [ "$?" != "0" ];then

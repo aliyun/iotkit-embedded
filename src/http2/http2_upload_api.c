@@ -285,7 +285,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
     filesize = http2_stream_get_file_size(fs_node->file_path);
     if (filesize <= 0) {
         if (fs_node->end_cb) {
-            fs_node->end_cb(fs_node->file_path, UPLOAD_FILE_NOT_EXIST, fs_node->user_data);
+            fs_node->end_cb(fs_node->file_path, UPLOAD_FILE_NOT_EXIST, NULL, fs_node->user_data);
         }
 
         return NULL;
@@ -301,7 +301,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
     res = _http2_fs_open_channel(fs_node, &channel_info);
     if (res < SUCCESS_RETURN) {
         if (fs_node->end_cb) {
-            fs_node->end_cb(fs_node->file_path, res, fs_node->user_data);
+            fs_node->end_cb(fs_node->file_path, res, NULL, fs_node->user_data);
         }
 
         return NULL;
@@ -332,7 +332,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
     send_ext_info.send_buffer = HTTP2_STREAM_MALLOC(FS_UPLOAD_PACKET_LEN);
     if (send_ext_info.send_buffer == NULL) {
         if (fs_node->end_cb) {
-            fs_node->end_cb(fs_node->file_path, UPLOAD_MALLOC_FAILED, fs_node->user_data);
+            fs_node->end_cb(fs_node->file_path, UPLOAD_MALLOC_FAILED, NULL, fs_node->user_data);
         }
 
         return NULL;
@@ -355,7 +355,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
 
     if (res < 0) {
         if (fs_node->end_cb) {
-            fs_node->end_cb(fs_node->file_path, res, fs_node->user_data);
+            fs_node->end_cb(fs_node->file_path, res, NULL, fs_node->user_data);
         }
 
         HTTP2_STREAM_FREE(channel_info.channel_id);
@@ -367,7 +367,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
     IOT_HTTP2_FS_Close(h2_handle, &channel_info, NULL);
 
     if (fs_node->end_cb) {
-        fs_node->end_cb(fs_node->file_path, UPLOAD_SUCCESS, fs_node->user_data);
+        fs_node->end_cb(fs_node->file_path, UPLOAD_SUCCESS, rsp_data.fs_store_id, fs_node->user_data);
     }
 
     HTTP2_STREAM_FREE(send_ext_info.send_buffer);

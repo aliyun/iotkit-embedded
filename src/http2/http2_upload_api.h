@@ -59,7 +59,7 @@ typedef void (*http2_disconnect_cb_t)(void);
 typedef void (*http2_reconnect_cb_t)(void);
 
 /* callback function type define, this callback will be invoke when upload completed */
-typedef void (*http2_upload_completed_cb_t)(const char *file_path, int result, void *user_data);
+typedef void (*http2_upload_completed_cb_t)(const char *file_path, int result, const char *store_id, void *user_data);
 
 /* callback funciton type define, this callback will be invoke when upload_id received */
 typedef void (*http2_upload_id_received_cb_t)(const char *file_path, const char *upload_id, void *user_data);
