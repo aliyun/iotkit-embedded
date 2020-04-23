@@ -26,10 +26,10 @@
 static int upload_end = 0;
 static char g_upload_id[50] = {0};
 
-void upload_file_result(const char *file_path, int result, void *user_data)
+void upload_file_result(const char *file_path, int result, const char *store_id, void *user_data)
 {
     upload_end++;
-    EXAMPLE_TRACE("=========== file_path = %s, result = %d, finish num = %d ===========", file_path, result, upload_end);
+    EXAMPLE_TRACE("=========== file_path = %s, store_id = %s, result = %d, finish num = %d ===========", file_path, store_id, result, upload_end);
 }
 
 void upload_id_received_handle(const char *file_path, const char *upload_id, void *user_data)

@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20200421.ota-fix-download-percentage-reduces-to-0-issue-when-firmwa"
+#define IOTX_SDK_REVISION               "20200423.http2-fix-storeid-missing-issue"
 #define IOTX_SDK_VERSION                "3.0.1"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_PRODUCT_KEY_LEN            (20)

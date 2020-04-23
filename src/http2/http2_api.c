@@ -198,6 +198,10 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, ui
                     }
                 }
 #ifdef FS_ENABLED
+                else if (strncmp((char *)name, "x-file-store-id", (int)namelen) == 0) {
+                    fs_rsp_header_val_t *rsp_data = (fs_rsp_header_val_t *)user_data;
+                    memcpy(rsp_data->fs_store_id, value, valuelen);
+                }
                 else if (strncmp((char *)name, "x-file-upload-id", (int)namelen) == 0) {
                     fs_rsp_header_val_t *rsp_data = (fs_rsp_header_val_t *)user_data;
                     memcpy(rsp_data->fs_upload_id, value, valuelen);
