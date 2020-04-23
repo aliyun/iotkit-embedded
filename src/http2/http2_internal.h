@@ -120,6 +120,7 @@ typedef struct {
 typedef struct {
     char fs_upload_id[50];
     int fs_offset;
+    char fs_store_id[36];
 } fs_rsp_header_val_t;
 
 int IOT_HTTP2_FS_Close(void *hd, stream_data_info_t *info, header_ext_info_t *header);
