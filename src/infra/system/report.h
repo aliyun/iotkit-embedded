@@ -13,7 +13,7 @@ typedef int (*info_report_func_pt)(void *handle, const char *topic_name,int req_
 #define MIDREPORT_REQID_LEN               (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 6)
 #define AOS_VERSON_MSG_LEN                (256)
 #define LINKKIT_VERSION_MSG_LEN           (192)
-#define FIRMWARE_VERSION_MSG_LEN          (64)
+#define FIRMWARE_VERSION_MSG_LEN          (128)
 #define DEBUG_REPORT_MID_DEVINFO_FIRMWARE (1)
 
 int     iotx_report_id(void);
