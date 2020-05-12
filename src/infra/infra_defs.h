@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define IOTX_SDK_REVISION               "20200423.http2-fix-storeid-missing-issue"
+#define IOTX_SDK_REVISION               "20200512.infra-restore-http-domain"
 #define IOTX_SDK_VERSION                "3.2.0"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_PRODUCT_KEY_LEN            (20)
