@@ -1305,6 +1305,13 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
             continue;
         }
 
+        if (lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1 ||
+            lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1 ||
+            lite_item_ds.value_length >= IOTX_DEVICE_SECRET_LEN + 1) {
+            ret = FAIL_RETURN;
+            continue;
+        }
+
         /* Get Device ID */
         memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
         memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
@@ -1390,6 +1397,13 @@ static void dm_msg_thing_proxy_product_register_reply_successes(dm_msg_response_
         /* Device Secret */
         res = lite_cjson_object_item(&lite_item, DM_MSG_KEY_DEVICE_SECRET, strlen(DM_MSG_KEY_DEVICE_SECRET), &lite_item_ds);
         if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_ds)) {
+            continue;
+        }
+
+        if (lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1 ||
+            lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1 ||
+            lite_item_ds.value_length >= IOTX_DEVICE_SECRET_LEN + 1) {
+            ret = FAIL_RETURN;
             continue;
         }
 
@@ -1481,6 +1495,12 @@ static void dm_msg_thing_proxy_product_register_reply_failures(dm_msg_response_p
         /* Error Detail Code */
         res = lite_cjson_object_item(&lite_item_ed, DM_MSG_KEY_CODE, strlen(DM_MSG_KEY_CODE), &lite_item_code);
         if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_code)) {
+            continue;
+        }
+
+        if (lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1 ||
+            lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1) {
+            ret = FAIL_RETURN;
             continue;
         }
 
