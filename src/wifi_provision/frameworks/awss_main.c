@@ -12,10 +12,10 @@ char awss_stop_connecting = 0;
 int __awss_start(void)
 {
     char ssid[OS_MAX_SSID_LEN + 1] = {0}, passwd[OS_MAX_PASSWD_LEN + 1] = {0};
-    /*    enum AWSS_AUTH_TYPE auth = AWSS_AUTH_TYPE_INVALID;
+    /*  enum AWSS_AUTH_TYPE auth = AWSS_AUTH_TYPE_INVALID;
         enum AWSS_ENC_TYPE encry = AWSS_ENC_TYPE_INVALID;
         uint8_t channel = 0;
-        */
+    */
     uint8_t bssid[OS_ETH_ALEN] = {0};
     uint8_t token[ZC_MAX_TOKEN_LEN] = {0};
 
