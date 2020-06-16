@@ -963,6 +963,12 @@ int dm_msg_ext_error_reply(dm_msg_response_payload_t *response)
     if (lite_item_pk.type != cJSON_String || lite_item_dn.type != cJSON_String) {
         return FAIL_RETURN;
     }
+
+    if (lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1 ||
+        lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1) {
+        return FAIL_RETURN;
+    }
+
     memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
     memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
 
@@ -1275,6 +1281,13 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
             continue;
         }
         /* dm_log_debug("Current Device Secret: %.*s", lite_item_ds.value_length, lite_item_ds.value); */
+
+        if (lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1 ||
+            lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1 ||
+            lite_item_ds.value_length >= IOTX_DEVICE_SECRET_LEN + 1) {
+            ret = FAIL_RETURN;
+            continue;
+        }
 
         /* Get Device ID */
         memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
