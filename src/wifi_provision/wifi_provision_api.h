@@ -73,7 +73,6 @@ int awss_report_reset(void);
  */
 int awss_stop_report_reset(void);
 
-
 /**
  * @brief   start to connect to the router with the specified parameters.
  * 
