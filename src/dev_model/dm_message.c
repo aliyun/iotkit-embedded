@@ -1241,7 +1241,7 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (response == NULL) {
         return STATE_USER_INPUT_INVALID;
@@ -1759,7 +1759,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     lite_cjson_t lite, lite_item_pk, lite_item_dn;
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (response == NULL) {
         return STATE_SYS_DEPEND_MALLOC;
@@ -1832,7 +1832,7 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
     lite_cjson_t lite, lite_item_pk, lite_item_dn;
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN + 1] = {0};
 
     if (response == NULL) {
         return STATE_USER_INPUT_INVALID;
