@@ -162,7 +162,7 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
 
     /* get module*/
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "module", module)) {
-        OTA_LOG_INFO("no module key found");
+        OTA_LOG_INFO("normal OTA");
     }
 
     /* get URL */
