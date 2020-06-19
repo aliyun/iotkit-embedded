@@ -1100,6 +1100,10 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
 	char *key = NULL, *message = NULL;;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
+        if (request->id.value_length > DM_UTILS_UINT32_STRLEN) {
+            return FAIL_RETURN;
+        }
+
 	/* Message ID */
 	memcpy(int_id,request->id.value,request->id.value_length);
 	id = atoi(int_id);
