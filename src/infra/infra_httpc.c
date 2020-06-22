@@ -467,6 +467,10 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
     int reclen = 0, ret = STATE_SUCCESS;
     iotx_time_t timer;
     char* buf = HAL_Malloc(HTTPCLIENT_READ_BUF_SIZE);
+
+    if (buf == NULL) {
+        return STATE_SYS_DEPEND_MALLOC;
+    }
     memset(buf, 0, HTTPCLIENT_READ_BUF_SIZE);
 
     iotx_time_init(&timer);
