@@ -465,14 +465,16 @@ int _http_send_request(httpclient_t *client, const char *host, const char *path,
 int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclient_data_t *client_data)
 {
     int reclen = 0, ret = STATE_SUCCESS;
-    char buf[HTTPCLIENT_READ_BUF_SIZE] = { 0 };
     iotx_time_t timer;
+    char* buf = HAL_Malloc(HTTPCLIENT_READ_BUF_SIZE);
+    memset(buf, 0, HTTPCLIENT_READ_BUF_SIZE);
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
 
     if (0 == client->net.handle) {
         httpc_err("not connection have been established");
+        HAL_Free(buf);
         return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 
@@ -484,6 +486,7 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
         /* try to read header */
         ret = _http_recv(client, buf, HTTPCLIENT_RAED_HEAD_SIZE, &reclen, iotx_time_left(&timer));
         if (ret != STATE_SUCCESS) {
+            HAL_Free(buf);
             return ret;
         }
 
@@ -497,6 +500,7 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
         }
     }
 
+    HAL_Free(buf);
     return ret;
 }
 
