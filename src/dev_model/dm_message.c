@@ -1249,7 +1249,8 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
 
     if (response->code.value_int != IOTX_DM_ERR_CODE_SUCCESS) {
         /* Send Message To User */
-        memcpy(temp_id, response->id.value, response->id.value_length);
+        memcpy(temp_id, response->id.value,
+               (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length);
         message_len = strlen(DM_MSG_EVENT_SUBDEV_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
         message = DM_malloc(message_len);
         if (message == NULL) {
@@ -1333,7 +1334,8 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
         }
 
         /* Send Message To User */
-        memcpy(temp_id, response->id.value, response->id.value_length);
+        memcpy(temp_id, response->id.value,
+               (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length);
         message_len = strlen(DM_MSG_EVENT_SUBDEV_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
         message = DM_malloc(message_len);
         if (message == NULL) {
@@ -1428,7 +1430,8 @@ static void dm_msg_thing_proxy_product_register_reply_successes(dm_msg_response_
         }
 
         /* Send Message To User */
-        memcpy(temp_id, response->id.value, response->id.value_length);
+        memcpy(temp_id, response->id.value,
+               (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length));
         message_len = strlen(DM_MSG_EVENT_PROXY_PRODUCT_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
         message = DM_malloc(message_len);
         if (message == NULL) {
@@ -1518,7 +1521,8 @@ static void dm_msg_thing_proxy_product_register_reply_failures(dm_msg_response_p
         }
 
         /* Send Message To User */
-        memcpy(temp_id, response->id.value, response->id.value_length);
+        memcpy(temp_id, response->id.value,
+               (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length));
         message_len = strlen(DM_MSG_EVENT_PROXY_PRODUCT_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
         message = DM_malloc(message_len);
         if (message == NULL) {
@@ -1800,7 +1804,8 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     }
 
     /* Message ID */
-    memcpy(temp_id, response->id.value, response->id.value_length);
+    memcpy(temp_id, response->id.value
+           (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length));
 
     message_len = strlen(DM_MSG_EVENT_COMBINE_LOGIN_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
@@ -1873,7 +1878,8 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
     }
 
     /* Message ID */
-    memcpy(temp_id, response->id.value, response->id.value_length);
+    memcpy(temp_id, response->id.value,
+           (response->id.value_length > DM_UTILS_UINT32_STRLEN) ? DM_UTILS_UINT32_STRLEN : response->id.value_length));
 
     message_len = strlen(DM_MSG_EVENT_COMBINE_LOGOUT_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
