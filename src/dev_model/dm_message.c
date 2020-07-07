@@ -1285,7 +1285,7 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
         if (lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1 ||
             lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1 ||
             lite_item_ds.value_length >= IOTX_DEVICE_SECRET_LEN + 1) {
-            ret = FAIL_RETURN;
+            res = FAIL_RETURN;
             continue;
         }
 
