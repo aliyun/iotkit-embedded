@@ -373,7 +373,7 @@ void _mqtt_dynreg_topic_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
     int32_t res = 0;
     char *ds = (char *)pcontext;
     iotx_mqtt_topic_info_t     *topic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-    const char *asterisk = "**********************";
+    const char asterisk = '*';
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
@@ -388,9 +388,9 @@ void _mqtt_dynreg_topic_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
             /* parse secret */
             res = infra_json_value((char *)topic_info->payload, topic_info->payload_len, "deviceSecret", strlen("deviceSecret"),
                                    &device_secret, &device_secret_len);
-            if (res == STATE_SUCCESS) {
+            if (res == STATE_SUCCESS && (IOTX_DEVICE_SECRET_LEN >= (device_secret_len - 2))) {
                 memcpy(ds, device_secret + 1, device_secret_len - 2);
-                memcpy(device_secret + 1 + 5, asterisk, strlen(asterisk));
+                memset(device_secret + 1 + 5, asterisk, device_secret_len - 2 - 5);
                 dynreg_info("Topic  : %.*s", topic_info->topic_len, topic_info->ptopic);
                 dynreg_info("Payload: %.*s", topic_info->payload_len, topic_info->payload);
             }
