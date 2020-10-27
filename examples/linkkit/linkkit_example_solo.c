@@ -649,6 +649,9 @@ int linkkit_main(void *paras)
     memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
     memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
 
+    /* set the endpoint of your instance as follow if non-public instance is used */
+    /* IOT_Ioctl(IOTX_IOCTL_SET_ENDPOINT, "iot-cn-xxxxyyy.mqtt.iothub.aliyuncs.com"); */
+
     /* Choose Login Server, domain should be configured before IOT_Linkkit_Open() */
 #if USE_CUSTOME_DOMAIN
     IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)CUSTOME_DOMAIN_MQTT);
