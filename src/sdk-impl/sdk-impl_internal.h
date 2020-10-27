@@ -52,6 +52,7 @@ typedef struct {
     int mqtt_port_num;
     int env;
     int dynamic_register;
+    char *endpoint;
 } sdk_impl_ctx_t;
 
 typedef enum {

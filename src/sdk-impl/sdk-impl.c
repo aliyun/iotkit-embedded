@@ -126,8 +126,8 @@ int IOT_SetupConnInfo(const char *product_key,
 }
 
 #if defined(DEVICE_MODEL_GATEWAY) && !defined(DEPRECATED_LINKKIT)
-    extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
-    char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                       char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 #endif
 
 int IOT_Ioctl(int option, void *data)
@@ -219,6 +219,10 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #endif
+        case IOTX_IOCTL_SET_ENDPOINT: {
+            ctx->endpoint = (char *)data;
+        }
+        break;
         default: {
             sdk_err("Unknown Ioctl Option");
             res = FAIL_RETURN;

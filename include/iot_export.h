@@ -123,6 +123,7 @@ typedef enum {
     IOTX_IOCTL_SEND_PROP_SET_REPLY,     /* value(int*): 0 - Disable send post set reply by devid; 1 - Enable property set reply by devid */
     IOTX_IOCTL_SET_SUBDEV_SIGN,         /* value(const char*): only for slave device, set signature of subdevice */
     IOTX_IOCTL_GET_SUBDEV_LOGIN,        /* value(int*): 0 - SubDev is logout; 1 - SubDev is login */
+    IOTX_IOCTL_SET_ENDPOINT,            /* value(const char*): point to the endpoint string of user's non-public instance. Do not set it if the instance is public */
     IOTX_IOCTL_QUERY_DEVID,             /* value(iotx_linkkit_dev_meta_info_t*): device meta info, only productKey and deviceName is required, ret value is subdev_id or -1 */
 } iotx_ioctl_option_t;
 

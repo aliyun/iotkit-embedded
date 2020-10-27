@@ -644,12 +644,17 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
     }
 
     if (NULL != ctx && 0 != ctx->env) {
-    /* for daily and pre env */
+        /* for daily and pre env */
         _fill_conn_string(conn->host_name, len,
                           "%s",
                           iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
+    } else if (NULL != ctx && NULL != ctx->endpoint) {
+        /* for non-public instance's endpoint online env */
+        _fill_conn_string(conn->host_name, len,
+                          "%s",
+                          ctx->endpoint);
     } else {
-    /* for online env */
+        /* for public-endpoint online env */
         _fill_conn_string(conn->host_name, len,
                           "%s.%s",
                           dev.product_key,
