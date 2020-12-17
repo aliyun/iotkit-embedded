@@ -273,6 +273,40 @@ void _ident_module(char *buf, int len)
     return;
 }
 
+
+#define UUID_STRLEN_MAX  (256)
+void _ident_uuid(char *buf, int len, sdk_impl_ctx_t *ctx)
+{
+    char               sign_source[UUID_STRLEN_MAX] = {0};
+    unsigned char      sign[64] = {0};
+    char           hmac_sign[64] = {0};
+    char           out_sign[64] = {0};
+    int source_len = 0;
+
+    if (NULL == ctx || 1 != ctx->uuid_enabled) {
+        return;
+    }
+    sys_info("uuid enabled\n");
+
+    source_len = HAL_GetUUID(sign_source, UUID_STRLEN_MAX);
+
+    if (source_len <= 0 || source_len > UUID_STRLEN_MAX) {
+        sys_info("uuid return len %d, skip\n", source_len);
+        return;
+    }
+
+    if (strlen((char *)sign_source) == 0) {
+        sys_info("uuid null string, skip\n");
+        return;
+    }
+
+    utils_md5((unsigned char *)sign_source, source_len, sign);
+    LITE_hexbuf_convert(sign, out_sign, 16, 1);
+    snprintf(buf, UUID_STRLEN_MAX, ",_uuid=%s", out_sign);
+    sys_info("add uuid into clientId:%s", buf);
+    return;
+}
+
 int _fill_conn_string(char *dst, int len, const char *fmt, ...)
 {
     int                     rc = -1;
@@ -542,6 +576,7 @@ do_exit:
 int iotx_guider_authenticate(iotx_conn_info_t *conn)
 {
     char                partner_id[PID_STRLEN_MAX + 16] = {0};
+    char                uuid[UUID_STRLEN_MAX] = {0};
     char                module_id[MID_STRLEN_MAX + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
@@ -569,6 +604,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 
     _ident_partner(partner_id, sizeof(partner_id));
     _ident_module(module_id, sizeof(module_id));
+    _ident_uuid(uuid, sizeof(uuid), ctx);
 
     secure_mode = guider_get_secure_mode();
     guider_get_timestamp_str(timestamp_str, sizeof(timestamp_str));
@@ -775,6 +811,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #ifdef SUPPORT_ITLS
                       ",authtype=id2"
 #endif
+                      "%s"
                       "|"
                       , dev.device_id
                       , secure_mode
@@ -783,6 +820,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
                       , ext
                       , partner_id
                       , module_id
+                      , uuid
                      );
 
     guider_print_conn_info(conn);
