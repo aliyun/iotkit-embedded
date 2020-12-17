@@ -223,6 +223,10 @@ int IOT_Ioctl(int option, void *data)
             ctx->endpoint = (char *)data;
         }
         break;
+        case IOTX_IOCTL_SET_UUID_ENABLED: {
+            ctx->uuid_enabled = * (int *)data;
+        }
+        break;
         default: {
             sdk_err("Unknown Ioctl Option");
             res = FAIL_RETURN;

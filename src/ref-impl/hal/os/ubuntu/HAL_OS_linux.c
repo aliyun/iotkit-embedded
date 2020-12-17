@@ -748,3 +748,63 @@ int HAL_GetNetifInfo(char *nif_str)
 #endif
     return strlen(nif_str);
 }
+
+/*重要!!! 请阅读 include/imports/iot_import_product.h中关于这个函数的说明 */
+#define UUID_MAX_LEN (256)
+int HAL_GetUUID(char *buf, int len)
+{
+    char uuid[UUID_MAX_LEN] = {0};
+    char uuid_time[UUID_MAX_LEN] = {0};
+    char tmp[UUID_MAX_LEN] = {0};
+    char time[100] = {0};
+
+    /* 步骤1.获取唯一标识符(在多个设备都烧了相同三元组情况下能够区分不同设备的标识符,不要求全球唯一), 记为uuid */
+    /* TODO:请根据实际情况来实现, mac地址仅仅是一个参考实现.  memcpy(uuid, mac_addr, strlen(mac_addr)) */
+
+
+    /* 步骤2.将uuid与当前的时间戳HAL_GetTimeStr拼接的字符串的结果记为uuid_time. */
+    HAL_GetTimeStr(time, sizeof(time));
+    snprintf(uuid_time, UUID_MAX_LEN, "%s%s", uuid, time);
+
+
+    /* 步骤3.如果能够将uuid_time保存到一片存储介质(比如flash), 并且保证它在恢复出厂设置的时候也不会被erase掉(重要!!!),则
+    *      a. 先尝试去读这一片存储介质, 如果读到了则把读的结果拷贝到buf中, 返回读到的字节数
+    *      b. 如果读不到(没有烧入过time_uuid的情况), 则将uuid_time写到该存储介质.
+    *         i). 如果写成功, 则把uuid_time复制到buf中, 并返回uuid_time的字节数;
+    *         ii).如果没有写成功, 则返回负数表示失败
+    * 如果3的条件不能满足, 则直接到第4步 */
+
+    /* TODO: 参考实现如下:
+    *              int size = vendor_impl_read_persistant_flash(tmp);
+    *              if(size > 0) {
+    *                   size = size > len ? len : size;
+    *                   memcpy(buf, tmp, size);
+    *                   return size;
+    *              } else {
+    *                  if (vendor_impl_write_persistant_flash(uuid_time) > 0) {
+    *                     TODO:重要!!! 校验写入的结果, 确保与uuid_time一致;如果不一致, 则返回负数表示失败
+    *                      memcpy(buf, uuid_time, size);
+    *                      return size;
+    *                  }
+    *              }
+    *  其中vendor_impl_read_persistant_flash 和 vendor_impl_write_persistant_flash需要用户实现
+    * */
+
+    /* 步骤4.如果3不能做到(flash在恢复出厂设置时还是会被全部erase掉), 但是能够保证uuid每次读到都是一样(重要!!!), 则
+    *        a.优先尝试将uuid写入到flash中(务必校验写入的结果与uuid一致,如果不一致则返回负数表示失败). 下次重启时优先读flash, 读到则把结果拷贝到buf中, return读到的字节数
+    *        b.如果无法写flash, 则直接从器件中读取uuid, 并将uuid拷贝到buf中, 并返回读到的长度(不推荐).*/
+
+    /* TODO: 参考实现如下:
+    *       a.可以参考3中的代码
+    *       b.参考实现:
+    *       int size = $(uuid)长度
+    *              if(size > 0) {
+    *                   size = size > len ? len : size;
+    *                   memcpy(buf, uuid, size);
+    *                   return size;
+    *              };
+    */
+
+    /*. 步骤5.如果3/4都不能保证, 则返回负数 */
+    return -1;
+}

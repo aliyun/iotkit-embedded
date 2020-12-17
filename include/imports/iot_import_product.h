@@ -138,4 +138,29 @@ DLL_HAL_API int HAL_GetProductSecret(_OU_ char product_secret[DEVICE_SECRET_LEN]
  **/
 DLL_HAL_API int HAL_GetNetifInfo(char *nif_str);
 
+/**
+ * 这个Hal主要用于解决三元组烧重的问题. 如果不涉及这个问题, 则请忽略这个Hal.
+ *
+ * @breif 获取设备的唯一标识符(uuid)
+ * 这里的uuid, 主要用于在多个设备都烧了相同三元组情况下能够区分不同设备,不要求全球唯一,但要求对同一个设备始终保持不变
+ * 用户可以从IMEI/mac地址/cpu序列号等信息中择一作为设备的uuid
+ *
+ * 考虑到部分设备会用mac地址作为uuid, 而少量设备的mac地址会偶现无法读取成功的情况, 或者每次读出来都不一样的情况,
+ * 首选的方案为步骤3, 即将uuid+time的信息持久化到一片恢复出厂设置/固件升级也不会被erase掉的存储器件上
+ *
+ * 如果步骤3无法实施, 但是设备的uuid的确每次都能读到, 而且每次读出来都一样,
+ * 则可优先用步骤4.a, 即将uuid的信息持久化到flash中, 每次开机优先读这片flash
+ * 如果4.a无法实现, 则可用4.b, 即每次直接从器件中读取出设备的uuid(不推荐)
+ *
+ * 如果步骤3/4都无法实施, 则返回-1作为错误码
+ *
+ * @param[in] buf 缓存的buf, 用以存储设备的唯一标识符
+ * @param[in] len 缓存的最大长度. 默认是256 Byte
+ *
+ * @return int
+ * @retval <= 0 没有获取到uuid
+ * @retval > 0 返回的字节数
+ **/
+DLL_HAL_API  int HAL_GetUUID(char *buf, int len);
+
 #endif  /* __IMPORT_PRODUCT_H__ */
