@@ -161,6 +161,6 @@ DLL_HAL_API int HAL_GetNetifInfo(char *nif_str);
  * @retval <= 0 没有获取到uuid
  * @retval > 0 返回的字节数
  **/
-DLL_HAL_API  int HAL_GetUUID(char *buf, int len);
+DLL_HAL_API  int HAL_GetUUID(uint8_t *buf, int len);
 
 #endif  /* __IMPORT_PRODUCT_H__ */
