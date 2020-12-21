@@ -277,10 +277,11 @@ void _ident_module(char *buf, int len)
 #define UUID_STRLEN_MAX  (256)
 void _ident_uuid(char *buf, int len, sdk_impl_ctx_t *ctx)
 {
-    char               sign_source[UUID_STRLEN_MAX] = {0};
+    uint8_t            sign_source[UUID_STRLEN_MAX] = {0};
     unsigned char      sign[64] = {0};
     char           hmac_sign[64] = {0};
     char           out_sign[64] = {0};
+
     int source_len = 0;
 
     if (NULL == ctx || 1 != ctx->uuid_enabled) {
@@ -289,14 +290,8 @@ void _ident_uuid(char *buf, int len, sdk_impl_ctx_t *ctx)
     sys_info("uuid enabled\n");
 
     source_len = HAL_GetUUID(sign_source, UUID_STRLEN_MAX);
-
     if (source_len <= 0 || source_len > UUID_STRLEN_MAX) {
         sys_info("uuid return len %d, skip\n", source_len);
-        return;
-    }
-
-    if (strlen((char *)sign_source) == 0) {
-        sys_info("uuid null string, skip\n");
         return;
     }
 

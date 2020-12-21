@@ -751,7 +751,7 @@ int HAL_GetNetifInfo(char *nif_str)
 
 /*重要!!! 请阅读 include/imports/iot_import_product.h中关于这个函数的说明 */
 #define UUID_MAX_LEN (256)
-int HAL_GetUUID(char *buf, int len)
+int HAL_GetUUID(uint8_t *buf, int len)
 {
     char uuid[UUID_MAX_LEN] = {0};
     char uuid_time[UUID_MAX_LEN] = {0};
