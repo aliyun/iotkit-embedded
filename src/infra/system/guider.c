@@ -279,7 +279,6 @@ void _ident_uuid(char *buf, int len, sdk_impl_ctx_t *ctx)
 {
     uint8_t            sign_source[UUID_STRLEN_MAX] = {0};
     unsigned char      sign[64] = {0};
-    char           hmac_sign[64] = {0};
     char           out_sign[64] = {0};
 
     int source_len = 0;
