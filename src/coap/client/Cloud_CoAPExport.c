@@ -136,7 +136,10 @@ Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param)
     }
 
     memset(p_ctx, 0, sizeof(Cloud_CoAPContext));
-    p_ctx->message_id = 1;
+    HAL_Srandom((unsigned int)HAL_UptimeMs());
+    uint32_t rand_data = HAL_Random(0xffffffff);
+    p_ctx->message_id = rand_data % 0xFFFF;
+
     p_ctx->notifier = param->notifier;
     p_ctx->sendbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
     if (NULL == p_ctx->sendbuf) {
