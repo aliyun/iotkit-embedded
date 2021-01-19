@@ -249,7 +249,24 @@ int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *versio
                        "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
                        id,
                        version);
-
+    char module[IOTX_MODULE_LEN] = {0};
+    IOT_Ioctl(IOTX_IOCTL_GET_MODULE, module);
+    if (strlen(module) == 0) {
+        ret = HAL_Snprintf(buf,
+                           buf_len,
+                           "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
+                           id,
+                           version
+                          );
+    } else {
+        ret = HAL_Snprintf(buf,
+                           buf_len,
+                           "{\"id\":\"%d\",\"params\":{\"version\":\"%s\", \"module\":\"%s\"}}",
+                           id,
+                           version,
+                           module
+                          );
+    }
     if (ret < 0) {
         OTA_LOG_ERROR("HAL_Snprintf failed");
         return -1;
