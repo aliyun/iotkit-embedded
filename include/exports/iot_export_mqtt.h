@@ -347,31 +347,6 @@ DLL_IOT_API int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt
  * @see None.
  */
 DLL_IOT_API int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
-
-/**
- * @brief Subscribe Multi MQTT topics in one packet
- *
- * @param [in] handle: specify the MQTT client.
- * @param [in] topic_filter_list: specify the topic filter list.
- * @param [in] qos: specify the MQTT Requested QoS.
- * @param [in] topic_handle_func_list: specify the topic handle callback-function list.
- * @param [in] count: specify list length of topic_filter_list. it should be <= 20, otherwise would return fail
- *             the length of topic_handle_func_list should be exactly the same as topic_filter_list.
- * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
- *
- * @retval -1  : Subscribe failed.
- * @retval >=0 : Subscribe successful.
-          The value is a unique ID of this request.
-          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
- * @see None.
- */
-int IOT_MQTT_Multi_Subscribe(void *handle,
-                             const char **topic_filter_list,
-                             iotx_mqtt_qos_t qos,
-                             iotx_mqtt_event_handle_func_fpt *topic_handle_func_list,
-                             int count,
-                             void *pcontext);
-
 /* From mqtt_client.h */
 /** @} */ /* end of api_mqtt */
 
