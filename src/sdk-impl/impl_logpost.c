@@ -3,8 +3,6 @@
  */
 
 #ifdef MQTT_COMM_ENABLED
-#ifdef MQTT_LOGPOST
-
 #include "sdk-impl_internal.h"
 
 #define LOG_PUBLISH_MSG_MAXLEN   (255)
@@ -60,8 +58,6 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
     ret = iotx_mc_log_post(pHandle, logbuf);
     if (ret < 0) {
         log_info((char *)module, "log post to cloud fail, ret = %d\n", ret);
-    } else {
-        log_err((char *)module, "log post to cloud success");
     }
 
     IMPL_LOGPOST_FREE(logbuf);
@@ -115,6 +111,5 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     return SUCCESS_RETURN;
 }
 
-#endif  /* MQTT_LOGPOST */
 #endif  /* MQTT_COMM_ENABLED */
 
