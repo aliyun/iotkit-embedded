@@ -313,7 +313,7 @@ void iotx_report_connect_status(void* pclient, uint32_t conn_cost){
 
     ret = HAL_Snprintf(msg,
                        sizeof(msg),
-                       "time=%d^conn_type=%s^conn_cost=%d^conn_ret=0", HAL_UptimeMs(), sec_mod_str, conn_cost);
+                       "time=%d^conn_type=%s^conn_cost=%d^conn_ret=0", (uint32_t)HAL_UptimeMs(), sec_mod_str, conn_cost);
     if(ret < 0) {
        return;
     }
