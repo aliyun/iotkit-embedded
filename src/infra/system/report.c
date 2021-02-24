@@ -301,6 +301,25 @@ int iotx_report_firmware_version(void *pclient)
     return SUCCESS_RETURN;
 }
 
+void iotx_report_connect_status(void* pclient, uint32_t conn_cost){
+    char msg[100] = {0};
+    char *sec_mod_str = NULL;
+    int ret = 0;
+#ifdef SUPPORT_TLS
+     sec_mod_str = "TLS";
+#else
+     sec_mod_str = "TCP";
+#endif
+
+    ret = HAL_Snprintf(msg,
+                       sizeof(msg),
+                       "time=%d^conn_type=%s^conn_cost=%d^conn_ret=0", (uint32_t)HAL_UptimeMs(), sec_mod_str, conn_cost);
+    if(ret < 0) {
+       return;
+    }
+    IOT_MQTT_LogPost(pclient, "pclient", "net_conn",msg);
+}
+
 /* report ModuleID */
 int iotx_report_mid(void *pclient)
 {

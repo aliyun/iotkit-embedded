@@ -2371,7 +2371,7 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter,
 {
     int ret;
     iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
-    
+
     POINTER_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
 
@@ -2632,6 +2632,7 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
 {
     int rc = FAIL_RETURN;
     int userKeepAliveInterval = 0;
+    iotx_time_t conn_cost = {0};
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2658,6 +2659,7 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
               pClient->connect_data.password.cstring);*/
     userKeepAliveInterval = pClient->connect_data.keepAliveInterval;
     pClient->connect_data.keepAliveInterval = (userKeepAliveInterval * 2);
+    iotx_time_start(&conn_cost);
 
     rc = MQTTConnect(pClient);
     pClient->connect_data.keepAliveInterval = userKeepAliveInterval;
@@ -2673,6 +2675,8 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
         mqtt_err("wait connect ACK timeout, or receive a ACK indicating error!");
         return MQTT_CONNECT_ERROR;
     }
+
+    pClient->conn_cost = utils_time_spend(&conn_cost);
 
     pClient->keepalive_probes = 0;
 
@@ -2720,7 +2724,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-    
+
     if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         HAL_SleepMs(100);
@@ -3099,6 +3103,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 #endif
     g_mqtt_client = pclient;
+
+    iotx_report_connect_status(pclient, pclient->conn_cost);
 
     /* MQTT Connected Callback */
     callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);

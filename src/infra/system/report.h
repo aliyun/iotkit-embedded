@@ -35,5 +35,6 @@ void iotx_set_report_func(info_report_func_pt func);
 int iotx_report_devinfo(void *pclient);
 int iotx_report_mid(void *pclient);
 int iotx_report_firmware_version(void *pclient);
+void iotx_report_connect_status (void *pclient, uint32_t conn_cost);
 
 #endif
