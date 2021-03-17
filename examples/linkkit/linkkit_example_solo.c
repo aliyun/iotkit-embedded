@@ -23,10 +23,10 @@
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
-#define PRODUCT_KEY      "a1X2bEnP82z"
+#define PRODUCT_KEY      "a18wPzZJzNG"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "test_06"
-#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+#define DEVICE_NAME      "http2_basic_demo"
+#define DEVICE_SECRET    "b9b9623f969149e4189306c2a219295a"
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"

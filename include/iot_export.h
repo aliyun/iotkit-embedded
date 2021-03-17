@@ -126,6 +126,7 @@ typedef enum {
     IOTX_IOCTL_SET_ENDPOINT,            /* value(const char*): point to the endpoint string of user's non-public instance. Do not set it if the instance is public */
     IOTX_IOCTL_QUERY_DEVID,             /* value(iotx_linkkit_dev_meta_info_t*): device meta info, only productKey and deviceName is required, ret value is subdev_id or -1 */
     IOTX_IOCTL_SET_UUID_ENABLED,        /* value(int*): 1 - anti duplicated uuid capability is enabled; 0 - anti duplicated uuid capability is disabled. */
+    IOTX_IOCTL_SET_BOOTSTRAP_ENABLED,   /* value(int*): 1 - bootstrap capability is enabled; 0 - bootstrap capbility is disabled. */
 } iotx_ioctl_option_t;
 
 typedef enum {
