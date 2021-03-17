@@ -223,6 +223,10 @@ int IOT_Ioctl(int option, void *data)
             ctx->endpoint = (char *)data;
         }
         break;
+        case IOTX_IOCTL_SET_BOOTSTRAP_ENABLED: {
+            ctx->bootstrap_enabled = *(int *)data;
+        }
+        break;
         case IOTX_IOCTL_SET_UUID_ENABLED: {
             ctx->uuid_enabled = * (int *)data;
         }

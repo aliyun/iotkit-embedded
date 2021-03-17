@@ -162,14 +162,13 @@ static int _calc_hmac_signature(
     return 0;
 }
 
-#ifndef MQTT_DIRECT
-int _http_response(char *payload,
-                   const int payload_len,
-                   const char *request_string,
-                   const char *url,
-                   const int port_num,
-                   const char *pkey
-                  )
+static int _http_response(char *payload,
+                          const int payload_len,
+                          const char *request_string,
+                          const char *url,
+                          const int port_num,
+                          const char *pkey
+                         )
 {
 #define HTTP_POST_MAX_LEN   (1024)
 #define HTTP_RESP_MAX_LEN   (1024)
@@ -241,7 +240,6 @@ RETURN:
 
     return 0;
 }
-#endif  /* #ifndef MQTT_DIRECT */
 
 void _ident_partner(char *buf, int len)
 {
@@ -567,6 +565,101 @@ do_exit:
 }
 #endif  /* MQTT_DIRECT */
 
+
+static int guider_get_hostname_port(
+            const char *guider_addr,
+            const char *request_string,
+            char *host,
+            uint16_t *pport)
+{
+#define PAYLOAD_STRING_MAXLEN  (1024)
+    char               *iotx_payload = NULL;
+    int                 iotx_port = 443;
+    int                 ret = -1;
+    int                 ret_code = 0;
+    const char         *pvalue;
+    char                port_str[6];
+
+#ifndef SUPPORT_TLS
+    iotx_port = 80;
+#endif
+
+#if defined(TEST_OTA_PRE)
+    iotx_port = 80;
+#endif
+
+    /* */
+    iotx_payload = SYS_GUIDER_MALLOC(PAYLOAD_STRING_MAXLEN);
+    LITE_ASSERT(iotx_payload);
+    memset(iotx_payload, 0, PAYLOAD_STRING_MAXLEN);
+    _http_response(iotx_payload,
+                   PAYLOAD_STRING_MAXLEN,
+                   request_string,
+                   guider_addr,
+                   iotx_port,
+#if defined(TEST_OTA_PRE)
+                   NULL
+#else
+                   iotx_ca_get()
+#endif
+                  );
+    sys_info("Downstream Payload:");
+    iotx_facility_json_print(iotx_payload, LOG_INFO_LEVEL, '<');
+
+    pvalue = LITE_json_value_of("code", iotx_payload, MEM_MAGIC, "sys.preauth");
+    if (!pvalue) {
+        goto do_exit;
+    }
+
+    ret_code = atoi(pvalue);
+    LITE_free(pvalue);
+    pvalue = NULL;
+
+    if (200 != ret_code) {
+        sys_err("++++");
+        sys_err("ret_code = %d (!= 200), abort!", ret_code);
+        sys_err("++++");
+        goto do_exit;
+    }
+
+    pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload, MEM_MAGIC, "sys.preauth");
+    if (NULL == pvalue) {
+        goto do_exit;
+    }
+    strcpy(host, pvalue);
+    LITE_free(pvalue);
+    pvalue = NULL;
+
+    pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload, MEM_MAGIC, "sys.preauth");
+    if (NULL == pvalue) {
+        goto do_exit;
+    }
+    strcpy(port_str, pvalue);
+    LITE_free(pvalue);
+    pvalue = NULL;
+    *pport = atoi(port_str);
+
+    /*sys_debug("%10s: %s", "iotId", iot_id);*/
+    /*sys_debug("%10s: %s", "iotToken", iot_token);*/
+    sys_debug("%10s: %s", "Host", host);
+    sys_debug("%10s: %d", "Port", *pport);
+
+    ret = 0;
+
+do_exit:
+    if (iotx_payload) {
+        LITE_free(iotx_payload);
+        iotx_payload = NULL;
+    }
+    if (pvalue) {
+        LITE_free(pvalue);
+        pvalue = NULL;
+    }
+
+    return ret;
+}
+
+
 int iotx_guider_authenticate(iotx_conn_info_t *conn)
 {
     char                partner_id[PID_STRLEN_MAX + 16] = {0};
@@ -666,6 +759,28 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
                 conn->port = port_num;
             }
         }
+    }
+
+    if (1 == ctx->bootstrap_enabled) {
+        const char     *p_domain = NULL;
+        char            bootstrap_host[HOST_ADDRESS_LEN + 1] = {0};
+        uint16_t        bootstrap_port = 1883;
+
+        p_domain = "https://iot-auth-global.aliyuncs.com/auth/bootstrap";
+        char request_data[200] = {0};
+        HAL_Snprintf(request_data, 200, "productKey=%s&deviceName=%s&clientId=%s.%s&resources=mqtt", dev.product_key,
+                     dev.device_name,
+                     dev.product_key, dev.device_name);
+
+        if (0 != guider_get_hostname_port(p_domain,
+                                          request_data,
+                                          bootstrap_host,
+                                          &bootstrap_port)) {
+            sys_err("bootstrap _get_hostname_port() failed");
+            goto failed;
+        }
+        ctx->endpoint = bootstrap_host;
+        conn->port = bootstrap_port;
     }
 
     if (NULL != ctx && NULL != ctx->endpoint) {
