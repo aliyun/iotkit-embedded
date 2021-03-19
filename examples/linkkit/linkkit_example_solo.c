@@ -25,8 +25,8 @@
 // for demo only
 #define PRODUCT_KEY      "a18wPzZJzNG"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "http2_basic_demo"
-#define DEVICE_SECRET    "b9b9623f969149e4189306c2a219295a"
+#define DEVICE_NAME      "demoLinkKitDev"
+#define DEVICE_SECRET    "aa5cc6474c450192af575885bc346e93"
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
