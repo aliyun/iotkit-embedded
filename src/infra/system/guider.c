@@ -623,15 +623,16 @@ static int guider_get_hostname_port(
     }
 
     pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload, MEM_MAGIC, "sys.preauth");
-    if (NULL == pvalue) {
+    if (NULL == pvalue || strlen(pvalue) > HOST_ADDRESS_LEN) {
         goto do_exit;
     }
+
     strcpy(host, pvalue);
     LITE_free(pvalue);
     pvalue = NULL;
 
     pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload, MEM_MAGIC, "sys.preauth");
-    if (NULL == pvalue) {
+    if (NULL == pvalue || strlen(pvalue) > sizeof(port_str)) {
         goto do_exit;
     }
     strcpy(port_str, pvalue);
