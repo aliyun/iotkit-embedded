@@ -162,7 +162,7 @@ static int _calc_hmac_signature(
     return 0;
 }
 
-static int _http_response(char *payload,
+int _http_response(char *payload,
                           const int payload_len,
                           const char *request_string,
                           const char *url,
