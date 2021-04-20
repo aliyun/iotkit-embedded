@@ -749,18 +749,20 @@ int HAL_GetNetifInfo(char *nif_str)
 #define UUID_MAX_LEN (256)
 int HAL_GetUUID(uint8_t *buf, int len)
 {
-    char uuid[UUID_MAX_LEN] = {0};
     char uuid_time[UUID_MAX_LEN] = {0};
     char tmp[UUID_MAX_LEN] = {0};
-    char time[100] = {0};
+    char time[56] = {0};
+    char uuid[200] = {0};
 
     /* 步骤1.获取唯一标识符(在多个设备都烧了相同三元组情况下能够区分不同设备的标识符,不要求全球唯一), 记为uuid */
     /* TODO:请根据实际情况来实现, mac地址仅仅是一个参考实现.  memcpy(uuid, mac_addr, strlen(mac_addr)) */
 
 
     /* 步骤2.将uuid与当前的时间戳HAL_GetTimeStr拼接的字符串的结果记为uuid_time. */
-    HAL_GetTimeStr(time, sizeof(time));
-    snprintf(uuid_time, UUID_MAX_LEN, "%s%s", uuid, time);
+    /* TODO: 参考实现如下:
+       HAL_GetTimeStr(time, sizeof(time));
+       snprintf(uuid_time, UUID_MAX_LEN, "%s%s", uuid, time);
+    */
 
 
     /* 步骤3.如果能够将uuid_time保存到一片存储介质(比如flash), 并且保证它在恢复出厂设置的时候也不会被erase掉(重要!!!),则
