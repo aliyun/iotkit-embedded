@@ -53,6 +53,7 @@ typedef struct {
     int env;
     int dynamic_register;
     char *endpoint;
+    int uuid_enabled;
 } sdk_impl_ctx_t;
 
 typedef enum {
