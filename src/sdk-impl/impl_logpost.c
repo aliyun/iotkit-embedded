@@ -37,7 +37,7 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
     memset(logbuf, 0, LOG_PUBLISH_MSG_MAXLEN + 1);
 
     /* generate log post json data */
-    ret = HAL_Snprintf(logbuf, LOG_PUBLISH_MSG_MAXLEN, THING_LOG_POST_PARAMS, msgid, HAL_UTC_Get(), level, module, msg);
+    ret = HAL_Snprintf(logbuf, LOG_PUBLISH_MSG_MAXLEN, THING_LOG_POST_PARAMS, msgid, (uint32_t)HAL_UTC_Get(), level, module, msg);
     if (ret < 0) {
         IMPL_LOGPOST_FREE(logbuf);
         return FAIL_RETURN;
