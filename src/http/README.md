@@ -26,8 +26,6 @@ A communication channel implemented in HTTP
 - **infra**. Authentication, net and so on tool set.
 
 ## API
-Please refer to  [http api](https://code.aliyun.com/edward.yangx/public-docs/wikis/user-guide/linkkit/Prog_Guide/API/HTTP_Provides#IOT_HTTP_Init) for API details.
-## Reference
-Please refer to  [http connect](https://code.aliyun.com/edward.yangx/public-docs/wikis/user-guide/linkkit/Prog_Guide/HTTP_Connect) for example details.
+Please refer to  [http api](https://help.aliyun.com/document_detail/462263.html) for API details.
 
 
