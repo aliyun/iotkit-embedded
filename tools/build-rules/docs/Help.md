@@ -11,4 +11,4 @@
 | `make help`           | **打印帮助文本**                                                                  |
 | `make env`            | **打印当前编译的选项和它们的值**                                                  |
 
-o 访问 https://code.aliyun.com/edward.yangx/public-docs/wikis/home 可获得编译系统线上最新和最全的帮助文档
+o 访问 https://help.aliyun.com/document_detail/97556.html 可获得编译系统线上更多文档
