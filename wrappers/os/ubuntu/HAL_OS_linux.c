@@ -278,7 +278,7 @@ char *_get_default_routing_ifname(char *ifname, int ifname_size)
 
     while (fgets(line, sizeof(line), fp)) {
         if (11 !=
-            sscanf(line, "%s %08x %08x %x %d %d %d %08x %d %d %d",
+            sscanf(line, "%15s %08x %08x %x %d %d %d %08x %d %d %d",
                    iface, &destination, &gateway, &flags, &refCnt, &use,
                    &metric, &mask, &mtu, &window, &irtt)) {
             perror("sscanf");
