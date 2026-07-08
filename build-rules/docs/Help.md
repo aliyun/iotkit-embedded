@@ -21,4 +21,4 @@
 | `make repo-update`    | 根据输入更新所有组件或单个被选择的组件, 从线上获取其最新的`git`仓库               |
 | `make test`           | 如果当前项目有编写单元测试主程序和单元测试例, 则执行UT, 统计通过率和覆盖率        |
 
-o 访问 https://code.aliyun.com/edward.yangx/public-docs/wikis/home 可获得编译系统线上最新和最全的帮助文档
+o 访问 https://help.aliyun.com/document_detail/97556.html 可获得编译系统线上更多文档

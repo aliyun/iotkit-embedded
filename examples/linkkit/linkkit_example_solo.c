@@ -643,6 +643,9 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_STATE_DEV_BIND,  user_dev_bind_event);
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
 
+    int mqtt_port = 8883;        /* port for PCA certificates */
+    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_PORT, (void *)&mqtt_port);
+
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
     memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));

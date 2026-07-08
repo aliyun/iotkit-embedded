@@ -5,16 +5,6 @@
 #ifndef MBEDTLS_CONFIG_H
 #define MBEDTLS_CONFIG_H
 
-#ifdef _WIN32
-    #ifdef DLL_TLS_EXPORTS
-        #define DLL_TLS_API __declspec(dllexport)
-    #else
-        #define DLL_TLS_API __declspec(dllimport)
-    #endif
-#else
-    #define DLL_TLS_API
-#endif
-
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
     #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
@@ -1304,7 +1294,7 @@
  *
  * Comment this macro to disable support for server name indication in SSL
  */
-//#define MBEDTLS_SSL_SERVER_NAME_INDICATION
+#define MBEDTLS_SSL_SERVER_NAME_INDICATION
 
 /**
  * \def MBEDTLS_SSL_TRUNCATED_HMAC
@@ -1980,7 +1970,7 @@
  * This module is required for SSL/TLS and X.509.
  * PEM_PARSE uses MD5 for decrypting encrypted keys.
  */
-#define MBEDTLS_MD5_C
+// #define MBEDTLS_MD5_C
 
 /**
  * \def MBEDTLS_MEMORY_BUFFER_ALLOC_C
@@ -2272,7 +2262,7 @@
  *
  * This module adds support for SHA-384 and SHA-512.
  */
-//#define MBEDTLS_SHA512_C
+#define MBEDTLS_SHA512_C
 
 /**
  * \def MBEDTLS_SSL_CACHE_C
