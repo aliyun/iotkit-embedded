@@ -211,7 +211,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
     /* setup port */
 #ifdef SUPPORT_TLS
-    signout->port = 443;
+    signout->port = 8883;
 #else
     signout->port = 1883;
 #endif /* #ifdef SUPPORT_TLS */

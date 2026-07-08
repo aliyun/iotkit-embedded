@@ -477,6 +477,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             mqtt_params.pub_key = iotx_ca_crt_itls;
         }
     }
+    /* For tls connection, change the port to 8883, ignor the one returned by bootstrap */
+    g_default_sign.port = 8883;
 #endif
     mqtt_params.request_timeout_ms    = CONFIG_MQTT_REQUEST_TIMEOUT;
     mqtt_params.clean_session         = 0;
