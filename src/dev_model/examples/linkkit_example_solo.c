@@ -393,6 +393,11 @@ int main(int argc, char **argv)
     post_reply_need = 1;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_reply_need);
 
+    /* specify mqtt port for PCA certificate */
+    int userPort=8883;
+    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_PORT, &userPort);
+
+
     IOT_Ioctl(IOTX_IOCTL_FOTA_TIMEOUT_MS, (void *)&fota_timeout);
 
     do {

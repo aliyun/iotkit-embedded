@@ -66,6 +66,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
             }
 
             close(socket_id);
+            socket_id = -1;
         }
     }
     freeaddrinfo(res);

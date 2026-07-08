@@ -401,6 +401,7 @@ void _mqtt_dynreg_topic_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
     }
 }
 
+iotx_sign_mqtt_t signout;
 int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta)
 {
     void *pClient = NULL;
@@ -408,7 +409,6 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     int32_t res = 0;
     uint32_t length = 0, rand = 0;
     char rand_str[9] = {0};
-    iotx_sign_mqtt_t signout;
     uint64_t timestart = 0, timenow = 0;
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
@@ -541,7 +541,7 @@ int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info
 
 int IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, void *data)
 {
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
     dynamic_register = *(int *)data;
@@ -550,7 +550,7 @@ int IOCTL_FUNC(IOTX_IOCTL_SET_DYNAMIC_REGISTER, void *data)
 
 int IOCTL_FUNC(IOTX_IOCTL_GET_DYNAMIC_REGISTER, void *data)
 {
-    if(data == NULL) {
+    if (data == NULL) {
         return FAIL_RETURN;
     }
 
