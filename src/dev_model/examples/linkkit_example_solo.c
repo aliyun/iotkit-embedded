@@ -357,6 +357,10 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
     IOT_RegisterCallback(ITE_DYNREG_DEVICE_SECRET, dynreg_device_secret);
 
+    /* specify mqtt port for PCA certificate */
+    int userPort=8883;
+    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_PORT, &userPort);
+
 
     domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
