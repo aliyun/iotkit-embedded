@@ -89,7 +89,7 @@ mbedtls_x509_crl;
  *
  * \return         0 if successful, or a specific X509 or PEM error code
  */
-DLL_TLS_API int mbedtls_x509_crl_parse_der(mbedtls_x509_crl *chain,
+int mbedtls_x509_crl_parse_der(mbedtls_x509_crl *chain,
         const unsigned char *buf, size_t buflen);
 /**
  * \brief          Parse one or more CRLs and append them to the chained list
@@ -103,7 +103,7 @@ DLL_TLS_API int mbedtls_x509_crl_parse_der(mbedtls_x509_crl *chain,
  *
  * \return         0 if successful, or a specific X509 or PEM error code
  */
-DLL_TLS_API int mbedtls_x509_crl_parse(mbedtls_x509_crl *chain, const unsigned char *buf, size_t buflen);
+int mbedtls_x509_crl_parse(mbedtls_x509_crl *chain, const unsigned char *buf, size_t buflen);
 
 #if defined(MBEDTLS_FS_IO)
 /**
@@ -116,7 +116,7 @@ DLL_TLS_API int mbedtls_x509_crl_parse(mbedtls_x509_crl *chain, const unsigned c
  *
  * \return         0 if successful, or a specific X509 or PEM error code
  */
-DLL_TLS_API int mbedtls_x509_crl_parse_file(mbedtls_x509_crl *chain, const char *path);
+int mbedtls_x509_crl_parse_file(mbedtls_x509_crl *chain, const char *path);
 #endif /* MBEDTLS_FS_IO */
 
 /**
@@ -130,7 +130,7 @@ DLL_TLS_API int mbedtls_x509_crl_parse_file(mbedtls_x509_crl *chain, const char 
  * \return         The length of the string written (not including the
  *                 terminated nul byte), or a negative error code.
  */
-DLL_TLS_API int mbedtls_x509_crl_info(char *buf, size_t size, const char *prefix,
+int mbedtls_x509_crl_info(char *buf, size_t size, const char *prefix,
                                       const mbedtls_x509_crl *crl);
 
 /**
@@ -138,14 +138,14 @@ DLL_TLS_API int mbedtls_x509_crl_info(char *buf, size_t size, const char *prefix
  *
  * \param crl      CRL chain to initialize
  */
-DLL_TLS_API void mbedtls_x509_crl_init(mbedtls_x509_crl *crl);
+void mbedtls_x509_crl_init(mbedtls_x509_crl *crl);
 
 /**
  * \brief          Unallocate all CRL data
  *
  * \param crl      CRL chain to free
  */
-DLL_TLS_API void mbedtls_x509_crl_free(mbedtls_x509_crl *crl);
+void mbedtls_x509_crl_free(mbedtls_x509_crl *crl);
 
 /* \} name */
 /* \} addtogroup x509_module */

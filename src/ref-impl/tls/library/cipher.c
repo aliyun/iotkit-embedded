@@ -349,11 +349,6 @@ int mbedtls_cipher_update( mbedtls_cipher_context_t *ctx, const unsigned char *i
          */
         if( 0 != ilen )
         {
-            if( 0 == block_size )
-            {
-                return MBEDTLS_ERR_CIPHER_INVALID_CONTEXT;
-            }
-
             copy_len = ilen % block_size;
             if( copy_len == 0 && ctx->operation == MBEDTLS_DECRYPT )
                 copy_len = block_size;

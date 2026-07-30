@@ -280,6 +280,7 @@ int mbedtls_mpi_lset( mbedtls_mpi *X, mbedtls_mpi_sint z )
     int ret;
 
     MBEDTLS_MPI_CHK( mbedtls_mpi_grow( X, 1 ) );
+    MBEDTLS_MPI_CHK( (X->p == NULL) );
     memset( X->p, 0, X->n * ciL );
 
     X->p[0] = ( z < 0 ) ? -z : z;
